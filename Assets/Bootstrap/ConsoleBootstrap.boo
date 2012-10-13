@@ -12,8 +12,7 @@ import UnityEngine
 
 class ConsoleBootstrap (MonoBehaviour):
 	hi = 'hello'
-	
-	
+
 	def Awake ():
 		Debug.Log(self.hi)
 
