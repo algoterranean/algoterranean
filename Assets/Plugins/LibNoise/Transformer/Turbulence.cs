@@ -17,7 +17,7 @@
 
 using LibNoise.Filter;
 
-namespace LibNoise.Tranformer {
+namespace LibNoise.Transformer {
 
 	/// <summary>
 	/// Noise module that randomly displaces the input value before

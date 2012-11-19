@@ -1,5 +1,5 @@
 import UnityEngine
 
 interface IObserver:
-	def Update(info as object)
+	def OnData(data as IObservable)
 

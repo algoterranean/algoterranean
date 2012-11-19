@@ -240,7 +240,7 @@ namespace LibNoise.Modifier {
 
 					return Libnoise.Lerp(
 						((IModule3D)_leftModule).GetValue(x, y, z),
-						((IModule3D)_leftModule).GetValue(x, y, z),
+						((IModule3D)_rightModule).GetValue(x, y, z),
 						alpha
 					);
 
@@ -249,7 +249,7 @@ namespace LibNoise.Modifier {
 
 					// The output value from the control module is within the selector
 					// threshold; return the output value from the second source module.
-					return ((IModule3D)_leftModule).GetValue(x, y, z);
+					return ((IModule3D)_rightModule).GetValue(x, y, z);
 
 				}//end elseif
 				else if(controlValue < (_upperBound + _edgeFalloff)) {
@@ -266,7 +266,7 @@ namespace LibNoise.Modifier {
 
 					return Libnoise.Lerp(
 						((IModule3D)_leftModule).GetValue(x, y, z),
-						((IModule3D)_leftModule).GetValue(x, y, z),
+						((IModule3D)_rightModule).GetValue(x, y, z),
 						alpha
 					);
 
@@ -286,7 +286,7 @@ namespace LibNoise.Modifier {
 					return ((IModule3D)_leftModule).GetValue(x, y, z);
 				}//end if
 				else {
-					return ((IModule3D)_leftModule).GetValue(x, y, z);
+					return ((IModule3D)_rightModule).GetValue(x, y, z);
 				}//end else
 
 			}//end else

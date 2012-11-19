@@ -66,6 +66,18 @@ namespace LibNoise.Filter {
 
 		}//end RidgedMultiFractal
 
+	  public RidgedMultiFractal(float frequency, float lacunarity, float exponent, float octaveCount)
+	  {
+	    _gain = 2.0f;
+	    _offset = 1.0f;
+	    _frequency = frequency;
+	    _lacunarity = lacunarity;
+	    _spectralExponent = exponent;
+	    _octaveCount = octaveCount;
+
+	    ComputeSpectralWeights();
+	  }
+
 		#endregion
 
 		#region IModule3D Members

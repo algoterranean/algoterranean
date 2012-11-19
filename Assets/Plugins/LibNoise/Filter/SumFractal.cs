@@ -41,6 +41,16 @@ namespace LibNoise.Filter {
 
 		}//end SumFractal
 
+	  public SumFractal(float frequency, float lacunarity, float exponent, float octaveCount) {
+		  _frequency = frequency;
+		  _lacunarity = lacunarity;
+		  _spectralExponent = exponent;
+		  _octaveCount = octaveCount;
+
+		  ComputeSpectralWeights();
+
+		}
+
 		#endregion
 
 		#region IModule3D Members
