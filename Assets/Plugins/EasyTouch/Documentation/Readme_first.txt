@@ -1,1 +1,0 @@
-To run the scene "Startup Menu" you must configure your build setting in order to add each of the examples. (because Unity does not export these parameters in packages)

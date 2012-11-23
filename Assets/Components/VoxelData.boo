@@ -1,4 +1,5 @@
 import UnityEngine
+import System.Threading
 
 class VoxelData (MonoBehaviour, IObservable):
 	public x_dimension as int = Settings.ChunkSize
@@ -135,7 +136,7 @@ class VoxelData (MonoBehaviour, IObservable):
 			initialized = true
 			for obj as IObserver in _observers:
 				obj.OnData(self)
-
+				
 
 	def Awake ():
 		_density_values = matrix(single, x_dimension, z_dimension, y_dimension)
@@ -143,6 +144,7 @@ class VoxelData (MonoBehaviour, IObservable):
 
 		noise = gameObject.GetComponent(VoxelNoiseData)
 		_generate_noise(noise)
+
 
 
 

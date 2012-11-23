@@ -63,6 +63,7 @@ class VoxelNoiseData (MonoBehaviour):
 		
 		
 		# basic terrain
+		##############################################################################
 		octave_sum = Filter.SumFractal(Settings.Frequency, Settings.Lacunarity, Settings.Exponent, Settings.OctaveCount)
 		octave_sum.Primitive3D = Primitive.ImprovedPerlin(seed, NoiseQuality.Standard)
 		gradient = Primitive.MyGradient(0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
@@ -70,6 +71,7 @@ class VoxelNoiseData (MonoBehaviour):
 		perlin_select = Modifier.Select(turbulence, constant0, constant1, -1.0, 0.2, 0.0)
 
 		# caves
+		##############################################################################		
 		# cave 1
 		cave_perlin_1 = Primitive.BevinsGradient(seed, NoiseQuality.Standard)
 		cave_shape_1 = Filter.RidgedMultiFractal(2.0, 1.0, 1.0, 1.0) # frequency, lacunarity, exponent, octaves
@@ -100,19 +102,21 @@ class VoxelNoiseData (MonoBehaviour):
 		cave_sum_y = Filter.SumFractal(3.0, 1.0, 1.0, 3.0) # frequency, lacunarity, exponent, octaves
 		cave_sum_y.Primitive3D = cave_perlin_y
 
-		# final select functions
+
+		# final terrain/cave select functions
+		##############################################################################		
 		cave_turbulence = Transformer.Turbulence(cave_mult, cave_sum_x, cave_sum_z, cave_sum_y, 0.25)
 		total_mult = Combiner.Max(perlin_select, LibNoise.Modifier.ScaleBias(cave_turbulence, -1, 1))
 		total_select = Modifier.Select(total_mult, constant1, constant0, 0.0, 0.5, 0.0) # 1 = solid, 0 = air
 
 
 		# magma
-		magma_select = Modifier.Select(gradient, Magma, Air, -1.0, -0.9, 0.0)
-		
+		##############################################################################
 		magma_perlin_x = Primitive.ImprovedPerlin(9999, NoiseQuality.Standard)
 		magma_sum_x = Filter.SumFractal(2.0, 2.0, 1.25, 2.0) # frequency, lacunarity, exponent, octaves
 		magma_sum_x.Primitive3D = magma_perlin_x
 		
+		magma_select = Modifier.Select(gradient, Magma, Air, -1.0, -0.9, 0.0)		
 		magma_turbulence = Transformer.Turbulence(magma_select, constant0, constant0, magma_sum_x, 0.25)
 		magma_combine = Combiner.Max(total_select, magma_select)
 

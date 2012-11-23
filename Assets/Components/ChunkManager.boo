@@ -14,6 +14,9 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 	def OnData(obj as IObservable):
 		pass
+
+	def AddChunk(x as int, z as int, y as int):
+		pass
 	
 
 	def Awake ():
@@ -77,13 +80,5 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 						up = chunks[x, z, y+1]
 						
 					data.SetNeighboringChunks(west, east, north, south, up, down)
-					obj.active = true					
+					obj.active = true
 					
-
-						
-
-					
-
-
-				
-

@@ -12,7 +12,7 @@ class VoxelMeshData (MonoBehaviour, IObserver):
 	private initialized = false
 
 	def OnData(data as IObservable):
-		StartCoroutine(_build_mesh(data))
+		_build_mesh(data)
 		
 
 	def IsInitialized ():
@@ -39,9 +39,9 @@ class VoxelMeshData (MonoBehaviour, IObserver):
 		if voxels is not null:
 			voxels.Subscribe(self)
 
-	def _build_mesh(voxels as VoxelData) as IEnumerator:
-		while not voxels.IsInitialized():
-			yield
+	def _build_mesh(voxels as VoxelData): #as IEnumerator:
+		# while not voxels.IsInitialized():
+		# 	yield
 			
 		x_width = voxels.GetXDimension()
 		z_width = voxels.GetZDimension()
