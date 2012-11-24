@@ -2,7 +2,8 @@ import UnityEngine
 import System.Threading
 
 class ChunkManager (MonoBehaviour, IObserver, IObservable):
-	terrain_blocks as (byte, 3)   # 3 dimensional array of bytes
+	terrain_chunks as (Chunk, 3)
+	#terrain_blocks as (byte, 3)   # 3 dimensional array of bytes
 	#thread_pool as ThreadPool
 	_observers = []
 
@@ -17,20 +18,30 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 	def OnData(obj as IObservable):
 		pass
+	
 
-	def ChunkCallback(state as List) as WaitCallback:
-		print "Chunk $state processing"
+
+	def AddChunk(chunk as Chunk, x as int, z as int, y as int):
+		lock terrain_chunks:
+			terrain_chunks[x, z, y] = chunk
+
+
+	def ChunkWorkItem(coordinates as List) as WaitCallback:
+		print "Processing Chunk $coordinates"
+		x = Chunk(coordinates[0], coordinates[1], coordinates[2])
+		print "Completed Chunk $coordinates"
+		AddChunk(x, coordinates[0], coordinates[1], coordinates[2])
+		
 
 	def QueueChunk(x as int, z as int, y as int):
-		callback as WaitCallback
-		callback = WaitCallback(ChunkCallback)
-		ThreadPool.QueueUserWorkItem(ChunkCallback, [x, z, y])
+		ThreadPool.QueueUserWorkItem(ChunkWorkItem, [x, z, y])
 
 
 	def Awake ():
 		# initialize the memory for the array
-		size = Settings.ChunkSize * Settings.ChunkCount + 2  # +1 per side for calculated but undisplayed blocks
-		terrain_blocks = matrix(byte, size, size, size)
+		#size = Settings.ChunkSize * Settings.ChunkCount + 2  # +1 per side for calculated but undisplayed blocks
+		terrain_chunks = matrix(Chunk, Settings.ChunkCount, Settings.ChunkCount, Settings.ChunkCount)
+		#terrain_blocks = matrix(byte, size, size, size)
 
 		# work packages will be tossed off to the thread pool
 		# and divided up by chunks for efficiency

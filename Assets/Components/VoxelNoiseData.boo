@@ -3,7 +3,7 @@ import UnityEngine
 import LibNoise
 
 
-class VoxelNoiseData (MonoBehaviour):
+class VoxelNoiseData:
 	perlin as LibNoise.Primitive.ImprovedPerlin
 	octave_sum as LibNoise.Filter.SumFractal
 	
@@ -52,7 +52,7 @@ class VoxelNoiseData (MonoBehaviour):
 	magma_select as LibNoise.Modifier.Select
 	magma_combine as LibNoise.Combiner.Max
 
-	def Awake ():
+	def constructor():
 		constant0 = Primitive.Constant(0)
 		constant1 = Primitive.Constant(1)
 		constant_neg1 = Primitive.Constant(-1)
