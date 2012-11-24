@@ -37,15 +37,29 @@ class Chunk ():
 					solid_north = (0 if z == z_width-1 else blocks[x, z+1, y])
 					solid_down = (0 if y == 0 else blocks[x, z, y-1])
 					solid_up = (0 if y == y_width-1 else blocks[x, z, y+1])
+
+					# if solid:
+					# 	pass
 					
-					
-					if solid:
-					 	pass
-						for side in [solid_west, solid_east, solid_south, solid_north, solid_down, solid_up]:
-							if not side:
-								vertice_size += 4
-								uv_size += 4
-								triangle_size += 6
+					# if solid:
+					# 	if solid_west:
+					# 		pass
+					# 	if solid_east:
+					# 		pass
+					# 	if solid_south:
+					# 		pass
+					# 	if solid_north:
+					# 		pass
+					# 	if solid_down:
+					# 		pass
+					# 	if solid_up:
+					# 		pass
+					# 	# for side in [solid_west, solid_east, solid_south, solid_north, solid_down, solid_up]:
+					# 	# 	if not side:
+					# 	# 		vertice_size += 4
+					# 	# 		uv_size += 4
+					# 	# 		triangle_size += 6
+								
 					
 
 	def GetBlock(x as int, z as int, y as int):
