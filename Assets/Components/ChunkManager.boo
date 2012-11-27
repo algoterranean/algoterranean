@@ -50,14 +50,14 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	def Awake ():
 		# initialize the memory for the array
 		#size = Settings.ChunkSize * Settings.ChunkCount + 2  # +1 per side for calculated but undisplayed blocks
-		terrain_chunks = matrix(Chunk, Settings.ChunkCount, Settings.ChunkCount, Settings.ChunkCount)
+		terrain_chunks = matrix(Chunk, Settings.ChunkCountX, Settings.ChunkCountZ, Settings.ChunkCountY)
 		ThreadPool.SetMaxThreads(8, 50)
 		#terrain_blocks = matrix(byte, size, size, size)
 
 		# work packages will be tossed off to the thread pool
 		# and divided up by chunks for efficiency
-		for x in range(Settings.ChunkCount):
-			for z in range(Settings.ChunkCount):
-				for y in range(Settings.ChunkCount):
+		for x in range(Settings.ChunkCountX):
+			for z in range(Settings.ChunkCountZ):
+				for y in range(Settings.ChunkCountY):
 					QueueChunk(x, z, y, Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
 					

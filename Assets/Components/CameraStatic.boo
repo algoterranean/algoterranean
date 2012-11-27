@@ -11,7 +11,7 @@ class CameraStatic (MonoBehaviour):
 		
 
 	def Awake ():
-		dist = (Settings.ChunkCount * Settings.ChunkSize) / 2
+		dist = ((Settings.ChunkCountX + Settings.ChunkCountZ)/2 * Settings.ChunkSize) / 2
 		t = gameObject.GetComponent(Transform)
 		t.position = Vector3(dist, dist/2, dist) + Vector3(dist, dist, dist) * 2
 		t.LookAt(Vector3(dist, dist, dist))
