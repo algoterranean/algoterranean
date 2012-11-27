@@ -5,8 +5,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	terrain_chunks as (Chunk, 3)
 	_locker = object()
 	chunks_completed = 0
-	#terrain_blocks as (byte, 3)   # 3 dimensional array of bytes
-	#thread_pool as ThreadPool
+	chunk_queue = []
 	_observers = []
 
 	# we'll keep the observer/observable interface for now
@@ -20,16 +19,9 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 	def OnData(obj as IObservable):
 		pass
-	
-
-
-	def AddChunk(chunk as Chunk, x as int, z as int, y as int):
-		lock terrain_chunks:
-			terrain_chunks[x, z, y] = chunk
 
 
 	def ChunkWorkItem(coordinates as List) as WaitCallback:
-		print "Processing Chunk $coordinates"
 		x = Chunk(coordinates[0], coordinates[1], coordinates[2],
 			  coordinates[3], coordinates[4], coordinates[5])
 		print "Completed Chunk $coordinates"
@@ -38,14 +30,10 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			Monitor.Enter(_locker)
 			terrain_chunks[coordinates[0], coordinates[1], coordinates[2]] = x
 			chunks_completed += 1
+			chunk_queue.Push([coordinates[0], coordinates[1], coordinates[2]])
 		ensure:
 			Monitor.Exit(_locker)
-		#AddChunk(x, coordinates[0], coordinates[1], coordinates[2])
 		
-
-	def QueueChunk(x as int, z as int, y as int, x_size as int, z_size as int, y_size as int):
-		ThreadPool.QueueUserWorkItem(ChunkWorkItem, [x, z, y, x_size, z_size, y_size])
-
 
 	def Awake ():
 		# initialize the memory for the array
@@ -59,5 +47,30 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		for x in range(Settings.ChunkCountX):
 			for z in range(Settings.ChunkCountZ):
 				for y in range(Settings.ChunkCountY):
-					QueueChunk(x, z, y, Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
-					
+					ThreadPool.QueueUserWorkItem(ChunkWorkItem, [x, z, y, Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize])
+
+	def Update():
+		lock_taken = false
+		try:
+			Monitor.Enter(_locker)
+			for x as List in chunk_queue:
+				chunk = terrain_chunks[x[0], x[1], x[2]]
+				o = GameObject()
+				o.AddComponent(MeshFilter)
+				o.AddComponent(MeshRenderer)
+				#o.AddComponent(MeshCollider)
+				
+				mesh = Mesh()
+				mesh.vertices = chunk.vertices
+				mesh.triangles = chunk.triangles
+				mesh.uv = chunk.uvs
+				mesh.RecalculateNormals()
+				o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
+				o.GetComponent(MeshFilter).sharedMesh = mesh
+				o.transform.position = Vector3((x[0] cast int)* Settings.ChunkSize, (x[1] cast int)* Settings.ChunkSize, (x[2] cast int)* Settings.ChunkSize)
+				#o.transform.Rotate()
+
+			chunk_queue = []
+		ensure:
+			Monitor.Exit(_locker)
+		
