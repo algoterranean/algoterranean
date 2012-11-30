@@ -86,7 +86,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			for x in range(Settings.ChunkCountX):
 				for z in range(Settings.ChunkCountZ):
 					for y in range(Settings.ChunkCountY):
-						chunk = terrain_chunks[x, z, y]						
+						chunk = terrain_chunks[x, z, y]
 						if chunk.MeshGenerated() and not chunk.IsVisible():
 							chunk.SetVisible(true)
 							print "Generating Mesh [$x, $z, $y]"
