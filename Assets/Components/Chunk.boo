@@ -1,15 +1,32 @@
 
-class NullChunk():
+
+class NullChunk(IChunk):
 	def constructor():
 		pass
-	def isNull():
+	def isNull() as bool:
 		return true
-	def BlocksGenerated():
+	def areBlocksCalculated() as bool:
 		return false
-	def GetBlock(x as byte, z as byte, y as byte):
+	def isMeshCalculated() as bool:
+		return false
+	def getBlock(p as byte, q as byte, r as byte) as byte:
 		return 0
+	def getCoordinates() as (long):
+		return (0,0,0)
+	def setBlock(p as byte, q as byte, r as byte, block as byte) as void:
+		pass
+	def setCoordinates(x as long, z as long, y as long) as void:
+		pass
+	def setSizes(p_size as byte, q_size as byte, r_size as byte) as void:
+		pass
+	def CalculateNoise() as void:
+		pass
+	def CalculateMesh() as void:
+		pass
 
-class Chunk (IChunk):
+	
+
+class Chunk (IChunk, IChunkNeighborhood):
 	blocks_calculated as bool
 	mesh_calculated as bool
 	mesh_visible as bool
@@ -21,12 +38,13 @@ class Chunk (IChunk):
 	p_size as byte
 	q_size as byte
 	r_size as byte
-	# north_chunk as NullChunk = NullChunk()
-	# south_chunk as NullChunk = NullChunk()
-	# east_chunk as NullChunk = NullChunk()
-	# west_chunk as NullChunk = NullChunk()
-	# up_chunk as NullChunk = NullChunk()
-	# down_chunk as NullChunk = NullChunk()
+	
+	west_chunk as IChunk = NullChunk()
+	east_chunk as IChunk = NullChunk()
+	south_chunk as IChunk = NullChunk()
+	north_chunk as IChunk = NullChunk()
+	down_chunk as IChunk = NullChunk()
+	up_chunk as IChunk = NullChunk()
 
 	public vertices as (Vector3)
 	public triangles as (int)
@@ -72,15 +90,6 @@ class Chunk (IChunk):
 	def getCoordinates() as (long):
 		return (x_coord, z_coord, y_coord)
 		
-	# def AreNeighborsReady():
-	# 	if (north_chunk.isNull() or north_chunk.BlocksGenerated()) and \
-	# 	    (south_chunk.isNull() or south_chunk.BlocksGenerated()) and \
-	# 	    (east_chunk.isNull() or east_chunk.BlocksGenerated()) and \
-	# 	    (west_chunk.isNull() or west_chunk.BlocksGenerated()) and \
-	# 	    (up_chunk.isNull() or up_chunk.BlocksGenerated()) and \
-	# 	    (down_chunk.isNull() or down_chunk.BlocksGenerated()):
-	# 		return true
-	# 	return false
 
 	def CalculateNoise():
 		for p in range(p_size):
@@ -91,30 +100,61 @@ class Chunk (IChunk):
 		lock blocks_calculated:
 			blocks_calculated = true
 
+	###############################
+	def setNeighboringChunks(west as IChunk, east as IChunk, south as IChunk, north as IChunk,
+					 down as IChunk, up as IChunk) as void:
+		setWestChunk(west)
+		setEastChunk(east)
+		setSouthChunk(south)
+		setNorthChunk(north)
+		setDownChunk(down)
+		setUpChunk(up)
 
-	# def SetNorthChunk(c as Chunk):
-	# 	lock north_chunk:
-	# 		north_chunk  = c
+	def setWestChunk(west as IChunk) as void:
+		west_chunk = west
 
-	# def SetSouthChunk(c as Chunk):
-	# 	lock south_chunk:
-	# 		south_chunk = c
+	def setEastChunk(east as IChunk) as void:
+		east_chunk = east
 
-	# def SetEastChunk(c as Chunk):
-	# 	lock east_chunk:
-	# 		east_chunk = c
+	def setSouthChunk(south as IChunk) as void:
+		south_chunk = south
 
-	# def SetWestChunk(c as Chunk):
-	# 	lock west_chunk:
-	# 		west_chunk = c
+	def setNorthChunk(north as IChunk) as void:
+		north_chunk = north
 
-	# def SetUpChunk(c as Chunk):
-	# 	lock up_chunk:
-	# 		up_chunk = c
+	def setDownChunk(down as IChunk) as void:
+		down_chunk = down
 
-	# def SetDownChunk(c as Chunk):
-	# 	lock down_chunk:
-	# 		down_chunk = c
+	def setUpChunk(up as IChunk) as void:
+		up_chunk = up
+
+	def areNeighborsReady():
+		if (north_chunk.isNull() or north_chunk.BlocksGenerated()) and \
+		    (south_chunk.isNull() or south_chunk.BlocksGenerated()) and \
+		    (east_chunk.isNull() or east_chunk.BlocksGenerated()) and \
+		    (west_chunk.isNull() or west_chunk.BlocksGenerated()) and \
+		    (up_chunk.isNull() or up_chunk.BlocksGenerated()) and \
+		    (down_chunk.isNull() or down_chunk.BlocksGenerated()):
+			return true
+		return false
+
+	def getWestChunk() as IChunk:
+		return west_chunk
+
+	def getEastChunk() as IChunk:
+		return east_chunk
+
+	def getSouthChunk() as IChunk:
+		return south_chunk
+	
+	def getNorthChunk() as IChunk:
+		return north_chunk
+	
+	def getDownChunk() as IChunk:
+		return down_chunk
+	
+	def getUpChunk() as IChunk:
+		return up_chunk
 
 
 	def IsVisible():

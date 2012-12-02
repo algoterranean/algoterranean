@@ -21,7 +21,6 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		pass
 
 
-
 	def ChunkWorkItem(chunk as Chunk) as WaitCallback:
 		chunk.CalculateNoise()
 		coord = chunk.getCoordinates()
