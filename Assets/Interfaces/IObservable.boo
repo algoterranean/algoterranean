@@ -1,3 +1,4 @@
+import UnityEngine
 
 interface IObservable:
 	def Subscribe(obj as IObserver)
