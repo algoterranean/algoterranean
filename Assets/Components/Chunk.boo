@@ -12,7 +12,10 @@ class NullChunk(IChunk):
 	def getBlock(p as byte, q as byte, r as byte) as byte:
 		return 0
 	def getCoordinates() as (long):
-		return (0,0,0)
+		x as long = 0
+		z as long = 0
+		y as long = 0
+		return (x, z, y)
 	def setBlock(p as byte, q as byte, r as byte, block as byte) as void:
 		pass
 	def setCoordinates(x as long, z as long, y as long) as void:
@@ -84,11 +87,11 @@ class Chunk (IChunk, IChunkNeighborhood):
 			return mesh_calculated
 		
 	def getBlock(p as byte, q as byte, r as byte) as byte:
-		lock blocks:
-			return blocks[p, q, r]
+		return blocks[p, q, r]
 
 	def getCoordinates() as (long):
-		return (x_coord, z_coord, y_coord)
+		lock x_coord, z_coord, y_coord:
+			return (x_coord, z_coord, y_coord)
 		
 
 	def CalculateNoise():
@@ -129,12 +132,12 @@ class Chunk (IChunk, IChunkNeighborhood):
 		up_chunk = up
 
 	def areNeighborsReady():
-		if (north_chunk.isNull() or north_chunk.BlocksGenerated()) and \
-		    (south_chunk.isNull() or south_chunk.BlocksGenerated()) and \
-		    (east_chunk.isNull() or east_chunk.BlocksGenerated()) and \
-		    (west_chunk.isNull() or west_chunk.BlocksGenerated()) and \
-		    (up_chunk.isNull() or up_chunk.BlocksGenerated()) and \
-		    (down_chunk.isNull() or down_chunk.BlocksGenerated()):
+		if (north_chunk.isNull() or north_chunk.areBlocksCalculated()) and \
+		    (south_chunk.isNull() or south_chunk.areBlocksCalculated()) and \
+		    (east_chunk.isNull() or east_chunk.areBlocksCalculated()) and \
+		    (west_chunk.isNull() or west_chunk.areBlocksCalculated()) and \
+		    (up_chunk.isNull() or up_chunk.areBlocksCalculated()) and \
+		    (down_chunk.isNull() or down_chunk.areBlocksCalculated()):
 			return true
 		return false
 
@@ -163,8 +166,6 @@ class Chunk (IChunk, IChunkNeighborhood):
 	def SetVisible(mesh_visible as bool):
 		lock self.mesh_visible:
 			self.mesh_visible = mesh_visible
-	
-
 
 	# def MeshVisible ():
 	# 	lock mesh_visible:
@@ -179,66 +180,60 @@ class Chunk (IChunk, IChunkNeighborhood):
 		vertice_size = 0
 		uv_size = 0
 
-					
+
 		for p in range(p_size):
 			for q in range(q_size):
 				for r in range(r_size):
 					solid = blocks[p, q, r]
-					solid_west = (0 if p == 0 else blocks[p-1, q, r])
-					solid_east = (0 if p == p_size-1 else blocks[p+1, q, r])
-					solid_south = (0 if q == 0 else blocks[p, q-1, r])
-					solid_north = (0 if q == q_size-1 else blocks[p, q+1, r])
-					solid_down = (0 if r == 0 else blocks[p, q, r-1])
-					solid_up = (0 if r == r_size-1 else blocks[p, q, r+1])
+					# solid_west = (0 if p == 0 else blocks[p-1, q, r])
+					# solid_east = (0 if p == p_size-1 else blocks[p+1, q, r])
+					# solid_south = (0 if q == 0 else blocks[p, q-1, r])
+					# solid_north = (0 if q == q_size-1 else blocks[p, q+1, r])
+					# solid_down = (0 if r == 0 else blocks[p, q, r-1])
+					# solid_up = (0 if r == r_size-1 else blocks[p, q, r+1])
 					
-					# if x == 0 and west_chunk.isNull():
-					# 	solid_west = 0
-					# elif x == 0 and not west_chunk.isNull():
-					# 	solid_west = west_chunk.GetBlock(p_size-1, z, y)
-					# else:
-					# 	solid_west = blocks[x-1, z, y]
+					if p == 0 and west_chunk.isNull():
+						solid_west = 0
+					elif p == 0 and not west_chunk.isNull():
+						solid_west = west_chunk.getBlock(p_size-1, q, r)
+					else:
+						solid_west = blocks[p-1, q, r]
 						
-					# if x == p_size-1 and east_chunk.isNull():
-					# 	solid_east = 0
-					# elif x == p_size-1 and not east_chunk.isNull():
-					# 	solid_east = east_chunk.GetBlock(0, z, y)
-					# else:
-					# 	solid_east = blocks[x+1, z, y]
+					if p == p_size-1 and east_chunk.isNull():
+						solid_east = 0
+					elif p == p_size-1 and not east_chunk.isNull():
+						solid_east = east_chunk.getBlock(0, q, r)
+					else:
+						solid_east = blocks[p+1, q, r]
 						
-					# if z == 0 and south_chunk.isNull():
-					# 	solid_south = 0
-					# elif z == 0 and not south_chunk.isNull():
-					# 	solid_south = south_chunk.GetBlock(x, q_size-1, y)
-					# else:
-					# 	solid_south = blocks[x, z-1, y]
+					if q == 0 and south_chunk.isNull():
+						solid_south = 0
+					elif q == 0 and not south_chunk.isNull():
+						solid_south = south_chunk.getBlock(p, q_size-1, r)
+					else:
+						solid_south = blocks[p, q-1, r]
 
-					# if z == q_size - 1 and north_chunk.isNull():
-					# 	solid_north = 0
-					# elif z == q_size - 1 and not north_chunk.isNull():
-					# 	solid_north = north_chunk.GetBlock(x, 0, y)
-					# else:
-					# 	solid_north = blocks[x, z+1, y]
+					if q == q_size - 1 and north_chunk.isNull():
+						solid_north = 0
+					elif q == q_size - 1 and not north_chunk.isNull():
+						solid_north = north_chunk.getBlock(p, 0, r)
+					else:
+						solid_north = blocks[p, q+1, r]
 
-					# if y == 0 and down_chunk.isNull():
-					# 	solid_down = 0
-					# elif y == 0 and not down_chunk.isNull():
-					# 	solid_down = down_chunk.GetBlock(x, z, r_size-1)
-					# else:
-					# 	solid_down = blocks[x, z, y]
+					if r == 0 and down_chunk.isNull():
+						solid_down = 0
+					elif r == 0 and not down_chunk.isNull():
+						solid_down = down_chunk.getBlock(p, q, r_size-1)
+					else:
+						solid_down = blocks[p, q, r-1]
 
-					# if y == r_size - 1 and up_chunk.isNull():
-					# 	solid_up = 0
-					# elif y == r_size - 1 and not up_chunk.isNull():
-					# 	solid_up = up_chunk.GetBlock(x, z, 0)
-					# else:
-					# 	solid_up = blocks[x, z, y+1]
+					if r == r_size - 1 and up_chunk.isNull():
+						solid_up = 0
+					elif r == r_size - 1 and not up_chunk.isNull():
+						solid_up = up_chunk.getBlock(p, q, 0)
+					else:
+						solid_up = blocks[p, q, r+1]
 						
-						#solid_west = (0 if x == 0 else blocks[x-1, z, y])
-						#solid_east = (0 if x == p_size-1 else blocks[x+1, z, y])
-						#solid_south = (0 if z == 0 else blocks[x, z-1, y])
-						#solid_north = (0 if z == q_size-1 else blocks[x, z+1, y])
-						#solid_down = (0 if y == 0 else blocks[x, z, y-1])
-						#solid_up = (0 if y == r_size-1 else blocks[x, z, y+1])
 
 					if solid:
 						if not solid_west:
@@ -305,59 +300,54 @@ class Chunk (IChunk, IChunkNeighborhood):
 			for q in range(q_size):
 				for r in range(r_size):
 					solid = blocks[p, q, r]
-					solid_west = (0 if p == 0 else blocks[p-1, q, r])
-					solid_east = (0 if p == p_size-1 else blocks[p+1, q, r])
-					solid_south = (0 if q == 0 else blocks[p, q-1, r])
-					solid_north = (0 if q == q_size-1 else blocks[p, q+1, r])
-					solid_down = (0 if r == 0 else blocks[p, q, r-1])
-					solid_up = (0 if r == r_size-1 else blocks[p, q, r+1])					
-					# if x == 0 and west_chunk.isNull():
-					# 	solid_west = 0
-					# elif x == 0 and not west_chunk.isNull():
-					# 	solid_west = west_chunk.GetBlock(p_size-1, z, y)
-					# else:
-					# 	solid_west = blocks[x-1, z, y]
+					# solid_west = (0 if p == 0 else blocks[p-1, q, r])
+					# solid_east = (0 if p == p_size-1 else blocks[p+1, q, r])
+					# solid_south = (0 if q == 0 else blocks[p, q-1, r])
+					# solid_north = (0 if q == q_size-1 else blocks[p, q+1, r])
+					# solid_down = (0 if r == 0 else blocks[p, q, r-1])
+					# solid_up = (0 if r == r_size-1 else blocks[p, q, r+1])
+					if p == 0 and west_chunk.isNull():
+						solid_west = 0
+					elif p == 0 and not west_chunk.isNull():
+						solid_west = west_chunk.getBlock(p_size-1, q, r)
+					else:
+						solid_west = blocks[p-1, q, r]
 						
-					# if x == p_size-1 and east_chunk.isNull():
-					# 	solid_east = 0
-					# elif x == p_size-1 and not east_chunk.isNull():
-					# 	solid_east = east_chunk.GetBlock(0, z, y)
-					# else:
-					# 	solid_east = blocks[x+1, z, y]
+					if p == p_size-1 and east_chunk.isNull():
+						solid_east = 0
+					elif p == p_size-1 and not east_chunk.isNull():
+						solid_east = east_chunk.getBlock(0, q, r)
+					else:
+						solid_east = blocks[p+1, q, r]
 						
-					# if z == 0 and south_chunk.isNull():
-					# 	solid_south = 0
-					# elif z == 0 and not south_chunk.isNull():
-					# 	solid_south = south_chunk.GetBlock(x, q_size-1, y)
-					# else:
-					# 	solid_south = blocks[x, z-1, y]
+					if q == 0 and south_chunk.isNull():
+						solid_south = 0
+					elif q == 0 and not south_chunk.isNull():
+						solid_south = south_chunk.getBlock(p, q_size-1, r)
+					else:
+						solid_south = blocks[p, q-1, r]
 
-					# if z == q_size - 1 and north_chunk.isNull():
-					# 	solid_north = 0
-					# elif z == q_size - 1 and not north_chunk.isNull():
-					# 	solid_north = north_chunk.GetBlock(x, 0, y)
-					# else:
-					# 	solid_north = blocks[x, z+1, y]
+					if q == q_size - 1 and north_chunk.isNull():
+						solid_north = 0
+					elif q == q_size - 1 and not north_chunk.isNull():
+						solid_north = north_chunk.getBlock(p, 0, r)
+					else:
+						solid_north = blocks[p, q+1, r]
 
-					# if y == 0 and down_chunk.isNull():
-					# 	solid_down = 0
-					# elif y == 0 and not down_chunk.isNull():
-					# 	solid_down = down_chunk.GetBlock(x, z, r_size-1)
-					# else:
-					# 	solid_down = blocks[x, z, y]
+					if r == 0 and down_chunk.isNull():
+						solid_down = 0
+					elif r == 0 and not down_chunk.isNull():
+						solid_down = down_chunk.getBlock(p, q, r_size-1)
+					else:
+						solid_down = blocks[p, q, r-1]
 
-					# if y == r_size - 1 and up_chunk.isNull():
-					# 	solid_up = 0
-					# elif y == r_size - 1 and not up_chunk.isNull():
-					# 	solid_up = up_chunk.GetBlock(x, z, 0)
-					# else:
-					# 	solid_up = blocks[x, z, y+1]					
-					# solid_west = (0 if x == 0 else blocks[x-1, z, y])
-					# solid_east = (0 if x == p_size-1 else blocks[x+1, z, y])
-					# solid_south = (0 if z == 0 else blocks[x, z-1, y])
-					# solid_north = (0 if z == q_size-1 else blocks[x, z+1, y])
-					# solid_down = (0 if y == 0 else blocks[x, z, y-1])
-					# solid_up = (0 if y == r_size-1 else blocks[x, z, y+1])
+					if r == r_size - 1 and up_chunk.isNull():
+						solid_up = 0
+					elif r == r_size - 1 and not up_chunk.isNull():
+						solid_up = up_chunk.getBlock(p, q, 0)
+					else:
+						solid_up = blocks[p, q, r+1]					
+						
 					if solid:
 						if not solid_west:
 							vertices[vertice_count] = Vector3(p, r, q)
