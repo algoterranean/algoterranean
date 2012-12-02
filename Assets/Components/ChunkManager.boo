@@ -23,12 +23,12 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 
 	def ChunkWorkItem(chunk as Chunk) as WaitCallback:
-		chunk.GenerateNoise()
-		coord = chunk.GetCoordinates()
-		print "Completed chunk @ coordinates [$(coord['x']), $(coord['z']), $(coord['y'])]."
-		while not chunk.AreNeighborsReady():
-			Thread.Sleep(0.01)
-		chunk.GenerateMesh()
+		chunk.CalculateNoise()
+		coord = chunk.getCoordinates()
+		print "Completed chunk @ coordinates [$(coord[0]), $(coord[1]), $(coord[2])]."
+		#while not chunk.AreNeighborsReady():
+		#	Thread.Sleep(0.01)
+		chunk.CalculateMesh()
 		lock_taken = false
 		try:
 			Monitor.Enter(_locker)
@@ -63,19 +63,19 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		for x in range(Settings.ChunkCountX):
 			for z in range(Settings.ChunkCountZ):
 				for y in range(Settings.ChunkCountY):
-					chunk = terrain_chunks[x, z, y]
-					if x >= 1:
-						chunk.SetWestChunk(terrain_chunks[x-1, z, y])
-					if x < Settings.ChunkCountX - 1:
-						chunk.SetEastChunk(terrain_chunks[x+1, z, y])
-					if z >= 1:
-						chunk.SetSouthChunk(terrain_chunks[x, z-1, y])
-					if z < Settings.ChunkCountZ - 1:
-						chunk.SetNorthChunk(terrain_chunks[x, z+1, y])
-					if y >= 1:
-						chunk.SetDownChunk(terrain_chunks[x, z, y-1])
-					if y < Settings.ChunkCountY - 1:
-						chunk.SetUpChunk(terrain_chunks[x, z, y+1])
+					# chunk = terrain_chunks[x, z, y]
+					# if x >= 1:
+					# 	chunk.SetWestChunk(terrain_chunks[x-1, z, y])
+					# if x < Settings.ChunkCountX - 1:
+					# 	chunk.SetEastChunk(terrain_chunks[x+1, z, y])
+					# if z >= 1:
+					# 	chunk.SetSouthChunk(terrain_chunks[x, z-1, y])
+					# if z < Settings.ChunkCountZ - 1:
+					# 	chunk.SetNorthChunk(terrain_chunks[x, z+1, y])
+					# if y >= 1:
+					# 	chunk.SetDownChunk(terrain_chunks[x, z, y-1])
+					# if y < Settings.ChunkCountY - 1:
+					# 	chunk.SetUpChunk(terrain_chunks[x, z, y+1])
 					ThreadPool.QueueUserWorkItem(ChunkWorkItem, terrain_chunks[x, z, y])
 
 	def Update():
@@ -87,7 +87,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				for z in range(Settings.ChunkCountZ):
 					for y in range(Settings.ChunkCountY):
 						chunk = terrain_chunks[x, z, y]						
-						if chunk.MeshGenerated() and not chunk.IsVisible():
+						if chunk.isMeshCalculated() and not chunk.IsVisible():
 							chunk.SetVisible(true)
 							print "Generating Mesh [$x, $z, $y]"
 							o = GameObject()
@@ -101,6 +101,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 							mesh.RecalculateNormals()
 							o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
 							o.GetComponent(MeshFilter).sharedMesh = mesh
+							#o.GetComponent(MeshCollider).sharedMesh = mesh
 							o.transform.position = Vector3(x * Settings.ChunkSize, y* Settings.ChunkSize, z* Settings.ChunkSize)
 		ensure:
 			Monitor.Exit(_locker)
