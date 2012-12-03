@@ -29,7 +29,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		try:
 			chunk.CalculateNoise()
 			coord = chunk.getCoordinates()
-			print "Completed NOISE: [$(coord[0]), $(coord[1]), $(coord[2])]."
+			#print "Completed NOISE: [$(coord[0]), $(coord[1]), $(coord[2])]."
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
 		lock _locker:
@@ -38,8 +38,8 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	def MeshWorker(chunk as Chunk) as WaitCallback:
 		try:
 			chunk.CalculateMesh()
-			coord = chunk.getCoordinates()
-			print "Completed MESH: [$(coord[0]), $(coord[1]), $(coord[2])]."
+			#coord = chunk.getCoordinates()
+			#print "Completed MESH: [$(coord[0]), $(coord[1]), $(coord[2])]."
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
 		lock _locker:
@@ -113,7 +113,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			if len(mesh_calculated_queue) > 0:
 				chunk = mesh_calculated_queue.Pop() as Chunk
 				coords = chunk.getCoordinates()
-				print "Generating Mesh [$(coords[0]), $(coords[1]), $(coords[2])]"
+				print "Displaying Chunk [$(coords[0]), $(coords[1]), $(coords[2])]"
 
 				o = GameObject()
 				o.name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
@@ -133,8 +133,11 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 				completed_chunk_count += 1
 
-			if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC):
+			if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC) and not initial_chunks_complete:
 				initial_chunks_complete = true
+				print 'COMPLETED ALL INITIAL CHUNKS'
+				# load some more chunks
+				
 
 		
 				

@@ -6,9 +6,9 @@ struct Settings:
 	public static OctaveCount as single = 3.0
 	public static Power = 0.3
 
-	public static ChunkCountA as int = 2
-	public static ChunkCountB as int = 2
-	public static ChunkCountC as int = 2
+	public static ChunkCountA as int = 5
+	public static ChunkCountB as int = 5
+	public static ChunkCountC as int = 5
 	public static MaxChunkCountA as int = 5
 	public static MaxChunkCountB as int = 5
 	public static MaxChunkCountC as int = 5
