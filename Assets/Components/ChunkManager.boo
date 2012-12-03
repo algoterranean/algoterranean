@@ -49,15 +49,15 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	def Awake ():
 		# initialize the memory for the array
 		#size = Settings.ChunkSize * Settings.ChunkCount + 2  # +1 per side for calculated but undisplayed blocks
-		terrain_chunks = matrix(Chunk, Settings.ChunkCountX, Settings.ChunkCountZ, Settings.ChunkCountY)
+		terrain_chunks = matrix(Chunk, Settings.ChunkCountA, Settings.ChunkCountB, Settings.ChunkCountC)
 		#ThreadPool.SetMaxThreads(8, 50)
 		#terrain_blocks = matrix(byte, size, size, size)
 
 		# work packages will be tossed off to the thread pool
 		# and divided up by chunks for efficiency
-		for x in range(Settings.ChunkCountX):
-			for z in range(Settings.ChunkCountZ):
-				for y in range(Settings.ChunkCountY):
+		for x in range(Settings.ChunkCountA):
+			for z in range(Settings.ChunkCountB):
+				for y in range(Settings.ChunkCountC):
 					c = Chunk(x * Settings.ChunkSize,
 						    z * Settings.ChunkSize,
 						    y * Settings.ChunkSize,
@@ -67,21 +67,21 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 					terrain_chunks[x,z,y] = c
 
 
-		for x in range(Settings.ChunkCountX):
-			for z in range(Settings.ChunkCountZ):
-				for y in range(Settings.ChunkCountY):
+		for x in range(Settings.ChunkCountA):
+			for z in range(Settings.ChunkCountB):
+				for y in range(Settings.ChunkCountC):
 					chunk = terrain_chunks[x, z, y]
 					if x > 0:
 						chunk.setWestChunk(terrain_chunks[x-1, z, y])
-					if x < Settings.ChunkCountX - 1:
+					if x < Settings.ChunkCountA - 1:
 						chunk.setEastChunk(terrain_chunks[x+1, z, y])
 					if z > 0:
 						chunk.setSouthChunk(terrain_chunks[x, z-1, y])
-					if z < Settings.ChunkCountZ - 1:
+					if z < Settings.ChunkCountB - 1:
 						chunk.setNorthChunk(terrain_chunks[x, z+1, y])
 					if y > 0:
 						chunk.setDownChunk(terrain_chunks[x, z, y-1])
-					if y < Settings.ChunkCountY - 1:
+					if y < Settings.ChunkCountC - 1:
 						chunk.setUpChunk(terrain_chunks[x, z, y+1])
 					new_chunk_queue.Push(chunk)
 					
@@ -128,7 +128,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				o.transform.position = Vector3(coords[0], coords[2], coords[1])
 				completed_chunk_count += 1
 
-			if completed_chunk_count == (Settings.ChunkCountX * Settings.ChunkCountZ * Settings.ChunkCountY):
+			if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC):
 				initial_chunks_complete = true
 
 		
