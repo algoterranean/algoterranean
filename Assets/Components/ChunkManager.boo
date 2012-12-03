@@ -4,9 +4,11 @@ import System.Threading
 class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	terrain_chunks as (Chunk, 3)
 	_locker = object()
-	chunks_completed = 0
-	chunk_queue = []
 	_observers = []
+	
+	new_chunk_queue = []
+	noise_calculated_queue = []
+	mesh_calculated_queue = []
 
 	# we'll keep the observer/observable interface for now
 	def Subscribe(obj as IObserver):
@@ -25,29 +27,25 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		pass
 	
 
-	def ChunkWorkItem(chunk as Chunk) as WaitCallback:
+	def NoiseWorker(chunk as Chunk) as WaitCallback:
 		try:
 			chunk.CalculateNoise()
 			coord = chunk.getCoordinates()
-			print "Completed chunk @ coordinates [$(coord[0]), $(coord[1]), $(coord[2])]."
-			while not chunk.areNeighborsReady():
-				Thread.Sleep(100)
-				#print "Neighbors for [$(coord[0]), $(coord[1]), $(coord[2])]: $(chunk.getWestChunk().isNull()), $(chunk.getEastChunk().isNull()), $(chunk.getSouthChunk().isNull()), $(chunk.getNorthChunk().isNull()), $(chunk.getDownChunk().isNull()), $(chunk.getUpChunk().isNull())"
-			chunk.CalculateMesh()
-			print "Completed mesh calculation for [$(coord[0]), $(coord[1]), $(coord[2])]."		
+			print "Completed NOISE: [$(coord[0]), $(coord[1]), $(coord[2])]."
 		except e:
-			print "WHOOPS WE HAVE AN ERROR: " + e
+			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
 		lock _locker:
-			chunk_queue.Push(chunk)
-		
-		# lock_taken = false
-		# try:
-		# 	Monitor.Enter(_locker)
-		# 	#terrain_chunks[coordinates[0], coordinates[1], coordinates[2]] = x
-		# 	#chunks_completed += 1
-		# 	chunk_queue.Push(chunk)
-		# ensure:
-		# 	Monitor.Exit(_locker)
+			noise_calculated_queue.Push(chunk)
+
+	def MeshWorker(chunk as Chunk) as WaitCallback:
+		try:
+			chunk.CalculateMesh()
+			coord = chunk.getCoordinates()
+			print "Completed MESH: [$(coord[0]), $(coord[1]), $(coord[2])]."
+		except e:
+			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
+		lock _locker:
+			mesh_calculated_queue.Push(chunk)
 		
 
 	def Awake ():
@@ -87,7 +85,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 						chunk.setDownChunk(terrain_chunks[x, z, y-1])
 					if y < Settings.ChunkCountY - 1:
 						chunk.setUpChunk(terrain_chunks[x, z, y+1])
-					ThreadPool.QueueUserWorkItem(ChunkWorkItem, terrain_chunks[x, z, y])
+					ThreadPool.QueueUserWorkItem(NoiseWorker, terrain_chunks[x, z, y])
 					#Thread.Sleep(100)
 
 
@@ -96,8 +94,14 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		# try:
 		# 	Monitor.Enter(_locker)
 		lock _locker:
-			if len(chunk_queue) > 0:
-				chunk = chunk_queue.Pop() as Chunk
+			ready = [i for i as Chunk in noise_calculated_queue if i.areNeighborsReady()]
+			not_ready = [i for i as Chunk in noise_calculated_queue if not i.areNeighborsReady()]
+			for chunk as Chunk in ready:
+				ThreadPool.QueueUserWorkItem(MeshWorker, chunk)
+			noise_calculated_queue = not_ready
+
+			if len(mesh_calculated_queue) > 0:
+				chunk = mesh_calculated_queue.Pop() as Chunk
 				coords = chunk.getCoordinates()
 				print "Generating Mesh [$(coords[0]), $(coords[1]), $(coords[2])]"
 				
