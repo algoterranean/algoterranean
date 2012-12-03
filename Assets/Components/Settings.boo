@@ -8,7 +8,7 @@ struct Settings:
 
 	public static ChunkCountX as int = 5
 	public static ChunkCountZ as int = 5
-	public static ChunkCountY as int = 3
+	public static ChunkCountY as int = 5
 	public static MaxChunkCountX as int = 5
 	public static MaxChunkCountZ as int = 5
 	public static MaxChunkCountY as int = 5

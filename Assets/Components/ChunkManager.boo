@@ -83,7 +83,9 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 						chunk.setDownChunk(terrain_chunks[x, z, y-1])
 					if y < Settings.ChunkCountY - 1:
 						chunk.setUpChunk(terrain_chunks[x, z, y+1])
-					ThreadPool.QueueUserWorkItem(NoiseWorker, terrain_chunks[x, z, y])
+					new_chunk_queue.Push(chunk)
+					
+					#ThreadPool.QueueUserWorkItem(NoiseWorker, terrain_chunks[x, z, y])
 
 	def areInitialChunksComplete() as bool:
 		return initial_chunks_complete
@@ -91,6 +93,12 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 	def Update():
 		lock _locker:
+			# calculate the noise for a chunk if it's new
+			for chunk as Chunk in new_chunk_queue:
+				ThreadPool.QueueUserWorkItem(NoiseWorker, chunk)
+			new_chunk_queue = []
+			
+			# calculate a mesh if the noise has been completed on a chunk
 			not_ready = []
 			for chunk as Chunk in noise_calculated_queue:
 				if chunk.areNeighborsReady():
@@ -99,6 +107,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 					not_ready.Push(chunk)
 			noise_calculated_queue = not_ready
 
+			# display a mesh if the mesh was calculated on a chunk
 			if len(mesh_calculated_queue) > 0:
 				chunk = mesh_calculated_queue.Pop() as Chunk
 				coords = chunk.getCoordinates()
@@ -118,7 +127,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				o.GetComponent(MeshCollider).sharedMesh = mesh
 				o.transform.position = Vector3(coords[0], coords[2], coords[1])
 				completed_chunk_count += 1
-				
+
 			if completed_chunk_count == (Settings.ChunkCountX * Settings.ChunkCountZ * Settings.ChunkCountY):
 				initial_chunks_complete = true
 

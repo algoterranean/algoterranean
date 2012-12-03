@@ -17,4 +17,3 @@ class Player (MonoBehaviour):
 		if not cm_obj.areInitialChunksComplete():
 			center_player()
 			#initial_startup = true
-			#print 'PLAYER RESET'
