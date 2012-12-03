@@ -9,6 +9,8 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	new_chunk_queue = []
 	noise_calculated_queue = []
 	mesh_calculated_queue = []
+	completed_chunk_count = 0
+	initial_chunks_complete = false
 
 	# we'll keep the observer/observable interface for now
 	def Subscribe(obj as IObserver):
@@ -22,10 +24,6 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	def OnData(obj as IObservable):
 		pass
 
-
-	def AddRowNorth():
-		pass
-	
 
 	def NoiseWorker(chunk as Chunk) as WaitCallback:
 		try:
@@ -86,13 +84,12 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 					if y < Settings.ChunkCountY - 1:
 						chunk.setUpChunk(terrain_chunks[x, z, y+1])
 					ThreadPool.QueueUserWorkItem(NoiseWorker, terrain_chunks[x, z, y])
-					#Thread.Sleep(100)
+
+	def areInitialChunksComplete() as bool:
+		return initial_chunks_complete
 
 
 	def Update():
-		# lock_taken = false
-		# try:
-		# 	Monitor.Enter(_locker)
 		lock _locker:
 			not_ready = []
 			for chunk as Chunk in noise_calculated_queue:
@@ -118,8 +115,12 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				mesh.RecalculateNormals()
 				o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
 				o.GetComponent(MeshFilter).sharedMesh = mesh
-				#o.GetComponent(MeshCollider).sharedMesh = mesh
+				o.GetComponent(MeshCollider).sharedMesh = mesh
 				o.transform.position = Vector3(coords[0], coords[2], coords[1])
-		# ensure:
-		# 	Monitor.Exit(_locker)
+				completed_chunk_count += 1
+				
+			if completed_chunk_count == (Settings.ChunkCountX * Settings.ChunkCountZ * Settings.ChunkCountY):
+				initial_chunks_complete = true
+
 		
+				

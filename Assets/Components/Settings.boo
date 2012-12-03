@@ -6,9 +6,12 @@ struct Settings:
 	public static OctaveCount as single = 3.0
 	public static Power = 0.3
 
-	public static ChunkCountX as int = 10
-	public static ChunkCountZ as int = 10
-	public static ChunkCountY as int = 5
+	public static ChunkCountX as int = 5
+	public static ChunkCountZ as int = 5
+	public static ChunkCountY as int = 3
+	public static MaxChunkCountX as int = 5
+	public static MaxChunkCountZ as int = 5
+	public static MaxChunkCountY as int = 5
 	public static ChunkSize as int = 32
 	public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
 
