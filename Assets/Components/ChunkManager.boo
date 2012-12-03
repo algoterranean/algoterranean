@@ -94,10 +94,12 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		# try:
 		# 	Monitor.Enter(_locker)
 		lock _locker:
-			ready = [i for i as Chunk in noise_calculated_queue if i.areNeighborsReady()]
-			not_ready = [i for i as Chunk in noise_calculated_queue if not i.areNeighborsReady()]
-			for chunk as Chunk in ready:
-				ThreadPool.QueueUserWorkItem(MeshWorker, chunk)
+			not_ready = []
+			for chunk as Chunk in noise_calculated_queue:
+				if chunk.areNeighborsReady():
+					ThreadPool.QueueUserWorkItem(MeshWorker, chunk)
+				else:
+					not_ready.Push(chunk)
 			noise_calculated_queue = not_ready
 
 			if len(mesh_calculated_queue) > 0:
