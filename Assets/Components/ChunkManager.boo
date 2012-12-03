@@ -50,6 +50,8 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		# initialize the memory for the array
 		#size = Settings.ChunkSize * Settings.ChunkCount + 2  # +1 per side for calculated but undisplayed blocks
 		terrain_chunks = matrix(Chunk, Settings.ChunkCountA, Settings.ChunkCountB, Settings.ChunkCountC)
+		o = GameObject()
+		o.name = "Terrain Parent"
 		#ThreadPool.SetMaxThreads(8, 50)
 		#terrain_blocks = matrix(byte, size, size, size)
 
@@ -112,8 +114,10 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				chunk = mesh_calculated_queue.Pop() as Chunk
 				coords = chunk.getCoordinates()
 				print "Generating Mesh [$(coords[0]), $(coords[1]), $(coords[2])]"
-				
+
 				o = GameObject()
+				o.name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
+				o.transform.parent = gameObject.Find("Terrain Parent").transform
 				o.AddComponent(MeshFilter)
 				o.AddComponent(MeshRenderer)
 				o.AddComponent(MeshCollider)
@@ -126,6 +130,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				o.GetComponent(MeshFilter).sharedMesh = mesh
 				o.GetComponent(MeshCollider).sharedMesh = mesh
 				o.transform.position = Vector3(coords[0], coords[2], coords[1])
+
 				completed_chunk_count += 1
 
 			if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC):
