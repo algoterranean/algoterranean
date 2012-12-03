@@ -61,8 +61,8 @@ class Chunk (IChunk, IChunkNeighborhood):
 		setSizes(p_size, q_size, r_size)
 		blocks = matrix(byte, p_size, q_size, r_size)
 		noise_module = VoxelNoiseData()
-		blocks_generated = false
-		mesh_generated = false
+		blocks_calculated = false
+		mesh_calculated = false
 		mesh_visible = false
 
 	def setCoordinates(x_coord as long, z_coord as long, y_coord as long) as void:
@@ -74,6 +74,9 @@ class Chunk (IChunk, IChunkNeighborhood):
 		self.p_size = p_size
 		self.q_size = q_size
 		self.r_size = r_size
+
+	def setBlock(p as byte, q as byte, r as byte, block as byte) as void:
+		blocks[p, q, r] = block
 		
 	def isNull() as bool:
 		return false
@@ -131,6 +134,27 @@ class Chunk (IChunk, IChunkNeighborhood):
 	def setUpChunk(up as IChunk) as void:
 		up_chunk = up
 
+
+	def getWestChunk() as IChunk:
+		return west_chunk
+
+	def getEastChunk() as IChunk:
+		return east_chunk
+
+	def getSouthChunk() as IChunk:
+		return south_chunk
+
+	def getNorthChunk() as IChunk:
+		return north_chunk
+
+	def getDownChunk() as IChunk:
+		return down_chunk
+
+	def getUpChunk() as IChunk:
+		return up_chunk
+
+		
+
 	def areNeighborsReady():
 		if (north_chunk.isNull() or north_chunk.areBlocksCalculated()) and \
 		    (south_chunk.isNull() or south_chunk.areBlocksCalculated()) and \
@@ -141,23 +165,6 @@ class Chunk (IChunk, IChunkNeighborhood):
 			return true
 		return false
 
-	def getWestChunk() as IChunk:
-		return west_chunk
-
-	def getEastChunk() as IChunk:
-		return east_chunk
-
-	def getSouthChunk() as IChunk:
-		return south_chunk
-	
-	def getNorthChunk() as IChunk:
-		return north_chunk
-	
-	def getDownChunk() as IChunk:
-		return down_chunk
-	
-	def getUpChunk() as IChunk:
-		return up_chunk
 
 
 	def IsVisible():

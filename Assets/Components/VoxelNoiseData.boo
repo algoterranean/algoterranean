@@ -117,7 +117,7 @@ class VoxelNoiseData:
 		magma_sum_x.Primitive3D = magma_perlin_x
 		
 		magma_select = Modifier.Select(gradient, Magma, Air, -1.0, -0.9, 0.0)		
-		magma_turbulence = Transformer.Turbulence(magma_select, constant0, constant0, magma_sum_x, 0.25)
+		#magma_turbulence = Transformer.Turbulence(magma_select, constant0, constant0, magma_sum_x, 0.25)
 		magma_combine = Combiner.Max(total_select, magma_select)
 
 		

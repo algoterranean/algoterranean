@@ -11,9 +11,9 @@ namespace LibNoise.Primitive {
     float m_gx1;
     float m_gy1;
     float m_gz1;
-    float m_gx2;
-    float m_gy2;
-    float m_gz2;
+    //float m_gx2;
+    //float m_gy2;
+    //float m_gz2;
     float m_dx;
     float m_dy;
     float m_dz;
@@ -24,9 +24,9 @@ namespace LibNoise.Primitive {
       m_gx1 = x1;
       m_gy1 = y1;
       m_gz1 = z1;
-      m_gx2 = x2;
-      m_gy2 = y2;
-      m_gz2 = z2;
+      //m_gx2 = x2;
+      //m_gy2 = y2;
+      //m_gz2 = z2;
       m_dx = x1 - x2;
       m_dy = y1 - y2;
       m_dz = z1 - z2;

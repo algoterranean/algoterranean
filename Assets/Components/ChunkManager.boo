@@ -21,13 +21,17 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		pass
 
 
+	def AddRowNorth():
+		pass
+	
+
 	def ChunkWorkItem(chunk as Chunk) as WaitCallback:
 		try:
 			chunk.CalculateNoise()
 			coord = chunk.getCoordinates()
 			print "Completed chunk @ coordinates [$(coord[0]), $(coord[1]), $(coord[2])]."
 			while not chunk.areNeighborsReady():
-				Thread.Sleep(0.01)
+				Thread.Sleep(100)
 				#print "Neighbors for [$(coord[0]), $(coord[1]), $(coord[2])]: $(chunk.getWestChunk().isNull()), $(chunk.getEastChunk().isNull()), $(chunk.getSouthChunk().isNull()), $(chunk.getNorthChunk().isNull()), $(chunk.getDownChunk().isNull()), $(chunk.getUpChunk().isNull())"
 			chunk.CalculateMesh()
 			print "Completed mesh calculation for [$(coord[0]), $(coord[1]), $(coord[2])]."		
@@ -36,8 +40,6 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		lock _locker:
 			chunk_queue.Push(chunk)
 		
-		
-
 		# lock_taken = false
 		# try:
 		# 	Monitor.Enter(_locker)
@@ -86,6 +88,8 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 					if y < Settings.ChunkCountY - 1:
 						chunk.setUpChunk(terrain_chunks[x, z, y+1])
 					ThreadPool.QueueUserWorkItem(ChunkWorkItem, terrain_chunks[x, z, y])
+					#Thread.Sleep(100)
+
 
 	def Update():
 		# lock_taken = false

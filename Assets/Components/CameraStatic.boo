@@ -1,4 +1,6 @@
 import UnityEngine
+import System.Reflection
+import System
 
 class CameraStatic (MonoBehaviour):
 	#public look_at_mesh as GameObject
@@ -11,6 +13,11 @@ class CameraStatic (MonoBehaviour):
 		
 
 	def Awake ():
+		# print out the version of mono being used
+		m = Type.GetType("Mono.Runtime").GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static) as MethodInfo
+		print m.Invoke(null, null)
+
+		
 		dist = ((Settings.ChunkCountX + Settings.ChunkCountZ)/2 * Settings.ChunkSize) / 2
 		t = gameObject.GetComponent(Transform)
 		t.position = Vector3(dist, dist/2, dist) + Vector3(dist, dist, dist) * 2

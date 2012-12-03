@@ -1,5 +1,4 @@
 import UnityEngine
-import System.Collections
 import Vectrosity
 
 class VoxelMeshData (MonoBehaviour, IObserver):
@@ -50,9 +49,9 @@ class VoxelMeshData (MonoBehaviour, IObserver):
 		_vertices = []
 		_triangles = []
 		_uvs = []
-		_colors = []
-		_normals = []
-		_outline_vertices = []
+		#_colors = []
+		#_normals = []
+		#_outline_vertices = []
 
 
 		triangle_count = 0

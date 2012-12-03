@@ -1,5 +1,4 @@
 import UnityEngine
-import System.Threading
 
 class VoxelData (MonoBehaviour, IObservable):
 	public x_dimension as int = Settings.ChunkSize
