@@ -116,7 +116,7 @@ class VoxelNoiseData:
 		magma_sum_x = Filter.SumFractal(2.0, 2.0, 1.25, 2.0) # frequency, lacunarity, exponent, octaves
 		magma_sum_x.Primitive3D = magma_perlin_x
 		
-		magma_select = Modifier.Select(gradient, Magma, Air, -1.0, -0.9, 0.0)		
+		magma_select = Modifier.Select(gradient, Magma, Air, -1.0, -0.9, 0.0)
 		#magma_turbulence = Transformer.Turbulence(magma_select, constant0, constant0, magma_sum_x, 0.25)
 		magma_combine = Combiner.Max(total_select, magma_select)
 
@@ -124,7 +124,8 @@ class VoxelNoiseData:
 
 	def GetBlock (x as int, z as int, y as int) as int:
 		# 1 = solid, 0 = air
-		block = magma_combine.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
-		#block = perlin_select.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
+		#block = magma_combine.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
+		
+		block = total_select.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
 		return block
 		

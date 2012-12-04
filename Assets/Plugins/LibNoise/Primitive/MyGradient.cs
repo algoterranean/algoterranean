@@ -67,7 +67,8 @@ namespace LibNoise.Primitive {
       float dy = (y - m_gy1);
       float dz = (z - m_gz1);
       float dp = dx*m_dx + dy*m_dy + dz*m_dz;
-      float result = System.Math.Abs(dp/m_len);
+      //float result = System.Math.Abs(dp/m_len);
+      float result = dp/m_len * -1.0f;
       //result = 1.0f / result;
       result = (float)Libnoise.Clamp(result, 0.0, 1.0);
       result = Libnoise.Lerp(-1.0f, 1.0f, result);
