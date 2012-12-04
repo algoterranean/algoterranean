@@ -8,10 +8,9 @@ struct Settings:
 
 	public static ChunkCountA as int = 5
 	public static ChunkCountB as int = 5
-	public static ChunkCountC as int = 5
-	public static MaxChunkCountA as int = 5
-	public static MaxChunkCountB as int = 5
-	public static MaxChunkCountC as int = 5
+	public static ChunkCountC as int = 3
+	public static MinChunkDistance as double = 80.0
+	public static MaxChunkDistance as double = 240.0
 	
 	public static ChunkSize as int = 32
 	public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()

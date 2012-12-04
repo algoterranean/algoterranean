@@ -3,6 +3,8 @@ import System.Threading
 
 class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	terrain_chunks as (Chunk, 3)
+	origin as Vector2
+	chunk_ball = {}
 	_locker = object()
 	_observers = []
 	
@@ -49,49 +51,98 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	def Awake ():
 		# initialize the memory for the array
 		#size = Settings.ChunkSize * Settings.ChunkCount + 2  # +1 per side for calculated but undisplayed blocks
+		origin = Vector2(0,0)
 		terrain_chunks = matrix(Chunk, Settings.ChunkCountA, Settings.ChunkCountB, Settings.ChunkCountC)
 		o = GameObject()
 		o.name = "Terrain Parent"
+		initial_chunks_complete = true		
 		#ThreadPool.SetMaxThreads(8, 50)
 		#terrain_blocks = matrix(byte, size, size, size)
 
 		# work packages will be tossed off to the thread pool
 		# and divided up by chunks for efficiency
-		for x in range(Settings.ChunkCountA):
-			for z in range(Settings.ChunkCountB):
-				for y in range(Settings.ChunkCountC):
-					c = Chunk(x * Settings.ChunkSize,
-						    z * Settings.ChunkSize,
-						    y * Settings.ChunkSize,
-						    Settings.ChunkSize,
-						    Settings.ChunkSize,
-						    Settings.ChunkSize)
-					terrain_chunks[x,z,y] = c
+		# for x in range(Settings.ChunkCountA):
+		# 	for z in range(Settings.ChunkCountB):
+		# 		for y in range(Settings.ChunkCountC):
+		# 			c = Chunk(x * Settings.ChunkSize,
+		# 				    z * Settings.ChunkSize,
+		# 				    y * Settings.ChunkSize,
+		# 				    Settings.ChunkSize,
+		# 				    Settings.ChunkSize,
+		# 				    Settings.ChunkSize)
+		# 			i = ChunkInfo(c)
+		# 			chunk_ball["$x,$z,$y"] = i
+		# 			terrain_chunks[x,z,y] = c
 
 
-		for x in range(Settings.ChunkCountA):
-			for z in range(Settings.ChunkCountB):
-				for y in range(Settings.ChunkCountC):
-					chunk = terrain_chunks[x, z, y]
-					if x > 0:
-						chunk.setWestChunk(terrain_chunks[x-1, z, y])
-					if x < Settings.ChunkCountA - 1:
-						chunk.setEastChunk(terrain_chunks[x+1, z, y])
-					if z > 0:
-						chunk.setSouthChunk(terrain_chunks[x, z-1, y])
-					if z < Settings.ChunkCountB - 1:
-						chunk.setNorthChunk(terrain_chunks[x, z+1, y])
-					if y > 0:
-						chunk.setDownChunk(terrain_chunks[x, z, y-1])
-					if y < Settings.ChunkCountC - 1:
-						chunk.setUpChunk(terrain_chunks[x, z, y+1])
-					new_chunk_queue.Push(chunk)
+		# for x in range(Settings.ChunkCountA):
+		# 	for z in range(Settings.ChunkCountB):
+		# 		for y in range(Settings.ChunkCountC):
+		# 			chunk = terrain_chunks[x, z, y]
+		# 			if x > 0:
+		# 				chunk.setWestChunk(terrain_chunks[x-1, z, y])
+		# 			if x < Settings.ChunkCountA - 1:
+		# 				chunk.setEastChunk(terrain_chunks[x+1, z, y])
+		# 			if z > 0:
+		# 				chunk.setSouthChunk(terrain_chunks[x, z-1, y])
+		# 			if z < Settings.ChunkCountB - 1:
+		# 				chunk.setNorthChunk(terrain_chunks[x, z+1, y])
+		# 			if y > 0:
+		# 				chunk.setDownChunk(terrain_chunks[x, z, y-1])
+		# 			if y < Settings.ChunkCountC - 1:
+		# 				chunk.setUpChunk(terrain_chunks[x, z, y+1])
+		# 			new_chunk_queue.Push(chunk)
 					
 					#ThreadPool.QueueUserWorkItem(NoiseWorker, terrain_chunks[x, z, y])
 
 	def areInitialChunksComplete() as bool:
 		return initial_chunks_complete
 
+	def _which_chunk(x as double, z as double, y as double) as List:
+		if x < 0:
+			x -= Settings.ChunkSize
+		if z < 0:
+			z -= Settings.ChunkSize
+		if y < 0:
+			y -= Settings.ChunkSize
+		x_pos = (x / Settings.ChunkSize) cast int
+		z_pos = (z / Settings.ChunkSize) cast int
+		y_pos = (y / Settings.ChunkSize) cast int
+		return [x_pos * Settings.ChunkSize, z_pos * Settings.ChunkSize,  y_pos * Settings.ChunkSize]
+		
+
+	def setOrigin(x_pos as double, z_pos as double) as void:
+		origin = Vector2(x_pos,z_pos)
+		for chunk_info in chunk_ball:
+			i = chunk_info.Value cast ChunkInfo
+			i.calculateDistance(x_pos, z_pos, 0)
+
+		x = x_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+		z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+		y = 0.0 - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+		total_chunks = 0
+		while x <= x_pos + Settings.MinChunkDistance:
+			while z <= z_pos + Settings.MinChunkDistance:
+				while y <= 0.0 + Settings.MinChunkDistance:
+					chunk_coord = _which_chunk(x cast double, z cast double, y cast double)
+					if chunk_ball.Contains("$(chunk_coord[0]),$(chunk_coord[1]),$(chunk_coord[2])"):
+						print "FOUND $chunk_coord"
+					else:
+						print "NOT FOUND $chunk_coord"						
+						chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
+						chunk_info = ChunkInfo(chunk)
+						chunk_ball["$(chunk_coord[0]),$(chunk_coord[1]),$(chunk_coord[2])"] = chunk_info
+						new_chunk_queue.Push(chunk)
+						
+					total_chunks += 1
+					y += Settings.ChunkSize
+				z += Settings.ChunkSize
+				y = 0.0 - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+			x += Settings.ChunkSize
+			y = 0.0 - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+			z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+		print "setOrigin: TOTAL CHUNKS: $total_chunks"
+			
 
 	def Update():
 		lock _locker:
@@ -128,14 +179,13 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				mesh.RecalculateNormals()
 				o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
 				o.GetComponent(MeshFilter).sharedMesh = mesh
-				o.GetComponent(MeshCollider).sharedMesh = mesh
+				#o.GetComponent(MeshCollider).sharedMesh = mesh
 				o.transform.position = Vector3(coords[0], coords[2], coords[1])
 
 				completed_chunk_count += 1
 
 			if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC) and not initial_chunks_complete:
 				initial_chunks_complete = true
-				print 'COMPLETED ALL INITIAL CHUNKS'
 				# load some more chunks
 				
 

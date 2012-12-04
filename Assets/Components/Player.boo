@@ -16,4 +16,6 @@ class Player (MonoBehaviour):
 		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
 		if not cm_obj.areInitialChunksComplete():
 			center_player()
-			#initial_startup = true
+		elif not initial_startup:
+			initial_startup = true
+			cm_obj.setOrigin(0, 0)
