@@ -18,4 +18,4 @@ class Player (MonoBehaviour):
 			center_player()
 		elif not initial_startup:
 			initial_startup = true
-			cm_obj.setOrigin(0, 0)
+			cm_obj.setOrigin(0, 0, 0)

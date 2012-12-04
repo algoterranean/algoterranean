@@ -99,47 +99,43 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		return initial_chunks_complete
 
 	def _which_chunk(x as double, z as double, y as double) as List:
-		if x < 0:
-			x -= Settings.ChunkSize
-		if z < 0:
-			z -= Settings.ChunkSize
-		if y < 0:
-			y -= Settings.ChunkSize
-		x_pos = (x / Settings.ChunkSize) cast int
-		z_pos = (z / Settings.ChunkSize) cast int
-		y_pos = (y / Settings.ChunkSize) cast int
+		x_pos = System.Math.Floor(x / Settings.ChunkSize)
+		z_pos = System.Math.Floor(z / Settings.ChunkSize)
+		y_pos = System.Math.Floor(y / Settings.ChunkSize)
 		return [x_pos * Settings.ChunkSize, z_pos * Settings.ChunkSize,  y_pos * Settings.ChunkSize]
 		
 
-	def setOrigin(x_pos as double, z_pos as double) as void:
+	def setOrigin(x_pos as double, z_pos as double, y_pos as double) as void:
 		origin = Vector2(x_pos,z_pos)
 		for chunk_info in chunk_ball:
 			i = chunk_info.Value cast ChunkInfo
-			i.calculateDistance(x_pos, z_pos, 0)
+			i.calculateDistance(x_pos, z_pos, y_pos)
 
 		x = x_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
-		y = 0.0 - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+		y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		total_chunks = 0
 		while x <= x_pos + Settings.MinChunkDistance:
 			while z <= z_pos + Settings.MinChunkDistance:
-				while y <= 0.0 + Settings.MinChunkDistance:
+				while y <= y_pos + Settings.MinChunkDistance:
 					chunk_coord = _which_chunk(x cast double, z cast double, y cast double)
 					if chunk_ball.Contains("$(chunk_coord[0]),$(chunk_coord[1]),$(chunk_coord[2])"):
 						print "FOUND $chunk_coord"
 					else:
-						print "NOT FOUND $chunk_coord"						
+						print "NOT FOUND $chunk_coord"
 						chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
 						chunk_info = ChunkInfo(chunk)
+						chunk_info.calculateDistance(x_pos, z_pos, y_pos)
+						#if chunk_info.getDistance() <= Settings.MinChunkDistance:
 						chunk_ball["$(chunk_coord[0]),$(chunk_coord[1]),$(chunk_coord[2])"] = chunk_info
 						new_chunk_queue.Push(chunk)
 						
 					total_chunks += 1
 					y += Settings.ChunkSize
 				z += Settings.ChunkSize
-				y = 0.0 - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+				y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			x += Settings.ChunkSize
-			y = 0.0 - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+			y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		print "setOrigin: TOTAL CHUNKS: $total_chunks"
 			

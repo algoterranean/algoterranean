@@ -5,7 +5,9 @@ class CameraRotating (CameraStatic):
 		#bounds = look_at_mesh.GetComponent(MeshFilter).mesh.bounds
 		t = gameObject.GetComponent(Transform)
 		dist = (Settings.ChunkSize * (Settings.ChunkCountA + Settings.ChunkCountB)/2) / 2
+		dist = 0
 		t.RotateAround(Vector3(dist, dist, dist), Vector3.up, 30 * Time.deltaTime)
+		
 
 		if Input.GetKey("escape"):
 			Application.Quit()		
