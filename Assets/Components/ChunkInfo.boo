@@ -16,6 +16,9 @@ class ChunkInfo():
 	def getDistance() as double:
 		return distance
 
+	def getCoords() as (long):
+		return (x_coord, z_coord, y_coord)
+
 	def calculateDistance(x as long, z as long, y as long) as double:
 		a = self.x_coord - x
 		b = self.z_coord - z

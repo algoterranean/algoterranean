@@ -3,7 +3,7 @@ import System.Threading
 
 class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	terrain_chunks as (Chunk, 3)
-	origin as Vector2
+	origin as Vector3
 	chunk_ball = {}
 	_locker = object()
 	_observers = []
@@ -51,7 +51,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 	def Awake ():
 		# initialize the memory for the array
 		#size = Settings.ChunkSize * Settings.ChunkCount + 2  # +1 per side for calculated but undisplayed blocks
-		origin = Vector2(0,0)
+		origin = Vector3(0,0,0)
 		terrain_chunks = matrix(Chunk, Settings.ChunkCountA, Settings.ChunkCountB, Settings.ChunkCountC)
 		o = GameObject()
 		o.name = "Terrain Parent"
@@ -103,10 +103,13 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		z_pos = System.Math.Floor(z / Settings.ChunkSize)
 		y_pos = System.Math.Floor(y / Settings.ChunkSize)
 		return [x_pos * Settings.ChunkSize, z_pos * Settings.ChunkSize,  y_pos * Settings.ChunkSize]
+
+	def getOrigin() as Vector3:
+		return origin
 		
 
 	def setOrigin(x_pos as double, z_pos as double, y_pos as double) as void:
-		origin = Vector2(x_pos,z_pos)
+		origin = Vector3(x_pos,z_pos, y_pos)
 		for chunk_info in chunk_ball:
 			i = chunk_info.Value cast ChunkInfo
 			i.calculateDistance(x_pos, z_pos, y_pos)
@@ -115,20 +118,22 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		total_chunks = 0
+		safe_chunks = {}
 		while x <= x_pos + Settings.MinChunkDistance:
 			while z <= z_pos + Settings.MinChunkDistance:
 				while y <= y_pos + Settings.MinChunkDistance:
 					chunk_coord = _which_chunk(x cast double, z cast double, y cast double)
-					if chunk_ball.Contains("$(chunk_coord[0]),$(chunk_coord[1]),$(chunk_coord[2])"):
+					if chunk_ball.Contains("$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"):
 						print "FOUND $chunk_coord"
 					else:
 						print "NOT FOUND $chunk_coord"
 						chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
 						chunk_info = ChunkInfo(chunk)
 						chunk_info.calculateDistance(x_pos, z_pos, y_pos)
-						#if chunk_info.getDistance() <= Settings.MinChunkDistance:
-						chunk_ball["$(chunk_coord[0]),$(chunk_coord[1]),$(chunk_coord[2])"] = chunk_info
-						new_chunk_queue.Push(chunk)
+						if chunk_info.getDistance() <= Settings.MinChunkDistance:
+							chunk_ball["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = chunk_info
+							new_chunk_queue.Push(chunk)
+							safe_chunks["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = true
 						
 					total_chunks += 1
 					y += Settings.ChunkSize
@@ -137,6 +142,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			x += Settings.ChunkSize
 			y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+
 		print "setOrigin: TOTAL CHUNKS: $total_chunks"
 			
 
@@ -164,7 +170,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 				o = GameObject()
 				o.name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
-				o.transform.parent = gameObject.Find("Terrain Parent").transform
+				#o.transform.parent = gameObject.Find("Terrain Parent").transform
 				o.AddComponent(MeshFilter)
 				o.AddComponent(MeshRenderer)
 				o.AddComponent(MeshCollider)
@@ -183,7 +189,14 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC) and not initial_chunks_complete:
 				initial_chunks_complete = true
 				# load some more chunks
-				
+
+			# remove chunk_ball objects that are out of range
+			for chunk_info in chunk_ball:
+				i = chunk_info.Value as ChunkInfo
+				coords = i.getCoords()
+				if i.getDistance() > Settings.MinChunkDistance:
+					c = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
+					gameObject.Destroy(c)
 
 		
 				
