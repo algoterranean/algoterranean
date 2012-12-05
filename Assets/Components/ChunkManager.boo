@@ -110,9 +110,20 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 
 	def setOrigin(x_pos as double, z_pos as double, y_pos as double) as void:
 		origin = Vector3(x_pos,z_pos, y_pos)
+		chunks_to_remove = []
 		for chunk_info in chunk_ball:
 			i = chunk_info.Value cast ChunkInfo
 			i.calculateDistance(x_pos, z_pos, y_pos)
+			if i.getDistance() > Settings.MinChunkDistance:
+				chunks_to_remove.Push(chunk_info.Key)
+
+		for name in chunks_to_remove:
+			o = gameObject.Find("Chunk ($name)")
+			if o is not null:
+				gameObject.Destroy(o)
+				#chunk_ball.Remove(name)
+
+
 
 		x = x_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
@@ -123,17 +134,15 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			while z <= z_pos + Settings.MinChunkDistance:
 				while y <= y_pos + Settings.MinChunkDistance:
 					chunk_coord = _which_chunk(x cast double, z cast double, y cast double)
-					if chunk_ball.Contains("$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"):
-						print "FOUND $chunk_coord"
-					else:
-						print "NOT FOUND $chunk_coord"
+					if not chunk_ball.Contains("$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"):
+						#print "NOT FOUND $chunk_coord"
 						chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
 						chunk_info = ChunkInfo(chunk)
 						chunk_info.calculateDistance(x_pos, z_pos, y_pos)
 						if chunk_info.getDistance() <= Settings.MinChunkDistance:
 							chunk_ball["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = chunk_info
 							new_chunk_queue.Push(chunk)
-							#safe_chunks["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = true
+
 						
 					total_chunks += 1
 					y += Settings.ChunkSize
@@ -142,6 +151,39 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			x += Settings.ChunkSize
 			y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+
+		for chunk_dict in chunk_ball:
+			chunk_info = chunk_dict.Value as ChunkInfo
+			x = chunk_info.getCoords()[0]
+			z = chunk_info.getCoords()[1]
+			y = chunk_info.getCoords()[2]
+			chunk = chunk_info.getChunk()
+			west_name = "$(x-Settings.ChunkSize), $z, $y"
+			east_name = "$(x+Settings.ChunkSize), $z, $y"
+			south_name = "$x, $(z-Settings.ChunkSize), $y"
+			north_name = "$x, $(z+Settings.ChunkSize), $y"
+			down_name = "$x, $z, $(y-Settings.ChunkSize)"
+			up_name = "$x, $z, $(y+Settings.ChunkSize)"
+
+			if chunk_ball.Contains(west_name):
+				print 'Found West Chunk'
+				c = chunk_ball[west_name] as ChunkInfo
+				chunk.setWestChunk(c.getChunk())
+			if chunk_ball.Contains(east_name):
+				c = chunk_ball[east_name] as ChunkInfo				
+				chunk.setEastChunk(c.getChunk())
+			if chunk_ball.Contains(south_name):
+				c = chunk_ball[south_name] as ChunkInfo				
+				chunk.setSouthChunk(c.getChunk())
+			if chunk_ball.Contains(north_name):
+				c = chunk_ball[north_name] as ChunkInfo				
+				chunk.setNorthChunk(c.getChunk())
+			if chunk_ball.Contains(down_name):
+				c = chunk_ball[down_name] as ChunkInfo				
+				chunk.setDownChunk(c.getChunk())
+			if chunk_ball.Contains(up_name):
+				c = chunk_ball[up_name] as ChunkInfo				
+				chunk.setUpChunk(c.getChunk())
 
 		print "setOrigin: TOTAL CHUNKS: $total_chunks"
 			
@@ -166,7 +208,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 			if len(mesh_calculated_queue) > 0:
 				chunk = mesh_calculated_queue.Pop() as Chunk
 				coords = chunk.getCoordinates()
-				print "Displaying Chunk [$(coords[0]), $(coords[1]), $(coords[2])]"
+				#print "Displaying Chunk [$(coords[0]), $(coords[1]), $(coords[2])]"
 
 				o = GameObject()
 				o.name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
@@ -191,12 +233,12 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				# load some more chunks
 
 			# remove chunk_ball objects that are out of range
-			for chunk_info in chunk_ball:
-				i = chunk_info.Value as ChunkInfo
-				coords = i.getCoords()
-				if i.getDistance() > Settings.MinChunkDistance:
-					c = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
-					gameObject.DestroyImmediate(c)
+			# for chunk_info in chunk_ball:
+			# 	i = chunk_info.Value as ChunkInfo
+			# 	coords = i.getCoords()
+			# 	if i.getDistance() > Settings.MinChunkDistance:
+			# 		c = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
+			# 		gameObject.DestroyImmediate(c)
 
 		
 				

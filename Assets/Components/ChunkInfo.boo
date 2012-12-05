@@ -26,4 +26,7 @@ class ChunkInfo():
 		distance = Math.Sqrt(a*a + b*b + c*c)
 		return distance
 
+	def getChunk() as Chunk:
+		return chunk_object
+
 		
