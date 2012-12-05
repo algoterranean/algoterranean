@@ -3,7 +3,9 @@ import UnityEngine
 class Player (MonoBehaviour):
 	chunk_manager as GameObject
 	initial_startup as bool = false
+	#last_position as Vector3
 	x_pos = 0.0
+	#z_pos = 0.0
 	
 	def Start ():
 		chunk_manager = gameObject.Find("ChunkManager")
@@ -19,7 +21,11 @@ class Player (MonoBehaviour):
 			center_player()
 		elif not initial_startup:
 			initial_startup = true
+			#last_position = Vector3(0,0,0)
 
 		if initial_startup:
+			#v = transform.position
+			#cm_obj.setOrigin(v.x, v.y, v.z)
 			cm_obj.setOrigin(x_pos + 10 * Time.deltaTime, 0, 0)
 			x_pos += 0.1
+			#z_pos += 0.1

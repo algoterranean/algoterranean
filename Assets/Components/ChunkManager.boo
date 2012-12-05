@@ -118,7 +118,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 		z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		total_chunks = 0
-		safe_chunks = {}
+		#safe_chunks = {}
 		while x <= x_pos + Settings.MinChunkDistance:
 			while z <= z_pos + Settings.MinChunkDistance:
 				while y <= y_pos + Settings.MinChunkDistance:
@@ -133,7 +133,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 						if chunk_info.getDistance() <= Settings.MinChunkDistance:
 							chunk_ball["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = chunk_info
 							new_chunk_queue.Push(chunk)
-							safe_chunks["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = true
+							#safe_chunks["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = true
 						
 					total_chunks += 1
 					y += Settings.ChunkSize
@@ -196,7 +196,7 @@ class ChunkManager (MonoBehaviour, IObserver, IObservable):
 				coords = i.getCoords()
 				if i.getDistance() > Settings.MinChunkDistance:
 					c = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
-					gameObject.Destroy(c)
+					gameObject.DestroyImmediate(c)
 
 		
 				
