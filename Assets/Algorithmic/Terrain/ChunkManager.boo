@@ -183,12 +183,7 @@ class ChunkManager (MonoBehaviour):
 					mesh.uv = chunk.uvs
 					mesh.RecalculateNormals()
 					o.GetComponent(MeshFilter).sharedMesh = mesh
-					# mesh = Mesh()
-					# mesh.vertices = chunk.vertices
-					# mesh.triangles = chunk.triangles
-					# mesh.uv = chunk.uvs
-					# mesh.RecalculateNormals()
-					# o.GetComponent(MeshFilter).sharedMesh = mesh
+					#o.GetComponent(MeshCollider).sharedMesh = mesh
 					
 				completed_chunk_count += 1
 
