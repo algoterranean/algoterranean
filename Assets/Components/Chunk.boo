@@ -31,6 +31,7 @@ class NullChunk(IChunk):
 
 class Chunk (IChunk, IChunkNeighborhood):
 	blocks_calculated as bool
+	mesh_is_dirty as bool
 	mesh_calculated as bool
 	mesh_visible as bool
 	blocks as (byte, 3)
@@ -64,6 +65,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 		blocks_calculated = false
 		mesh_calculated = false
 		mesh_visible = false
+		mesh_is_dirty = false
 
 	def setCoordinates(x_coord as long, z_coord as long, y_coord as long) as void:
 		self.x_coord = x_coord
@@ -88,6 +90,10 @@ class Chunk (IChunk, IChunkNeighborhood):
 	def isMeshCalculated () as bool:
 		lock mesh_calculated:
 			return mesh_calculated
+
+	def isMeshDirty() as bool:
+		lock mesh_is_dirty:
+			return mesh_is_dirty
 		
 	def getBlock(p as byte, q as byte, r as byte) as byte:
 		return blocks[p, q, r]
@@ -117,23 +123,35 @@ class Chunk (IChunk, IChunkNeighborhood):
 		setUpChunk(up)
 
 	def setWestChunk(west as IChunk) as void:
+		if west_chunk != west and mesh_calculated:
+			mesh_is_dirty = true			
 		west_chunk = west
 
+
 	def setEastChunk(east as IChunk) as void:
+		if east_chunk != east and mesh_calculated:
+			mesh_is_dirty = true
 		east_chunk = east
 
 	def setSouthChunk(south as IChunk) as void:
+		if south_chunk != south and mesh_calculated:
+			mesh_is_dirty = true
 		south_chunk = south
-
+		
 	def setNorthChunk(north as IChunk) as void:
+		if north_chunk != north and mesh_calculated:
+			mesh_is_dirty = true
 		north_chunk = north
 
 	def setDownChunk(down as IChunk) as void:
+		if down_chunk != down and mesh_calculated:
+			mesh_is_dirty = true
 		down_chunk = down
 
 	def setUpChunk(up as IChunk) as void:
+		if up_chunk != up and mesh_calculated:
+			mesh_is_dirty = true
 		up_chunk = up
-
 
 	def getWestChunk() as IChunk:
 		return west_chunk
@@ -440,6 +458,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 							elif solid == 2:							
 								_calc_uvs(2, 0)
 		mesh_calculated = true
+		mesh_is_dirty = false
 
 
 		
