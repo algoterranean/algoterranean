@@ -1,4 +1,5 @@
 
+namespace Algorithmic
 
 class NullChunk(IChunk):
 	#def constructor():

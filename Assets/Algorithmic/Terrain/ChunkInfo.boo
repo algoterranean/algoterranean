@@ -1,3 +1,4 @@
+namespace Algorithmic
 
 class ChunkInfo():
 	chunk_object as Chunk

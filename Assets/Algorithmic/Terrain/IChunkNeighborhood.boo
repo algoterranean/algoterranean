@@ -1,3 +1,4 @@
+namespace Algorithmic
 
 interface IChunkNeighborhood:
 	def areNeighborsReady() as bool

@@ -1,5 +1,8 @@
+namespace Algorithmic
+
 import UnityEngine
 import System.Threading
+
 
 class ChunkManager (MonoBehaviour):
 	origin as Vector3
@@ -62,11 +65,11 @@ class ChunkManager (MonoBehaviour):
 			if i.getDistance() > Settings.MinChunkDistance:
 				chunks_to_remove.Push(chunk_info.Key)
 
-		# for name in chunks_to_remove:
-		# 	o = gameObject.Find("Chunk ($name)")
-		# 	if o is not null:
-		# 		gameObject.Destroy(o)
-		# 		chunk_ball.Remove(name)
+		for key in chunks_to_remove:
+			o = gameObject.Find("Chunk ($key)")
+			if o != null:
+				gameObject.Destroy(o)
+				#chunk_ball.Remove(key)
 
 
 

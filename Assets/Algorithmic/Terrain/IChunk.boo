@@ -1,3 +1,4 @@
+namespace Algorithmic
 
 interface IChunk:
 	def isNull() as bool

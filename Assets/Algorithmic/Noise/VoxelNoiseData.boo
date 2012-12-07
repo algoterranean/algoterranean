@@ -1,6 +1,6 @@
 import System
-import UnityEngine
 import LibNoise
+import Algorithmic
 
 
 class VoxelNoiseData:

@@ -1,4 +1,6 @@
 
+namespace Algorithmic
+
 struct Settings:
 	public static Frequency as single = 1.2
 	public static Lacunarity as single = 2.5
@@ -9,7 +11,7 @@ struct Settings:
 	public static ChunkCountA as int = 5
 	public static ChunkCountB as int = 5
 	public static ChunkCountC as int = 3
-	public static MinChunkDistance as double = 80 #80.0
+	public static MinChunkDistance as double = 120 #80.0
 	public static MaxChunkDistance as double = 240.0
 	
 	public static ChunkSize as int = 32
@@ -17,3 +19,4 @@ struct Settings:
 
 	public static TerrainDepth as single = ChunkCountC * ChunkSize
 	public static SolidCutoff as single = 0.0
+	
