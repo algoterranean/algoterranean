@@ -2,6 +2,7 @@ namespace Algorithmic
 
 import UnityEngine
 import System.Threading
+import System.Collections
 
 
 class ChunkManager (MonoBehaviour):
@@ -19,6 +20,7 @@ class ChunkManager (MonoBehaviour):
 
 	def NoiseWorker(chunk as Chunk) as WaitCallback:
 		try:
+			#Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest
 			chunk.CalculateNoise()
 			coord = chunk.getCoordinates()
 		except e:
@@ -28,6 +30,7 @@ class ChunkManager (MonoBehaviour):
 
 	def MeshWorker(chunk as Chunk) as WaitCallback:
 		try:
+			#Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest			
 			chunk.CalculateMesh()
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
@@ -41,6 +44,7 @@ class ChunkManager (MonoBehaviour):
 		o.name = "Terrain Parent"
 		initial_chunks_complete = true
 		#ThreadPool.SetMaxThreads(8, 50)
+		#Application.targetFrameRate = 30
 		
 
 	def areInitialChunksComplete() as bool:
@@ -82,13 +86,14 @@ class ChunkManager (MonoBehaviour):
 			while z <= z_pos + Settings.MinChunkDistance:
 				while y <= y_pos + Settings.MinChunkDistance:
 					chunk_coord = _which_chunk(x cast double, z cast double, y cast double)
-					if not chunk_ball.Contains("$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"):
-						#print "NOT FOUND $chunk_coord"
+					if not chunk_ball.Contains([chunk_coord[0], chunk_coord[1], chunk_coord[2]]):
+						
 						chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
 						chunk_info = ChunkInfo(chunk)
 						chunk_info.calculateDistance(x_pos, z_pos, y_pos)
+						
 						if chunk_info.getDistance() <= Settings.MinChunkDistance:
-							chunk_ball["$(chunk_coord[0]), $(chunk_coord[1]), $(chunk_coord[2])"] = chunk_info
+							chunk_ball[[chunk_coord[0], chunk_coord[1], chunk_coord[2]]] = chunk_info
 							new_chunk_queue.Push(chunk)
 
 						
@@ -106,12 +111,12 @@ class ChunkManager (MonoBehaviour):
 			z = chunk_info.getCoords()[1]
 			y = chunk_info.getCoords()[2]
 			chunk = chunk_info.getChunk()
-			west_name = "$(x-Settings.ChunkSize), $z, $y"
-			east_name = "$(x+Settings.ChunkSize), $z, $y"
-			south_name = "$x, $(z-Settings.ChunkSize), $y"
-			north_name = "$x, $(z+Settings.ChunkSize), $y"
-			down_name = "$x, $z, $(y-Settings.ChunkSize)"
-			up_name = "$x, $z, $(y+Settings.ChunkSize)"
+			west_name = [x-Settings.ChunkSize, z, y]
+			east_name = [x+Settings.ChunkSize, z, y]
+			south_name = [x, z-Settings.ChunkSize, y]
+			north_name = [x, z+Settings.ChunkSize, y]
+			down_name = [x, z, y-Settings.ChunkSize]
+			up_name = [x, z, y+Settings.ChunkSize]
 
 			if chunk_ball.Contains(west_name):
 				c = chunk_ball[west_name] as ChunkInfo
@@ -136,6 +141,42 @@ class ChunkManager (MonoBehaviour):
 				#print 'REDRAWING CHUNK'
 
 		print "setOrigin: TOTAL CHUNKS: $total_chunks"
+
+	def _create_mesh(chunk as Chunk): #as IEnumerable:
+		# display a mesh if the mesh was calculated on a chunk
+		if len(mesh_calculated_queue) > 0:
+			
+			coords = chunk.getCoordinates()
+			#print "Displaying Chunk [$(coords[0]), $(coords[1]), $(coords[2])]"
+			
+			if gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))") == null:
+				o = GameObject()
+				o.name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
+				#o.transform.parent = gameObject.Find("Terrain Parent").transform
+				o.AddComponent(MeshFilter)
+				o.AddComponent(MeshRenderer)
+				o.AddComponent(MeshCollider)
+				mesh = Mesh()
+				mesh.vertices = chunk.vertices
+				mesh.triangles = chunk.triangles
+				mesh.normals = chunk.normals
+				mesh.uv = chunk.uvs
+				#mesh.RecalculateNormals()
+				o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
+				o.GetComponent(MeshFilter).sharedMesh = mesh
+				#o.GetComponent(MeshCollider).sharedMesh = mesh
+				o.transform.position = Vector3(coords[0], coords[2], coords[1])
+			else:
+				o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
+				mesh = Mesh()
+				mesh.vertices = chunk.vertices
+				mesh.triangles = chunk.triangles
+				mesh.uv = chunk.uvs
+				mesh.normals = chunk.normals
+				#mesh.RecalculateNormals()
+				o.GetComponent(MeshFilter).sharedMesh = mesh
+				#o.GetComponent(MeshCollider).sharedMesh = mesh
+			completed_chunk_count += 1
 			
 
 	def Update():
@@ -154,53 +195,13 @@ class ChunkManager (MonoBehaviour):
 					not_ready.Push(chunk)
 			noise_calculated_queue = not_ready
 
-			# display a mesh if the mesh was calculated on a chunk
 			if len(mesh_calculated_queue) > 0:
 				chunk = mesh_calculated_queue.Pop() as Chunk
-				coords = chunk.getCoordinates()
-				#print "Displaying Chunk [$(coords[0]), $(coords[1]), $(coords[2])]"
+			else:
+				chunk = null
+		_create_mesh(chunk)
+			#StartCoroutine("_create_mesh")
 
-				#name = 
-				#print gameObject.Find(name)
-				if gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))") == null:
-					o = GameObject()
-					o.name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
-					#o.transform.parent = gameObject.Find("Terrain Parent").transform
-					o.AddComponent(MeshFilter)
-					o.AddComponent(MeshRenderer)
-					o.AddComponent(MeshCollider)
-					mesh = Mesh()
-					mesh.vertices = chunk.vertices
-					mesh.triangles = chunk.triangles
-					mesh.uv = chunk.uvs
-					mesh.RecalculateNormals()
-					o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
-					o.GetComponent(MeshFilter).sharedMesh = mesh
-					#o.GetComponent(MeshCollider).sharedMesh = mesh
-					o.transform.position = Vector3(coords[0], coords[2], coords[1])
-				else:
-					o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
-					mesh = Mesh()
-					mesh.vertices = chunk.vertices
-					mesh.triangles = chunk.triangles
-					mesh.uv = chunk.uvs
-					mesh.RecalculateNormals()
-					o.GetComponent(MeshFilter).sharedMesh = mesh
-					#o.GetComponent(MeshCollider).sharedMesh = mesh
-					
-				completed_chunk_count += 1
+		if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC) and not initial_chunks_complete:
+			initial_chunks_complete = true
 
-			if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC) and not initial_chunks_complete:
-				initial_chunks_complete = true
-				# load some more chunks
-
-			# remove chunk_ball objects that are out of range
-			# for chunk_info in chunk_ball:
-			# 	i = chunk_info.Value as ChunkInfo
-			# 	coords = i.getCoords()
-			# 	if i.getDistance() > Settings.MinChunkDistance:
-			# 		c = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
-			# 		gameObject.DestroyImmediate(c)
-
-		
-				

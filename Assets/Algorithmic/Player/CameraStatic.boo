@@ -10,6 +10,10 @@ class CameraStatic (MonoBehaviour):
 		# while not voxel_mesh_data.IsInitialized():
 		# 	yield
 		# bounds = mesh.GetComponent(MeshFilter).mesh.bounds
+
+	def Awake ():
+		v = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager		
+		v.setOrigin(0, 0, 0)
 		
 
 	def Update ():
@@ -23,6 +27,7 @@ class CameraStatic (MonoBehaviour):
 		t.position = Vector3(dist, dist/2, dist) + Vector3(dist, dist, dist) * 2
 		#t.LookAt(Vector3(dist, dist, dist))
 		t.LookAt(v.getOrigin())
+
 		#t.Rotate(Vector3(10,0,0))
 		
 		#StartCoroutine(_check_mesh())

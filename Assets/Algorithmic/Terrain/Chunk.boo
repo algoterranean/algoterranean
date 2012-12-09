@@ -288,10 +288,13 @@ class Chunk (IChunk, IChunkNeighborhood):
 		vertices = matrix(Vector3, vertice_size)
 		triangles = matrix(int, triangle_size)
 		uvs = matrix(Vector2, uv_size)
+		normals = matrix(Vector3, vertice_size)
 
 		vertice_count = 0
 		triangle_count = 0
 		uv_count = 0
+		normal_count = 0
+
 		
 
 		def _calc_uvs(x as int, y as int):
@@ -318,6 +321,17 @@ class Chunk (IChunk, IChunkNeighborhood):
 			triangle_count += 1			
 			triangles[triangle_count] = vertice_count-4 # 0
 			triangle_count += 1
+
+		def _add_normals(n as Vector3):
+			normals[normal_count] = n
+			normal_count += 1
+			normals[normal_count] = n
+			normal_count += 1			
+			normals[normal_count] = n
+			normal_count += 1			
+			normals[normal_count] = n
+			normal_count += 1
+			
 			
 
 
@@ -384,6 +398,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 							vertices[vertice_count] = Vector3(p, r+1, q)
 							vertice_count += 1
 							_calc_triangles()
+							_add_normals(Vector3(-1, 0, 0))
 							if solid == 1:
 								_calc_uvs(3,0)
 							elif solid == 2:
@@ -398,6 +413,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 							vertices[vertice_count] = Vector3(p+1, r+1, q+1)
 							vertice_count += 1
 							_calc_triangles()
+							_add_normals(Vector3(1, 0, 0))
 							if solid == 1:
 								_calc_uvs(3, 0)
 							elif solid == 2:
@@ -412,6 +428,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 							vertices[vertice_count] = Vector3(p+1, r+1, q)
 							vertice_count += 1
 							_calc_triangles()
+							_add_normals(Vector3(0, 0, -1))
 							if solid == 1:
 								_calc_uvs(3,0)
 							elif solid == 2:
@@ -426,6 +443,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 							vertices[vertice_count] = Vector3(p, r+1, q+1)
 							vertice_count += 1
 							_calc_triangles()
+							_add_normals(Vector3(0, 0, 1))
 							if solid == 1:
 								_calc_uvs(3,0)
 							elif solid == 2:
@@ -440,6 +458,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 							vertices[vertice_count] = Vector3(p+1, r, q)
 							vertice_count += 1
 							_calc_triangles()
+							_add_normals(Vector3(0, -1, 0))
 							if solid == 1:
 								_calc_uvs(3,0)
 							elif solid == 2:
@@ -454,6 +473,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 							vertices[vertice_count] = Vector3(p+1, r+1, q+1)
 							vertice_count += 1
 							_calc_triangles()
+							_add_normals(Vector3(0, 1, 0))
 							if solid == 1:
 								_calc_uvs(3,0)
 							elif solid == 2:							
