@@ -18,6 +18,7 @@ class ChunkManager (MonoBehaviour):
 	new_chunk_queue = []
 	noise_calculated_queue = []
 	mesh_calculated_queue = []
+	chunk_removal_queue = []
 	completed_chunk_count = 0
 	initial_chunks_complete = false
 
@@ -68,6 +69,7 @@ class ChunkManager (MonoBehaviour):
 		origin = Vector3(x_pos,z_pos, y_pos)
 		chunks_to_remove = []
 		chunk_ball.calculateDistance(x_pos, z_pos, y_pos)
+
 		# for chunk_info in chunk_ball:
 		# 	i = chunk_info.Value cast ChunkInfo
 		# 	i.calculateDistance(x_pos, z_pos, y_pos)
@@ -84,28 +86,29 @@ class ChunkManager (MonoBehaviour):
 					
 					chunk_coord = _which_chunk(x cast double, z cast double, y cast double)
 					if not chunk_ball.Contains(chunk_coord[0], chunk_coord[1], chunk_coord[2]):
-						d_x = chunk_coord[0] cast double - x_pos
-						d_z = chunk_coord[1] cast double - z_pos
-						d_y = chunk_coord[2] cast double - y_pos
+						d_x = chunk_coord[0] cast long - x_pos
+						d_z = chunk_coord[1] cast long - z_pos
+						d_y = chunk_coord[2] cast long - y_pos
 						distance = Math.Sqrt(d_x*d_x + d_z*d_z + d_y*d_y)
 						
 						if distance <= Settings.MinChunkDistance:
-							chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
+							chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2],
+									  Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
 							chunk.setDistance(x_pos, z_pos, y_pos)
-							#chunk_info = ChunkInfo(chunk)
-							#chunk_info.calculateDistance(x_pos, z_pos, y_pos)
 							chunk_ball.Set(chunk_coord[0], chunk_coord[1], chunk_coord[2], chunk)
 							new_chunk_queue.Push(chunk)
-
-					total_chunks += 1
+							
+							total_chunks += 1
 					y += Settings.ChunkSize
 				z += Settings.ChunkSize
 				y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			x += Settings.ChunkSize
 			y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
-			
 
+
+		chunk_removal_queue.Extend(chunk_ball.cullChunks())
+		#print "TO REMOVE: $chunk_removal_queue"
 		chunk_ball.updateNeighbors()
 		print "setOrigin: TOTAL CHUNKS: $total_chunks"
 
@@ -177,10 +180,21 @@ class ChunkManager (MonoBehaviour):
 				chunk = mesh_calculated_queue.Pop()
 			else:
 				chunk = null
+				
 		_create_mesh(chunk)
+		
+		if len(chunk_removal_queue) > 0:
+			c as Chunk = chunk_removal_queue.Pop()
+			coords = c.getCoordinates()
+			o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
+			gameObject.Destroy(o)
+			#chunk_removal_queue = []
+		
 			#StartCoroutine("_create_mesh")
 
-
+			#for chunk in chunk_ball:
+			#print chunk
+			
 		# for chunk_info in chunk_ball:
 		# 	i = chunk_info.Value cast ChunkInfo
 		# 	if i.getDistance() > Settings.MinChunkDistance:
@@ -192,8 +206,6 @@ class ChunkManager (MonoBehaviour):
 		# 			chunk_ball.Remove(chunk_info.Key)
 		# 			break
 		# 		chunks_to_remove.Push(chunk_info.Key)
-
-
 
 		# for key in chunks_to_remove:
 		# 	o = gameObject.Find("Chunk ($key)")

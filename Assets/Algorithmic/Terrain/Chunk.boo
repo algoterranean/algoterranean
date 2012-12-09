@@ -98,9 +98,9 @@ class Chunk (IChunk, IChunkNeighborhood):
 		return mesh_is_dirty
 
 	def setDistance(x_pos as double, z_pos as double, y_pos as double):
-		a = x_coord cast double - x_pos
-		b = z_coord cast double - z_pos
-		c = y_coord cast double - y_pos
+		a = x_coord - x_pos
+		b = z_coord - z_pos
+		c = y_coord - y_pos
 		distance = Math.Sqrt(a*a + b*b + c*c)
 
 	def getDistance():

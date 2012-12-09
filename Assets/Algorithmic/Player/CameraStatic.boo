@@ -12,7 +12,7 @@ class CameraStatic (MonoBehaviour):
 		# bounds = mesh.GetComponent(MeshFilter).mesh.bounds
 
 	def Awake ():
-		v = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager		
+		v = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
 		v.setOrigin(0, 0, 0)
 		
 
@@ -28,9 +28,6 @@ class CameraStatic (MonoBehaviour):
 		#t.LookAt(Vector3(dist, dist, dist))
 		t.LookAt(v.getOrigin())
 
-		#t.Rotate(Vector3(10,0,0))
-		
-		#StartCoroutine(_check_mesh())
 			
 	
 
