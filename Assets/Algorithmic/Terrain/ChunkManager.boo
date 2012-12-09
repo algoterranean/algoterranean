@@ -3,13 +3,17 @@ namespace Algorithmic
 import UnityEngine
 import System.Threading
 import System.Collections
+#import Amib.Threading
 
 
 class ChunkManager (MonoBehaviour):
 	origin as Vector3
-	chunk_ball = {}
+	chunk_ball = ChunkBall()
 	_locker = object()
 	_observers = []
+	#_thread_manager = ThreadManager(10)
+	#_thread_pool = SmartThreadPool()
+	
 	
 	new_chunk_queue = []
 	noise_calculated_queue = []
@@ -63,19 +67,11 @@ class ChunkManager (MonoBehaviour):
 	def setOrigin(x_pos as double, z_pos as double, y_pos as double) as void:
 		origin = Vector3(x_pos,z_pos, y_pos)
 		chunks_to_remove = []
-		for chunk_info in chunk_ball:
-			i = chunk_info.Value cast ChunkInfo
-			i.calculateDistance(x_pos, z_pos, y_pos)
-			if i.getDistance() > Settings.MinChunkDistance:
-				chunks_to_remove.Push(chunk_info.Key)
-
-		for key in chunks_to_remove:
-			o = gameObject.Find("Chunk ($key)")
-			if o != null:
-				gameObject.Destroy(o)
-				#chunk_ball.Remove(key)
-
-
+		chunk_ball.calculateDistance(x_pos, z_pos, y_pos)
+		# for chunk_info in chunk_ball:
+		# 	i = chunk_info.Value cast ChunkInfo
+		# 	i.calculateDistance(x_pos, z_pos, y_pos)
+			
 
 		x = x_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
@@ -85,18 +81,22 @@ class ChunkManager (MonoBehaviour):
 		while x <= x_pos + Settings.MinChunkDistance:
 			while z <= z_pos + Settings.MinChunkDistance:
 				while y <= y_pos + Settings.MinChunkDistance:
+					
 					chunk_coord = _which_chunk(x cast double, z cast double, y cast double)
-					if not chunk_ball.Contains([chunk_coord[0], chunk_coord[1], chunk_coord[2]]):
+					if not chunk_ball.Contains(chunk_coord[0], chunk_coord[1], chunk_coord[2]):
+						d_x = chunk_coord[0] cast double - x_pos
+						d_z = chunk_coord[1] cast double - z_pos
+						d_y = chunk_coord[2] cast double - y_pos
+						distance = Math.Sqrt(d_x*d_x + d_z*d_z + d_y*d_y)
 						
-						chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
-						chunk_info = ChunkInfo(chunk)
-						chunk_info.calculateDistance(x_pos, z_pos, y_pos)
-						
-						if chunk_info.getDistance() <= Settings.MinChunkDistance:
-							chunk_ball[[chunk_coord[0], chunk_coord[1], chunk_coord[2]]] = chunk_info
+						if distance <= Settings.MinChunkDistance:
+							chunk = Chunk(chunk_coord[0], chunk_coord[1], chunk_coord[2], Settings.ChunkSize, Settings.ChunkSize, Settings.ChunkSize)
+							chunk.setDistance(x_pos, z_pos, y_pos)
+							#chunk_info = ChunkInfo(chunk)
+							#chunk_info.calculateDistance(x_pos, z_pos, y_pos)
+							chunk_ball.Set(chunk_coord[0], chunk_coord[1], chunk_coord[2], chunk)
 							new_chunk_queue.Push(chunk)
 
-						
 					total_chunks += 1
 					y += Settings.ChunkSize
 				z += Settings.ChunkSize
@@ -104,54 +104,23 @@ class ChunkManager (MonoBehaviour):
 			x += Settings.ChunkSize
 			y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
+			
 
-		for chunk_dict in chunk_ball:
-			chunk_info = chunk_dict.Value as ChunkInfo
-			x = chunk_info.getCoords()[0]
-			z = chunk_info.getCoords()[1]
-			y = chunk_info.getCoords()[2]
-			chunk = chunk_info.getChunk()
-			west_name = [x-Settings.ChunkSize, z, y]
-			east_name = [x+Settings.ChunkSize, z, y]
-			south_name = [x, z-Settings.ChunkSize, y]
-			north_name = [x, z+Settings.ChunkSize, y]
-			down_name = [x, z, y-Settings.ChunkSize]
-			up_name = [x, z, y+Settings.ChunkSize]
-
-			if chunk_ball.Contains(west_name):
-				c = chunk_ball[west_name] as ChunkInfo
-				chunk.setWestChunk(c.getChunk())
-			if chunk_ball.Contains(east_name):
-				c = chunk_ball[east_name] as ChunkInfo				
-				chunk.setEastChunk(c.getChunk())
-			if chunk_ball.Contains(south_name):
-				c = chunk_ball[south_name] as ChunkInfo				
-				chunk.setSouthChunk(c.getChunk())
-			if chunk_ball.Contains(north_name):
-				c = chunk_ball[north_name] as ChunkInfo				
-				chunk.setNorthChunk(c.getChunk())
-			if chunk_ball.Contains(down_name):
-				c = chunk_ball[down_name] as ChunkInfo				
-				chunk.setDownChunk(c.getChunk())
-			if chunk_ball.Contains(up_name):
-				c = chunk_ball[up_name] as ChunkInfo				
-				chunk.setUpChunk(c.getChunk())
-			if chunk.isMeshDirty():
-				noise_calculated_queue.Push(chunk)
-				#print 'REDRAWING CHUNK'
-
+		chunk_ball.updateNeighbors()
 		print "setOrigin: TOTAL CHUNKS: $total_chunks"
+
+		
 
 	def _create_mesh(chunk as Chunk): #as IEnumerable:
 		# display a mesh if the mesh was calculated on a chunk
-		if len(mesh_calculated_queue) > 0:
-			
+		if chunk != null:
 			coords = chunk.getCoordinates()
 			#print "Displaying Chunk [$(coords[0]), $(coords[1]), $(coords[2])]"
-			
-			if gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))") == null:
+
+			chunk_name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
+			if gameObject.Find(chunk_name) == null:
 				o = GameObject()
-				o.name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
+				o.name = chunk_name
 				#o.transform.parent = gameObject.Find("Terrain Parent").transform
 				o.AddComponent(MeshFilter)
 				o.AddComponent(MeshRenderer)
@@ -167,7 +136,7 @@ class ChunkManager (MonoBehaviour):
 				#o.GetComponent(MeshCollider).sharedMesh = mesh
 				o.transform.position = Vector3(coords[0], coords[2], coords[1])
 			else:
-				o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
+				o = gameObject.Find(chunk_name)
 				mesh = Mesh()
 				mesh.vertices = chunk.vertices
 				mesh.triangles = chunk.triangles
@@ -182,25 +151,57 @@ class ChunkManager (MonoBehaviour):
 	def Update():
 		lock _locker:
 			# calculate the noise for a chunk if it's new
-			for chunk as Chunk in new_chunk_queue:
+			if len(new_chunk_queue) > 0:
+				chunk = new_chunk_queue.Pop()
+				#_thread_pool.QueueWorkItem(NoiseWorker, chunk)
 				ThreadPool.QueueUserWorkItem(NoiseWorker, chunk)
-			new_chunk_queue = []
 			
 			# calculate a mesh if the noise has been completed on a chunk
 			not_ready = []
+			#if len(noise_calculated_queue) > 0:
+			#	chunk = noise_calculated_queue.Pop()
+
+
+			found_chunk = null
 			for chunk as Chunk in noise_calculated_queue:
 				if chunk.areNeighborsReady():
+					#_thread_pool.QueueWorkItem(MeshWorker, chunk)
 					ThreadPool.QueueUserWorkItem(MeshWorker, chunk)
-				else:
-					not_ready.Push(chunk)
-			noise_calculated_queue = not_ready
+					found_chunk = chunk
+					break
+			if found_chunk != null:
+				noise_calculated_queue.Remove(found_chunk)
+				
 
 			if len(mesh_calculated_queue) > 0:
-				chunk = mesh_calculated_queue.Pop() as Chunk
+				chunk = mesh_calculated_queue.Pop()
 			else:
 				chunk = null
 		_create_mesh(chunk)
 			#StartCoroutine("_create_mesh")
+
+
+		# for chunk_info in chunk_ball:
+		# 	i = chunk_info.Value cast ChunkInfo
+		# 	if i.getDistance() > Settings.MinChunkDistance:
+		# 		coords = i.getCoords()
+		# 		o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
+		# 		if o != null:
+		# 			print "DESTROYING: Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
+		# 			gameObject.Destroy(o)
+		# 			chunk_ball.Remove(chunk_info.Key)
+		# 			break
+		# 		chunks_to_remove.Push(chunk_info.Key)
+
+
+
+		# for key in chunks_to_remove:
+		# 	o = gameObject.Find("Chunk ($key)")
+		# 	if o != null:
+		# 		gameObject.Destroy(o)
+		# 		break
+		# 		#chunk_ball.Remove(key)
+		
 
 		if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC) and not initial_chunks_complete:
 			initial_chunks_complete = true

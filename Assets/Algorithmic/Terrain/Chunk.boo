@@ -35,6 +35,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 	mesh_is_dirty as bool
 	mesh_calculated as bool
 	mesh_visible as bool
+	distance as double
 	blocks as (byte, 3)
 	noise_module as VoxelNoiseData
 	x_coord as long
@@ -85,16 +86,25 @@ class Chunk (IChunk, IChunkNeighborhood):
 		return false
 		
 	def areBlocksCalculated () as bool:
-		lock blocks_calculated:
-			return blocks_calculated
+		#lock blocks_calculated:
+		return blocks_calculated
 
 	def isMeshCalculated () as bool:
-		lock mesh_calculated:
-			return mesh_calculated
+		#lock mesh_calculated:
+		return mesh_calculated
 
 	def isMeshDirty() as bool:
-		lock mesh_is_dirty:
-			return mesh_is_dirty
+		#lock mesh_is_dirty:
+		return mesh_is_dirty
+
+	def setDistance(x_pos as double, z_pos as double, y_pos as double):
+		a = x_coord cast double - x_pos
+		b = z_coord cast double - z_pos
+		c = y_coord cast double - y_pos
+		distance = Math.Sqrt(a*a + b*b + c*c)
+
+	def getDistance():
+		return distance
 		
 	def getBlock(p as byte, q as byte, r as byte) as byte:
 		return blocks[p, q, r]
