@@ -102,8 +102,12 @@ class ChunkManager (MonoBehaviour):
 			y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 			z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 
-
-		chunk_removal_queue.Extend(chunk_ball.cullChunks())
+		# sort the new chunks so the closest one gets created first
+		new_chunk_queue.Sort() do (left as Chunk, right as Chunk):
+			return right.getDistance() - left.getDistance()
+		
+		chunk_removal_queue.Extend(chunk_ball.cullChunks()) # should this remove from the queue as well?
+		
 		#print "TO REMOVE: $chunk_removal_queue"
 		chunk_ball.updateNeighbors()
 		print "setOrigin: TOTAL CHUNKS: $total_chunks"
@@ -133,7 +137,7 @@ class ChunkManager (MonoBehaviour):
 					#mesh.RecalculateNormals()
 					o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
 					o.GetComponent(MeshFilter).sharedMesh = mesh
-					o.GetComponent(MeshCollider).sharedMesh = mesh
+					#o.GetComponent(MeshCollider).sharedMesh = mesh
 					o.transform.position = Vector3(coords[0], coords[2], coords[1])
 				else:
 					o = gameObject.Find(chunk_name)
@@ -144,7 +148,7 @@ class ChunkManager (MonoBehaviour):
 					mesh.normals = chunk.normals
 					#mesh.RecalculateNormals()
 					o.GetComponent(MeshFilter).sharedMesh = mesh
-					o.GetComponent(MeshCollider).sharedMesh = mesh
+					#o.GetComponent(MeshCollider).sharedMesh = mesh
 				completed_chunk_count += 1
 			
 
