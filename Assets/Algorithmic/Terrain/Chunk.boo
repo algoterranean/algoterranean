@@ -36,6 +36,7 @@ class Chunk (IChunk, IChunkNeighborhood):
 	mesh_calculated as bool
 	mesh_visible as bool
 	distance as double
+	distance_no_height as double
 	blocks as (byte, 3)
 	noise_module as VoxelNoiseData
 	x_coord as long
@@ -102,9 +103,13 @@ class Chunk (IChunk, IChunkNeighborhood):
 		b = z_coord - z_pos
 		c = y_coord - y_pos
 		distance = Math.Sqrt(a*a + b*b + c*c)
+		distance_no_height = Math.Sqrt(a*a + b*b)
 
 	def getDistance():
 		return distance
+
+	def getDistanceIgnoringHeight():
+		return distance_no_height
 		
 	def getBlock(p as byte, q as byte, r as byte) as byte:
 		return blocks[p, q, r]

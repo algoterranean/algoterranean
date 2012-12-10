@@ -104,7 +104,7 @@ class ChunkManager (MonoBehaviour):
 
 		# sort the new chunks so the closest one gets created first
 		new_chunk_queue.Sort() do (left as Chunk, right as Chunk):
-			return right.getDistance() - left.getDistance()
+			return right.getDistanceIgnoringHeight() - left.getDistanceIgnoringHeight()
 		
 		chunk_removal_queue.Extend(chunk_ball.cullChunks()) # should this remove from the queue as well?
 		
