@@ -70,16 +70,12 @@ class ChunkManager (MonoBehaviour):
 		chunks_to_remove = []
 		chunk_ball.calculateDistance(x_pos, z_pos, y_pos)
 
-		# for chunk_info in chunk_ball:
-		# 	i = chunk_info.Value cast ChunkInfo
-		# 	i.calculateDistance(x_pos, z_pos, y_pos)
-			
 
 		x = x_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		z = z_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		y = y_pos - Settings.MinChunkDistance + Settings.ChunkSize/2.0
 		total_chunks = 0
-		#safe_chunks = {}
+
 		while x <= x_pos + Settings.MinChunkDistance:
 			while z <= z_pos + Settings.MinChunkDistance:
 				while y <= y_pos + Settings.MinChunkDistance:
@@ -137,7 +133,7 @@ class ChunkManager (MonoBehaviour):
 					#mesh.RecalculateNormals()
 					o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
 					o.GetComponent(MeshFilter).sharedMesh = mesh
-					#o.GetComponent(MeshCollider).sharedMesh = mesh
+					o.GetComponent(MeshCollider).sharedMesh = mesh
 					o.transform.position = Vector3(coords[0], coords[2], coords[1])
 				else:
 					o = gameObject.Find(chunk_name)
@@ -148,7 +144,7 @@ class ChunkManager (MonoBehaviour):
 					mesh.normals = chunk.normals
 					#mesh.RecalculateNormals()
 					o.GetComponent(MeshFilter).sharedMesh = mesh
-					#o.GetComponent(MeshCollider).sharedMesh = mesh
+					o.GetComponent(MeshCollider).sharedMesh = mesh
 				completed_chunk_count += 1
 			
 
@@ -190,33 +186,3 @@ class ChunkManager (MonoBehaviour):
 			o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")			
 			print "Removing Chunk ($(coords[0]), $(coords[1]), $(coords[2])): $o"			
 			gameObject.Destroy(o)
-			#chunk_removal_queue = []
-		
-			#StartCoroutine("_create_mesh")
-
-			#for chunk in chunk_ball:
-			#print chunk
-			
-		# for chunk_info in chunk_ball:
-		# 	i = chunk_info.Value cast ChunkInfo
-		# 	if i.getDistance() > Settings.MinChunkDistance:
-		# 		coords = i.getCoords()
-		# 		o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
-		# 		if o != null:
-		# 			print "DESTROYING: Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
-		# 			gameObject.Destroy(o)
-		# 			chunk_ball.Remove(chunk_info.Key)
-		# 			break
-		# 		chunks_to_remove.Push(chunk_info.Key)
-
-		# for key in chunks_to_remove:
-		# 	o = gameObject.Find("Chunk ($key)")
-		# 	if o != null:
-		# 		gameObject.Destroy(o)
-		# 		break
-		# 		#chunk_ball.Remove(key)
-		
-
-		if completed_chunk_count == (Settings.ChunkCountA * Settings.ChunkCountB * Settings.ChunkCountC) and not initial_chunks_complete:
-			initial_chunks_complete = true
-

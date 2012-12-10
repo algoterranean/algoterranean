@@ -9,11 +9,14 @@ class Player (MonoBehaviour):
 	
 	def Start ():
 		chunk_manager = gameObject.Find("ChunkManager")
+		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
+		cm_obj.setOrigin(0, 0, 0)
+		center_player()
 
 	def center_player():
 		x = (Settings.ChunkSize * Settings.ChunkCountA)/2
 		z = (Settings.ChunkSize * Settings.ChunkCountB)/2
-		gameObject.transform.position = Vector3(x, 140, z)
+		gameObject.transform.position = Vector3(0, 2000, 0)
 	
 	def Update ():
 		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
@@ -21,11 +24,12 @@ class Player (MonoBehaviour):
 			center_player()
 		elif not initial_startup:
 			initial_startup = true
-			cm_obj.setOrigin(0, 0, 0)
+			#cm_obj.setOrigin(0, 0, 0)
 			#cm_obj.setOrigin(100,0,0)
-		if initial_startup:
-		 	cm_obj.setOrigin(x_pos + 10 * Time.deltaTime, 0, 0)
-		 	x_pos += 0.1
+
+			#if initial_startup:
+		 	#cm_obj.setOrigin(x_pos + 10 * Time.deltaTime, 0, 0)
+		 	#x_pos += 0.1
 			
 		# if initial_startup:
 		# 	origin = gameObject.transform.position
