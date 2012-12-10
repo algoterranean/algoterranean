@@ -6,7 +6,7 @@ class NullChunk(IChunk):
 		return true
 	
 
-class Chunk (IChunk, IChunkNeighborhood):
+class Chunk (IChunk):
 	blocks_calculated as bool
 	mesh_is_dirty as bool
 	mesh_calculated as bool
