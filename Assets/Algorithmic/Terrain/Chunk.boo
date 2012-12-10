@@ -2,32 +2,8 @@
 namespace Algorithmic
 
 class NullChunk(IChunk):
-	#def constructor():
-	#	pass
 	def isNull() as bool:
 		return true
-	# def areBlocksCalculated() as bool:
-	# 	return false
-	# def isMeshCalculated() as bool:
-	# 	return false
-	# def getBlock(p as byte, q as byte, r as byte) as byte:
-	# 	return 0
-	# def getCoordinates() as (long):
-	# 	x as long = 0
-	# 	z as long = 0
-	# 	y as long = 0
-	# 	return (x, z, y)
-	# def setBlock(p as byte, q as byte, r as byte, block as byte) as void:
-	# 	pass
-	# def setCoordinates(x as long, z as long, y as long) as void:
-	# 	pass
-	# def setSizes(p_size as byte, q_size as byte, r_size as byte) as void:
-	# 	pass
-	# def CalculateNoise() as void:
-	# 	pass
-	# def CalculateMesh() as void:
-	# 	pass
-
 	
 
 class Chunk (IChunk, IChunkNeighborhood):

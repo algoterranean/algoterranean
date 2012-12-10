@@ -120,7 +120,6 @@ class ChunkManager (MonoBehaviour):
 			coords = chunk.getCoordinates()
 			
 			if chunk.getDistance() <= Settings.MinChunkDistance:
-			#print "Displaying Chunk [$(coords[0]), $(coords[1]), $(coords[2])]"
 				chunk_name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
 				if gameObject.Find(chunk_name) == null:
 					o = GameObject()
@@ -187,6 +186,6 @@ class ChunkManager (MonoBehaviour):
 		if len(chunk_removal_queue) > 0:
 			c as Chunk = chunk_removal_queue.Pop()
 			coords = c.getCoordinates()
-			o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")			
-			print "Removing Chunk ($(coords[0]), $(coords[1]), $(coords[2])): $o"			
+			o = gameObject.Find("Chunk ($(coords[0]), $(coords[1]), $(coords[2]))")
+			print "Removing Chunk ($(coords[0]), $(coords[1]), $(coords[2])): $o"
 			gameObject.Destroy(o)

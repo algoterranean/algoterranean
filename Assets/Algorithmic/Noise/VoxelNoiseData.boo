@@ -70,6 +70,7 @@ class VoxelNoiseData:
 		turbulence = Transformer.Turbulence(gradient, constant0, constant0, octave_sum, Settings.Power)
 		perlin_select = Modifier.Select(turbulence, constant0, constant1, -1.0, 0.2, 0.0)
 
+
 		# caves
 		##############################################################################		
 		# cave 1
@@ -125,7 +126,6 @@ class VoxelNoiseData:
 	def GetBlock (x as int, z as int, y as int) as int:
 		# 1 = solid, 0 = air
 		#block = magma_combine.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
-		
 		block = total_select.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
 		return block
 		
