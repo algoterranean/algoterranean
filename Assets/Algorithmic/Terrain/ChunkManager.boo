@@ -118,7 +118,7 @@ class ChunkManager (MonoBehaviour):
 		# display a mesh if the mesh was calculated on a chunk
 		if chunk != null:
 			coords = chunk.getCoordinates()
-			
+
 			if chunk.getDistance() <= Settings.MinChunkDistance:
 				chunk_name = "Chunk ($(coords[0]), $(coords[1]), $(coords[2]))"
 				if gameObject.Find(chunk_name) == null:
@@ -136,7 +136,7 @@ class ChunkManager (MonoBehaviour):
 					#mesh.RecalculateNormals()
 					o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
 					o.GetComponent(MeshFilter).sharedMesh = mesh
-					#o.GetComponent(MeshCollider).sharedMesh = mesh
+					o.GetComponent(MeshCollider).sharedMesh = mesh
 					o.transform.position = Vector3(coords[0], coords[2], coords[1])
 				else:
 					o = gameObject.Find(chunk_name)
@@ -147,7 +147,7 @@ class ChunkManager (MonoBehaviour):
 					mesh.normals = chunk.normals
 					#mesh.RecalculateNormals()
 					o.GetComponent(MeshFilter).sharedMesh = mesh
-					#o.GetComponent(MeshCollider).sharedMesh = mesh
+					o.GetComponent(MeshCollider).sharedMesh = mesh
 				completed_chunk_count += 1
 			
 

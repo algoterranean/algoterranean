@@ -16,7 +16,7 @@ class Player (MonoBehaviour):
 	def center_player():
 		x = (Settings.ChunkSize * Settings.ChunkCountA)/2
 		z = (Settings.ChunkSize * Settings.ChunkCountB)/2
-		gameObject.transform.position = Vector3(0, 2000, 0)
+		gameObject.transform.position = Vector3(0, 300, 0)
 	
 	def Update ():
 		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
