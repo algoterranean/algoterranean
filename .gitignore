@@ -14,6 +14,12 @@
 *.zip
 *.rtf
 #Unity files
+*.csproj
+*.unityproj
+*.userprefs
+*.sln
+*.pidb
+*.booproj
 *.cginc
 *.prefab
 *.unity
