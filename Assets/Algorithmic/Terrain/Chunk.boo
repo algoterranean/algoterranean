@@ -13,6 +13,7 @@ class Chunk (IChunk):
 	mesh_visible as bool
 	distance as double
 	distance_no_height as double
+	distance_skew_height as double
 	blocks as (byte, 3)
 	noise_module as VoxelNoiseData
 	x_coord as long
@@ -78,14 +79,19 @@ class Chunk (IChunk):
 		a = x_coord - x_pos
 		b = z_coord - z_pos
 		c = y_coord - y_pos
+		d = 300 - y_coord - y_pos
 		distance = Math.Sqrt(a*a + b*b + c*c)
 		distance_no_height = Math.Sqrt(a*a + b*b)
+		distance_skew_height = Math.Sqrt(a*a + b*b + d*d)
 
 	def getDistance():
 		return distance
 
 	def getDistanceIgnoringHeight():
 		return distance_no_height
+
+	def getDistanceSkewHeight():
+		return distance_skew_height
 		
 	def getBlock(p as byte, q as byte, r as byte) as byte:
 		return blocks[p, q, r]
@@ -99,6 +105,7 @@ class Chunk (IChunk):
 		for p in range(p_size):
 			for q in range(q_size):
 				for r in range(r_size):
+					#for p, q, r in Utils.Product(p_size, q_size, r_size):
 					blocks[p,q,r] = noise_module.GetBlock(p + x_coord, q + z_coord, r + y_coord)
 					
 		lock blocks_calculated:
@@ -196,10 +203,10 @@ class Chunk (IChunk):
 		vertice_size = 0
 		uv_size = 0
 
-
 		for p in range(p_size):
 			for q in range(q_size):
 				for r in range(r_size):
+					#for p, q, r in Utils.Product(p_size, q_size, r_size):
 					solid = blocks[p, q, r]
 					# solid_west = (0 if p == 0 else blocks[p-1, q, r])
 					# solid_east = (0 if p == p_size-1 else blocks[p+1, q, r])
@@ -207,21 +214,21 @@ class Chunk (IChunk):
 					# solid_north = (0 if q == q_size-1 else blocks[p, q+1, r])
 					# solid_down = (0 if r == 0 else blocks[p, q, r-1])
 					# solid_up = (0 if r == r_size-1 else blocks[p, q, r+1])
-					
+
 					if p == 0 and west_chunk.isNull():
 						solid_west = 0
 					elif p == 0 and not west_chunk.isNull():
 						solid_west = west_chunk.getBlock(p_size-1, q, r)
 					else:
 						solid_west = blocks[p-1, q, r]
-						
+
 					if p == p_size-1 and east_chunk.isNull():
 						solid_east = 0
 					elif p == p_size-1 and not east_chunk.isNull():
 						solid_east = east_chunk.getBlock(0, q, r)
 					else:
 						solid_east = blocks[p+1, q, r]
-						
+
 					if q == 0 and south_chunk.isNull():
 						solid_south = 0
 					elif q == 0 and not south_chunk.isNull():
@@ -249,7 +256,7 @@ class Chunk (IChunk):
 						solid_up = up_chunk.getBlock(p, q, 0)
 					else:
 						solid_up = blocks[p, q, r+1]
-						
+
 
 					if solid:
 						if not solid_west:
@@ -276,6 +283,8 @@ class Chunk (IChunk):
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
+
+					
 		vertices = matrix(Vector3, vertice_size)
 		triangles = matrix(int, triangle_size)
 		uvs = matrix(Vector2, uv_size)
@@ -324,11 +333,10 @@ class Chunk (IChunk):
 			normal_count += 1
 			
 			
-
-
 		for p in range(p_size):
 			for q in range(q_size):
 				for r in range(r_size):
+					#for p, q, r in Utils.Product(p_size, q_size, r_size):
 					solid = blocks[p, q, r]
 					# solid_west = (0 if p == 0 else blocks[p-1, q, r])
 					# solid_east = (0 if p == p_size-1 else blocks[p+1, q, r])
@@ -342,14 +350,14 @@ class Chunk (IChunk):
 						solid_west = west_chunk.getBlock(p_size-1, q, r)
 					else:
 						solid_west = blocks[p-1, q, r]
-						
+
 					if p == p_size-1 and east_chunk.isNull():
 						solid_east = 0
 					elif p == p_size-1 and not east_chunk.isNull():
 						solid_east = east_chunk.getBlock(0, q, r)
 					else:
 						solid_east = blocks[p+1, q, r]
-						
+
 					if q == 0 and south_chunk.isNull():
 						solid_south = 0
 					elif q == 0 and not south_chunk.isNull():
@@ -377,7 +385,7 @@ class Chunk (IChunk):
 						solid_up = up_chunk.getBlock(p, q, 0)
 					else:
 						solid_up = blocks[p, q, r+1]					
-						
+
 					if solid:
 						if not solid_west:
 							vertices[vertice_count] = Vector3(p, r, q)
