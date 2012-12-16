@@ -10,7 +10,7 @@ class CameraFollowing (MonoBehaviour):
 	def Start ():
 		chunk_manager = gameObject.Find("ChunkManager")
 		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
-		cm_obj.setOrigin(origin.x, origin.z, origin.y)
+		cm_obj.setOrigin(origin)
 	
 	def FixedUpdate ():
 		gameObject.GetComponent(Transform).position = Vector3(origin.x - 80.0, origin.y + 150.0, origin.z - 80.0)
@@ -19,4 +19,4 @@ class CameraFollowing (MonoBehaviour):
 		origin = Vector3(origin.x + epsilon, origin.y, origin.z + epsilon)
 		if Vector3.Distance(origin, last_position) >= 10.0:
 			last_position = origin
-			cm_obj.setOrigin(origin.x, origin.z, origin.y)
+			cm_obj.setOrigin(origin)

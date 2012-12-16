@@ -10,7 +10,7 @@ class Player (MonoBehaviour):
 	def Start ():
 		chunk_manager = gameObject.Find("ChunkManager")
 		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
-		cm_obj.setOrigin(0, 0, 0)
+		cm_obj.setOrigin(Vector3(0, 0, 0))
 		center_player()
 
 	def center_player():

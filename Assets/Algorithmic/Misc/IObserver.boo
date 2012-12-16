@@ -1,4 +1,4 @@
 
 
 interface IObserver ():
-	def update(o as object) as void
+	def updateObserver(o as object) as void
