@@ -185,12 +185,18 @@ class ChunkBall (IChunkBall, IObservable):
 	def getMaxChunkDistance() as byte:
 		return _max_distance
 
+	def _add_chunk():
+		pass
+
+	def _remove_chunk():
+		pass
+
 	def _noise_worker(chunk_info as ChunkInfo) as WaitCallback:
 		try:
 			chunk as ChunkBlockData = chunk_info.getChunk()
 			chunk.CalculateBlocks()
-			lock _locker:
-				_outgoing_queue.Push(ChunkBallMessage(Message.BLOCKS_READY, chunk_info))
+			## lock _locker:
+			## 	_outgoing_queue.Push(ChunkBallMessage(Message.BLOCKS_READY, chunk_info))
 
 			mesh as ChunkMeshData = chunk_info.getMesh()
 			mesh.CalculateMesh()
@@ -253,7 +259,7 @@ class ChunkBall (IChunkBall, IObservable):
 			
 
 		# # add all new chunks
-		for item in creation_queue:
+		for item as LongVector3 in creation_queue:
 			size = ByteVector3(_chunk_size, _chunk_size, _chunk_size)
 			chunk_blocks = ChunkBlockData(item, size)
 			chunk_mesh = ChunkMeshData(chunk_blocks)
