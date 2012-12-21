@@ -243,7 +243,7 @@ class ChunkBall (IChunkBall, IObservable):
 			_chunks.Remove(key)
 
 		###########################################
-		# # determine which chunks need to be added
+		# determine which chunks need to be added
 		creation_queue = []
 		for a in range(_max_distance*2+1):
 			for b in range(_max_distance*2+1):
@@ -256,9 +256,12 @@ class ChunkBall (IChunkBall, IObservable):
 				c = 0
 			c = 0
 			b = 0
-			
 
-		# # add all new chunks
+		# sort so that they are from closest to farthest from origin
+		creation_queue.Sort() do (left as LongVector3, right as LongVector3):
+			return _origin.Distance(_origin, Vector3(right.x, right.y, right.z)) - _origin.Distance(_origin, Vector3(left.x, left.y, left.z)) 
+
+		# add all new chunks
 		for item as LongVector3 in creation_queue:
 			size = ByteVector3(_chunk_size, _chunk_size, _chunk_size)
 			chunk_blocks = ChunkBlockData(item, size)

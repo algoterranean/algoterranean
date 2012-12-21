@@ -264,17 +264,10 @@ class ChunkManager (MonoBehaviour, IObserver):
         mesh.triangles = chunk_mesh.getTriangles()
         mesh.normals = chunk_mesh.getNormals()
         mesh.uv = chunk_mesh.getUVs()
-        #mesh.RecalculateNormals()
         o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
         o.GetComponent(MeshFilter).sharedMesh = mesh
-        o.GetComponent(MeshCollider).sharedMesh = mesh
+        #o.GetComponent(MeshCollider).sharedMesh = mesh
 
         o.transform.position = Vector3(coords.x, coords.y, coords.z)
-        #o.transform.position = Vector3(coords.x, coords.y, coords.z + Settings.ChunkSize)
-        #o.transform.eulerAngles = Vector3(270, 0, 0)
-
-
-        
-        #o.transform.eulerAngles = Vector3(90, 0, 0)
 
 
