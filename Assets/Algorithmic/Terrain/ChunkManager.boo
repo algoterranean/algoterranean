@@ -265,6 +265,13 @@ class ChunkManager (MonoBehaviour, IObserver):
         o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
         o.GetComponent(MeshFilter).sharedMesh = mesh
         #o.GetComponent(MeshCollider).sharedMesh = mesh
-        o.transform.position = Vector3(coords.x, coords.z, coords.y)
+
+        o.transform.position = Vector3(coords.x, coords.y, coords.z)
+        #o.transform.position = Vector3(coords.x, coords.y, coords.z + Settings.ChunkSize)
+        #o.transform.eulerAngles = Vector3(270, 0, 0)
+
+
+        
+        #o.transform.eulerAngles = Vector3(90, 0, 0)
 
 

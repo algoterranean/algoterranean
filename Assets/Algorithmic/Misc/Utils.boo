@@ -9,8 +9,8 @@ class Utils ():
 
     static def whichChunk(coords as Vector3) as LongVector3:
         x_pos = System.Math.Floor(coords.x / Settings.ChunkSize)
-        z_pos = System.Math.Floor(coords.z / Settings.ChunkSize)
         y_pos = System.Math.Floor(coords.y / Settings.ChunkSize)
+        z_pos = System.Math.Floor(coords.z / Settings.ChunkSize)
         return LongVector3(x_pos * Settings.ChunkSize, y_pos * Settings.ChunkSize,  z_pos * Settings.ChunkSize)
 
 

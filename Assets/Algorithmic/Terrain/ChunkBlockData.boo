@@ -14,7 +14,7 @@ class ChunkBlockData (IChunkBlockData):
 	def constructor(coords as LongVector3, size as ByteVector3):
 		setCoordinates(coords)
 		setSize(size)
-		_blocks = matrix(byte, size.x, size.z, size.y)
+		_blocks = matrix(byte, size.x, size.y, size.z)
 		_blocks_calculated = false
 		_noise_module = VoxelNoiseData()
 		
@@ -31,10 +31,10 @@ class ChunkBlockData (IChunkBlockData):
 		return _size
 
 	def setBlock(coords as ByteVector3, block as byte) as void:
-		_blocks[coords.x, coords.z, coords.y] = block
+		_blocks[coords.x, coords.y, coords.z] = block
 
 	def getBlock(coords as ByteVector3) as byte:
-		return _blocks[coords.x, coords.z, coords.y]
+		return _blocks[coords.x, coords.y, coords.z]
 
 	def areBlocksCalculated() as bool:
 		return _blocks_calculated
@@ -46,6 +46,6 @@ class ChunkBlockData (IChunkBlockData):
 		for p in range(_size.x):
 			for q in range(_size.y):
 				for r in range(_size.z):
-					_blocks[p, q, r] = _noise_module.GetBlock(p + _coords.x, r + _coords.y, q + _coords.z)
+					_blocks[p, q, r] = _noise_module.GetBlock(p + _coords.x, q + _coords.y, r + _coords.z)
 		_blocks_calculated = true
 		

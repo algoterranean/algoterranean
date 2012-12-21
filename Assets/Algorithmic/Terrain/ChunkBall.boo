@@ -132,6 +132,7 @@ class ChunkBallMessage():
 ################################################################################
 # Main ChunkBall class
 class ChunkBall (IChunkBall, IObservable):
+	_locker = object()
 	_origin as Vector3
 	_min_distance as byte
 	_max_distance as byte
@@ -149,16 +150,16 @@ class ChunkBall (IChunkBall, IObservable):
 		if _observers.Contains(o):
 			pass
 		else:
-			lock _observers:
+			lock _locker:
 				_observers.Push(o)
 
 	def removeObserver(o as object) as void:
 		if _observers.Contains(o):
-			lock _observers:
+			lock _locker:
 				_observers.Remove(o)
 
 	def notifyObservers() as void:
-		lock _outgoing_queue:
+		lock _locker:
 			for x as IObserver in _observers:
 				for y in _outgoing_queue:
 					x.updateObserver(y)
@@ -188,12 +189,12 @@ class ChunkBall (IChunkBall, IObservable):
 		try:
 			chunk as ChunkBlockData = chunk_info.getChunk()
 			chunk.CalculateBlocks()
-			lock _outgoing_queue:
+			lock _locker:
 				_outgoing_queue.Push(ChunkBallMessage(Message.BLOCKS_READY, chunk_info))
 
 			mesh as ChunkMeshData = chunk_info.getMesh()
 			mesh.CalculateMesh()
-			lock _outgoing_queue:
+			lock _locker:
 				_outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
@@ -217,20 +218,21 @@ class ChunkBall (IChunkBall, IObservable):
 		# determine which chunks are now too far away
 		current_chunk_coords = Utils.whichChunk(_origin)
 		removal_queue = []
-		for item in _chunks:
-			chunk_info = item.Value
-			chunk_blocks = chunk_info.getChunk()
-			chunk_mesh  = chunk_info.getMesh()
-			chunk_coords = chunk_blocks.getCoordinates()
-			
-			if (current_chunk_coords.x - chunk_coords.x)/_chunk_size > _max_distance or \
-			    (current_chunk_coords.y - chunk_coords.y)/_chunk_size > _max_distance or \
-			    (current_chunk_coords.z - chunk_coords.z)/_chunk_size > _max_distance:
-				removal_queue.Push(item.Key)
+		lock _locker:
+			for item in _chunks:
+				chunk_info = item.Value
+				chunk_blocks = chunk_info.getChunk()
+				chunk_mesh  = chunk_info.getMesh()
+				chunk_coords = chunk_blocks.getCoordinates()
+
+				if (current_chunk_coords.x - chunk_coords.x)/_chunk_size > _max_distance or \
+				    (current_chunk_coords.y - chunk_coords.y)/_chunk_size > _max_distance or \
+				    (current_chunk_coords.z - chunk_coords.z)/_chunk_size > _max_distance:
+					removal_queue.Push(item.Key)
 
 		# remove all chunks that are too far away
 		for key in removal_queue:
-			lock _outgoing_queue:
+			lock _locker:
 				_outgoing_queue.Push(ChunkBallMessage(Message.REMOVE, _chunks[key]))
 			_chunks.Remove(key)
 
@@ -246,11 +248,9 @@ class ChunkBall (IChunkBall, IObservable):
 					if not _chunks.ContainsKey(LongVector3(x_coord, y_coord, z_coord)):
 						creation_queue.Push(LongVector3(x_coord, y_coord, z_coord))
 				c = 0
-			b = 0
 			c = 0
-		
+			b = 0
 			
-						
 
 		# # add all new chunks
 		for item in creation_queue:
