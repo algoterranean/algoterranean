@@ -5,7 +5,7 @@ class CameraFollowing (MonoBehaviour):
 	last_position = Vector3(0.0, 0.0, 0.0)
 	chunk_manager as GameObject
 	cm_obj as ChunkManager
-	epsilon = 0.05
+	epsilon = 0.15
 
 	def Start ():
 		chunk_manager = gameObject.Find("ChunkManager")

@@ -197,6 +197,7 @@ class ChunkManager (MonoBehaviour, IObserver):
     _chunk_ball as ChunkBall
     _add_mesh_queue = []
     _remove_mesh_queue = []
+    _mesh_cleanup_queue = []
 
 
     def updateObserver(o as object):
@@ -228,7 +229,7 @@ class ChunkManager (MonoBehaviour, IObserver):
         if len(_remove_mesh_queue) > 0:
             chunk_info = _remove_mesh_queue.Pop()
             _remove_mesh_object(chunk_info)
-                
+
 	
     def areInitialChunksComplete() as bool:
         pass
@@ -244,6 +245,8 @@ class ChunkManager (MonoBehaviour, IObserver):
         o = gameObject.Find("Chunk ($(coords.x), $(coords.y), $(coords.z))")
         if o != null:
             gameObject.Destroy(o)
+        else:
+            updateObserver(ChunkBallMessage(Message.REMOVE, chunk_info))
 
     def _create_mesh_object(chunk_info as ChunkInfo):
         chunk_blocks as ChunkBlockData = chunk_info.getChunk()
@@ -264,7 +267,7 @@ class ChunkManager (MonoBehaviour, IObserver):
         #mesh.RecalculateNormals()
         o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
         o.GetComponent(MeshFilter).sharedMesh = mesh
-        #o.GetComponent(MeshCollider).sharedMesh = mesh
+        o.GetComponent(MeshCollider).sharedMesh = mesh
 
         o.transform.position = Vector3(coords.x, coords.y, coords.z)
         #o.transform.position = Vector3(coords.x, coords.y, coords.z + Settings.ChunkSize)
