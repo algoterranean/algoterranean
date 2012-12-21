@@ -215,7 +215,7 @@ class ChunkManager (MonoBehaviour, IObserver):
                 _remove_mesh_queue.Push(chunk_info)
 
     def Awake():
-        _chunk_ball = ChunkBall(2, 2, Settings.ChunkSize)
+        _chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
         _chunk_ball.registerObserver(self)
 
     def Update():
@@ -223,11 +223,11 @@ class ChunkManager (MonoBehaviour, IObserver):
         _chunk_ball.Update()
         if len(_add_mesh_queue) > 0:
             chunk_info = _add_mesh_queue.Pop()
-            _create_mesh(chunk_info)
+            _create_mesh_object(chunk_info)
 
         if len(_remove_mesh_queue) > 0:
             chunk_info = _remove_mesh_queue.Pop()
-            _remove_mesh(chunk_info)
+            _remove_mesh_object(chunk_info)
                 
 	
     def areInitialChunksComplete() as bool:
@@ -238,14 +238,14 @@ class ChunkManager (MonoBehaviour, IObserver):
         #_chunk_ball.getMaxChunkDistance()
         _chunk_ball.SetOrigin(origin)
 
-    def _remove_mesh(chunk_info as ChunkInfo):
+    def _remove_mesh_object(chunk_info as ChunkInfo):
         chunk_blocks as ChunkBlockData = chunk_info.getChunk()
         coords = chunk_blocks.getCoordinates()
         o = gameObject.Find("Chunk ($(coords.x), $(coords.y), $(coords.z))")
         if o != null:
             gameObject.Destroy(o)
 
-    def _create_mesh(chunk_info as ChunkInfo):
+    def _create_mesh_object(chunk_info as ChunkInfo):
         chunk_blocks as ChunkBlockData = chunk_info.getChunk()
         chunk_mesh as ChunkMeshData = chunk_info.getMesh()
         coords = chunk_blocks.getCoordinates()

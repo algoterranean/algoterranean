@@ -13,8 +13,14 @@ struct Settings:
 	public static ChunkCountC as int = 3
 	public static MinChunkDistance as double = 120 #80.0
 	public static MaxChunkDistance as double = 240.0
+
+
 	
+	public static ChunkWidth as int = 2 # 2 + 1 + 2
+	public static ChunkDepth as int = 2 # 2 + 1 + 2
+	public static ChunkHeight as int = 2 # 2 + 1 + 2
 	public static ChunkSize as int = 32
+	
 	public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
 
 	public static TerrainDepth as single = ChunkCountC * ChunkSize

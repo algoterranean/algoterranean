@@ -245,6 +245,12 @@ class ChunkBall (IChunkBall, IObservable):
 					z_coord = (c - _max_distance)*_chunk_size + current_chunk_coords.z
 					if not _chunks.ContainsKey(LongVector3(x_coord, y_coord, z_coord)):
 						creation_queue.Push(LongVector3(x_coord, y_coord, z_coord))
+				c = 0
+			b = 0
+			c = 0
+		
+			
+						
 
 		# # add all new chunks
 		for item in creation_queue:
