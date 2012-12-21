@@ -52,8 +52,8 @@ class ChunkMeshData (IChunkMeshData):
 	def CalculateMesh() as void:
 		size = _chunk.getSize()
 		p_size = size.x
-		q_size = size.z
-		r_size = size.y
+		q_size = size.y
+		r_size = size.z
 		vertice_size = 0
 		triangle_size = 0
 		uv_size = 0

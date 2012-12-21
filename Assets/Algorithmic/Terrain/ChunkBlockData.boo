@@ -2,7 +2,7 @@ import UnityEngine
 
 class NullBlockData (IChunkBlockData):
 	def isNull():
-		return false
+		return true
 
 class ChunkBlockData (IChunkBlockData):
 	_coords as LongVector3
@@ -44,8 +44,8 @@ class ChunkBlockData (IChunkBlockData):
 
 	def CalculateBlocks() as void:
 		for p in range(_size.x):
-			for q in range(_size.z):
-				for r in range(_size.y):
-					_blocks[p, q, r] = _noise_module.GetBlock(p + _coords.x, q + _coords.z, r + _coords.y)
+			for q in range(_size.y):
+				for r in range(_size.z):
+					_blocks[p, q, r] = _noise_module.GetBlock(p + _coords.x, r + _coords.y, q + _coords.z)
 		_blocks_calculated = true
 		

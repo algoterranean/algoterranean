@@ -88,9 +88,49 @@ import UnityEngine
 # 				chunk.setDownChunk(chunks[down_name])
 # 			if chunks.ContainsKey(up_name):
 # 				chunk.setUpChunk(chunks[up_name])
-							
 
-			
+
+
+
+################################################################################
+# Utility and Message Passing Stuff							
+class ChunkInfo():
+	_chunk as IChunkBlockData
+	_mesh as IChunkMeshData
+	
+	def constructor(chunk as IChunkBlockData, mesh as IChunkMeshData):
+		_chunk = chunk
+		_mesh = mesh
+
+	def getChunk() as IChunkBlockData:
+		return _chunk
+
+	def getMesh() as IChunkMeshData:
+		return _mesh
+
+enum Message:
+	REMOVE
+	ADD
+	BLOCKS_READY
+	MESH_READY
+
+class ChunkBallMessage():
+	_message as Message
+	_data as object
+	
+	def constructor(message as Message, data as object):
+		_message = message
+		_data = data
+
+	def getMessage() as Message:
+		return _message
+
+	def getData() as object:
+		return _data
+
+
+################################################################################
+# Main ChunkBall class
 class ChunkBall (IChunkBall, IObservable):
 	_origin as Vector3
 	_min_distance as byte
@@ -98,31 +138,38 @@ class ChunkBall (IChunkBall, IObservable):
 	_chunk_size as byte
 	_observers = []
 	_outgoing_queue = []
-	_chunks = {} #Dictionary[of double, ChunkBlockData]
+	_chunks as Dictionary[of LongVector3, ChunkInfo]
 	_threshold = 10.0
+
+	def Update():
+		notifyObservers()
 	
 
 	def registerObserver(o as object) as void:
 		if _observers.Contains(o):
 			pass
 		else:
-			_observers.Push(o)
+			lock _observers:
+				_observers.Push(o)
 
 	def removeObserver(o as object) as void:
 		if _observers.Contains(o):
-			_observers.Remove(o)
+			lock _observers:
+				_observers.Remove(o)
 
 	def notifyObservers() as void:
 		lock _outgoing_queue:
 			for x as IObserver in _observers:
 				for y in _outgoing_queue:
 					x.updateObserver(y)
+			_outgoing_queue = []
 
 	def constructor(min_distance, max_distance, chunk_size):
 		setMinChunkDistance(min_distance)
 		setMaxChunkDistance(max_distance)
 		_chunk_size = chunk_size
-		chunks = Dictionary[of double, ChunkBlockData]()
+		_chunks = Dictionary[of LongVector3, ChunkInfo]()
+		_origin = Vector3(10000, 10000, 10000)
 
 
 	def setMinChunkDistance(min_distance as byte) as void:
@@ -137,76 +184,83 @@ class ChunkBall (IChunkBall, IObservable):
 	def getMaxChunkDistance() as byte:
 		return _max_distance
 
-	def _noise_worker(chunk as IChunkBlockData) as WaitCallback:
+	def _noise_worker(chunk_info as ChunkInfo) as WaitCallback:
 		try:
-			#Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Lowest
+			chunk as ChunkBlockData = chunk_info.getChunk()
 			chunk.CalculateBlocks()
-			coord = chunk.getCoordinates()
+			lock _outgoing_queue:
+				_outgoing_queue.Push(ChunkBallMessage(Message.BLOCKS_READY, chunk_info))
+
+			mesh as ChunkMeshData = chunk_info.getMesh()
+			mesh.CalculateMesh()
+			lock _outgoing_queue:
+				_outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
 		# lock _locker:
-		# 	noise_calculated_queue.Push(chunk)	
+		# 	noise_calculated_queue.Push(chunk)
+
+			
 
 	def SetOrigin(origin as Vector3) as void:
 		# only do something if the distance since the
 		# last update is greater than some threshold
 		a = _origin.x - origin.x
-		b = _origin.z - origin.z
-		c = _origin.y - origin.y
+		b = _origin.y - origin.y
+		c = _origin.z - origin.z
 		if Math.Sqrt(a*a + b*b + c*c) < _threshold:
-			pass
+			return
 		_origin = origin
 
 
+		#############################################
 		# determine which chunks are now too far away
 		current_chunk_coords = Utils.whichChunk(_origin)
 		removal_queue = []
-		for key in _chunks:
-			#key = chunk.Key
-			#value as List = chunk.Value
-			value as List = _chunks[key]
-			chunk_blocks as duck = value[0]
-			chunk_mesh as duck = value[1]
+		for item in _chunks:
+			chunk_info = item.Value
+			chunk_blocks = chunk_info.getChunk()
+			chunk_mesh  = chunk_info.getMesh()
 			chunk_coords = chunk_blocks.getCoordinates()
 			
 			if (current_chunk_coords.x - chunk_coords.x)/_chunk_size > _max_distance or \
-			    (current_chunk_coords.z - chunk_coords.z)/_chunk_size > _max_distance or \
-			    (current_chunk_coords.y - chunk_coords.y)/_chunk_size > _max_distance:
-				removal_queue.Push(key)
+			    (current_chunk_coords.y - chunk_coords.y)/_chunk_size > _max_distance or \
+			    (current_chunk_coords.z - chunk_coords.z)/_chunk_size > _max_distance:
+				removal_queue.Push(item.Key)
 
 		# remove all chunks that are too far away
- 		_outgoing_queue = []
 		for key in removal_queue:
+			lock _outgoing_queue:
+				_outgoing_queue.Push(ChunkBallMessage(Message.REMOVE, _chunks[key]))
 			_chunks.Remove(key)
-			_outgoing_queue.Push(key)
-		# notify all observers that the chunks have been removed
-		notifyObservers()
-		
 
-		# determine which chunks need to be added
+		###########################################
+		# # determine which chunks need to be added
 		creation_queue = []
-		for a in range(_max_distance*2):
-			for b in range(_max_distance*2):
-				for c in range(_max_distance*2):
+		for a in range(_max_distance*2+1):
+			for b in range(_max_distance*2+1):
+				for c in range(_max_distance*2+1):
 					x_coord = (a - _max_distance)*_chunk_size + current_chunk_coords.x
-					z_coord = (b - _max_distance)*_chunk_size + current_chunk_coords.z
-					y_coord = (c - _max_distance)*_chunk_size + current_chunk_coords.y
-					if not _chunks.Contains(LongVector3(x_coord, y_coord, z_coord)):
+					y_coord = (b - _max_distance)*_chunk_size + current_chunk_coords.y
+					z_coord = (c - _max_distance)*_chunk_size + current_chunk_coords.z
+					if not _chunks.ContainsKey(LongVector3(x_coord, y_coord, z_coord)):
 						creation_queue.Push(LongVector3(x_coord, y_coord, z_coord))
 
-		# add all new chunks
-		_outgoing_queue = []
-		for key in creation_queue:
-			coords = key
+		# # add all new chunks
+		for item in creation_queue:
 			size = ByteVector3(_chunk_size, _chunk_size, _chunk_size)
-			chunk_blocks = ChunkBlockData(coords, size)
+			chunk_blocks = ChunkBlockData(item, size)
 			chunk_mesh = ChunkMeshData(chunk_blocks)
-			_chunks.Add(coords, [chunk_blocks, chunk_mesh])
-		notifyObservers()
+			chunk_info = ChunkInfo(chunk_blocks, chunk_mesh)
+			_chunks.Add(item, chunk_info)
+			ThreadPool.QueueUserWorkItem(_noise_worker, chunk_info)
+			#_outgoing_queue.Push(ChunkBallMessage(Message.ADD, chunk_info))
+			#coords = chunk_blocks.getCoordinates()
+		#notifyObservers()
 
-		# add the new chunks to the thread pool to begin
-		# generating blocks and meshes
-			
+		# # add the new chunks to the thread pool to begin
+		# # generating blocks and meshes
+
 
 
 		

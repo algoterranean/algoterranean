@@ -1,8 +1,8 @@
 namespace Algorithmic
 
 import UnityEngine
-import System.Threading
-import System.Collections
+#import System.Threading
+#import System.Collections
 #import Amib.Threading
 
 
@@ -192,22 +192,79 @@ import System.Collections
 
 
 
+
 class ChunkManager (MonoBehaviour, IObserver):
-	_chunk_ball as ChunkBall
+    _chunk_ball as ChunkBall
+    _add_mesh_queue = []
+    _remove_mesh_queue = []
 
-	def updateObserver(o as object):
-		print "ChunkManager: Receiving Update: $o"
+
+    def updateObserver(o as object):
+        if o isa ChunkBallMessage:
+            cm = o cast ChunkBallMessage
+            message = cm.getMessage()
+            chunk_info as ChunkInfo = cm.getData()
+            chunk_blocks as IChunkBlockData = chunk_info.getChunk()
+            #chunk_mesh as IChunkMeshData = chunk_info.getMesh()
+            coords = chunk_blocks.getCoordinates()
+
+            print "ChunkManager: Receiving ChunkBall Update: $message ($(coords.x), $(coords.y), $(coords.z))"
+            if message == Message.MESH_READY:
+                _add_mesh_queue.Push(chunk_info)
+            elif message == Message.REMOVE:
+                _remove_mesh_queue.Push(chunk_info)
+
+    def Awake():
+        _chunk_ball = ChunkBall(2, 2, Settings.ChunkSize)
+        _chunk_ball.registerObserver(self)
+
+    def Update():
+        chunk_info as ChunkInfo
+        _chunk_ball.Update()
+        if len(_add_mesh_queue) > 0:
+            chunk_info = _add_mesh_queue.Pop()
+            _create_mesh(chunk_info)
+
+        if len(_remove_mesh_queue) > 0:
+            chunk_info = _remove_mesh_queue.Pop()
+            _remove_mesh(chunk_info)
+                
 	
-	def Awake():
-		_chunk_ball = ChunkBall(4, 4, Settings.ChunkSize)
-		_chunk_ball.registerObserver(self)
+    def areInitialChunksComplete() as bool:
+        pass
 
-	def Update():
-		pass
-	
-	def areInitialChunksComplete() as bool:
-		pass
+    def setOrigin(origin as Vector3) as void:
+        #print "ChunkManager: Setting Origin"
+        #_chunk_ball.getMaxChunkDistance()
+        _chunk_ball.SetOrigin(origin)
 
-	def setOrigin(origin as Vector3) as void:
-		print "ChunkManager: Setting Origin"
-		_chunk_ball.SetOrigin(origin)
+    def _remove_mesh(chunk_info as ChunkInfo):
+        chunk_blocks as ChunkBlockData = chunk_info.getChunk()
+        coords = chunk_blocks.getCoordinates()
+        o = gameObject.Find("Chunk ($(coords.x), $(coords.y), $(coords.z))")
+        if o != null:
+            gameObject.Destroy(o)
+
+    def _create_mesh(chunk_info as ChunkInfo):
+        chunk_blocks as ChunkBlockData = chunk_info.getChunk()
+        chunk_mesh as ChunkMeshData = chunk_info.getMesh()
+        coords = chunk_blocks.getCoordinates()
+
+        o = GameObject()
+        o.name = "Chunk ($(coords.x), $(coords.y), $(coords.z))"
+        #o.transform.parent = gameObject.Find("Terrain Parent").transform
+        o.AddComponent(MeshFilter)
+        o.AddComponent(MeshRenderer)
+        o.AddComponent(MeshCollider)
+        mesh = Mesh()
+        mesh.vertices = chunk_mesh.getVertices()
+        mesh.triangles = chunk_mesh.getTriangles()
+        mesh.normals = chunk_mesh.getNormals()
+        mesh.uv = chunk_mesh.getUVs()
+        #mesh.RecalculateNormals()
+        o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
+        o.GetComponent(MeshFilter).sharedMesh = mesh
+        #o.GetComponent(MeshCollider).sharedMesh = mesh
+        o.transform.position = Vector3(coords.x, coords.z, coords.y)
+
+
