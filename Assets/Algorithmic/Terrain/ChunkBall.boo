@@ -259,7 +259,7 @@ class ChunkBall (IChunkBall, IObservable):
 
 		# sort so that they are from closest to farthest from origin
 		creation_queue.Sort() do (left as LongVector3, right as LongVector3):
-			return _origin.Distance(_origin, Vector3(right.x, right.y, right.z)) - _origin.Distance(_origin, Vector3(left.x, left.y, left.z)) 
+			return _origin.Distance(_origin, Vector3(right.x, right.y, right.z)) - _origin.Distance(_origin, Vector3(left.x, left.y, left.z))
 
 		# add all new chunks
 		for item as LongVector3 in creation_queue:
