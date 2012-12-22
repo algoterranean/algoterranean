@@ -9,13 +9,14 @@ class ChunkBlockData (IChunkBlockData):
 	_size as ByteVector3
 	_blocks as (byte, 3)
 	_blocks_calculated as bool
-	_noise_module as BasicNoiseData
+	_noise_module as INoiseData
 
 	def constructor(coords as LongVector3, size as ByteVector3):
 		setCoordinates(coords)
 		setSize(size)
 		_blocks = matrix(byte, size.x+2, size.y+2, size.z+2)
 		_blocks_calculated = false
+		#_noise_module = MineralNoiseData()
 		_noise_module = BasicNoiseData()
 		
 	def setCoordinates(coords as LongVector3) as void:
