@@ -128,6 +128,6 @@ class VoxelNoiseData:
 	def GetBlock (x as int, y as int, z as int) as int:
 		# 1 = solid, 0 = air
 		#block = magma_combine.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
-		block = total_select.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
+		block = magma_combine.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
 		return block
 		
