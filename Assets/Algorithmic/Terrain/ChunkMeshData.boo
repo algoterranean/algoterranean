@@ -217,6 +217,8 @@ class ChunkMeshData (IChunkMeshData):
 								_calc_uvs(3,0)
 							elif solid == 2:
 								_calc_uvs(2,0)
+							elif solid == 50:
+								_calc_uvs(5,0)
 						if not solid_east:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
 							vertice_count += 1
@@ -232,6 +234,8 @@ class ChunkMeshData (IChunkMeshData):
 								_calc_uvs(3, 0)
 							elif solid == 2:
 								_calc_uvs(2, 0)
+							elif solid == 50:
+								_calc_uvs(5,0)								
 							
 						if not solid_south:
 							_vertices[vertice_count] = Vector3(x+1, y, z)
@@ -248,6 +252,8 @@ class ChunkMeshData (IChunkMeshData):
 								_calc_uvs(3,0)
 							elif solid == 2:
 								_calc_uvs(2, 0)
+							elif solid == 50:
+								_calc_uvs(5,0)								
 								
 						if not solid_north:
 							_vertices[vertice_count] = Vector3(x, y, z+1)
@@ -264,6 +270,8 @@ class ChunkMeshData (IChunkMeshData):
 								_calc_uvs(3,0)
 							elif solid == 2:
 								_calc_uvs(2, 0)
+							elif solid == 50:
+								_calc_uvs(5,0)								
 							
 						if not solid_down:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
@@ -279,7 +287,9 @@ class ChunkMeshData (IChunkMeshData):
 							if solid == 1:
 								_calc_uvs(3,0)
 							elif solid == 2:
-								_calc_uvs(2, 0)							
+								_calc_uvs(2, 0)
+							elif solid == 50:
+								_calc_uvs(5,0)								
 							
 						if not solid_up:
 							_vertices[vertice_count] = Vector3(x+1, y+1, z)
@@ -296,4 +306,6 @@ class ChunkMeshData (IChunkMeshData):
 								_calc_uvs(3,0)
 							elif solid == 2:							
 								_calc_uvs(2, 0)
+							elif solid == 50:
+								_calc_uvs(5,0)								
 			_mesh_calculated = true

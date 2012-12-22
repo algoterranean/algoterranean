@@ -3,7 +3,7 @@ import LibNoise
 import Algorithmic
 
 
-class VoxelNoiseData:
+class BasicNoiseData (INoiseData):
 	perlin as LibNoise.Primitive.ImprovedPerlin
 	octave_sum as LibNoise.Filter.SumFractal
 	
@@ -41,6 +41,10 @@ class VoxelNoiseData:
 	Solid as LibNoise.Primitive.Constant
 	Air as LibNoise.Primitive.Constant
 	Magma as LibNoise.Primitive.Constant
+	Forest as LibNoise.Primitive.Constant
+	Swamp as LibNoise.Primitive.Constant
+
+	
 	
 	cave_select_1 as LibNoise.Modifier.Select
 	cave_select_2 as LibNoise.Modifier.Select	
@@ -52,11 +56,18 @@ class VoxelNoiseData:
 	magma_select as LibNoise.Modifier.Select
 	magma_combine as LibNoise.Combiner.Max
 
+	biome_voronoi as LibNoise.Filter.Voronoi
+	biome_select as LibNoise.Modifier.Select
+	biome_combine as LibNoise.Combiner.Max
+	
+
 	def constructor():
 		constant0 = Primitive.Constant(0)
 		constant1 = Primitive.Constant(1)
 		constant_neg1 = Primitive.Constant(-1)
 
+		Swamp = Primitive.Constant(51)
+		Forest = Primitive.Constant(50)
 		Magma = Primitive.Constant(2)
 		Solid = Primitive.Constant(1)
 		Air = Primitive.Constant(0)
@@ -103,8 +114,6 @@ class VoxelNoiseData:
 		cave_sum_z = Filter.SumFractal(3.0, 1.0, 1.0, 3.0) # frequency, lacunarity, exponent, octaves
 		cave_sum_z.Primitive3D = cave_perlin_z
 		
-		
-
 
 		# final terrain/cave select functions
 		##############################################################################		
@@ -123,11 +132,21 @@ class VoxelNoiseData:
 		#magma_turbulence = Transformer.Turbulence(magma_select, constant0, constant0, magma_sum_x, 0.25)
 		magma_combine = Combiner.Max(total_select, magma_select)
 
+
+		# biomes
+		##############################################################################
+		biome_voronoi = Filter.Voronoi() #2.0, 1.0, 1.0, 1.0)
+		biome_voronoi.Displacement = 2.0
+		biome_voronoi.Primitive3D = Primitive.ImprovedPerlin(3000, NoiseQuality.Standard)
+		biome_select = Modifier.Select(biome_voronoi, Air, Forest, -1.0, 0.5, 0.0)
+		biome_combiner = Combiner.Max(magma_select, biome_select)
+
 		
 
 	def GetBlock (x as int, y as int, z as int) as int:
 		# 1 = solid, 0 = air
-		#block = magma_combine.GetValue(x*coord_scale, z*coord_scale, y*coord_scale)
-		block = magma_combine.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
+		block = total_select.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
+		#block = magma_combine.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
+		#block = biome_combine.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
 		return block
 		
