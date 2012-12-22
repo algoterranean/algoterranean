@@ -107,38 +107,27 @@ class ChunkMeshData (IChunkMeshData):
 
 		def _add_uvs(x as single, y as single):
 			# give x, y coordinates in (0-9) by (0-9)
-			_uvs[uv_count] = Vector2(x, 1.0 - y - 0.1)
-			uv_count += 1
-			_uvs[uv_count] = Vector2(x, 1.0 - y)
-			uv_count += 1
-			_uvs[uv_count] = Vector2(x + 0.1, 1.0 - y)
-			uv_count += 1
-			_uvs[uv_count] = Vector2(x + 0.1, 1.0 - y - 0.1)
-			uv_count += 1
+			_uvs[uv_count]   = Vector2(x, 1.0 - y - 0.1)
+			_uvs[uv_count+1] = Vector2(x, 1.0 - y)
+			_uvs[uv_count+2] = Vector2(x + 0.1, 1.0 - y)
+			_uvs[uv_count+3] = Vector2(x + 0.1, 1.0 - y - 0.1)
+			uv_count += 4
 			
 		def _calc_triangles():
-			_triangles[triangle_count] = vertice_count-4 # 0
-			triangle_count += 1
-			_triangles[triangle_count] = vertice_count-3 # 1
-			triangle_count += 1			
-			_triangles[triangle_count] = vertice_count-2 # 2
-			triangle_count += 1			
-			_triangles[triangle_count] = vertice_count-2 # 2
-			triangle_count += 1			
-			_triangles[triangle_count] = vertice_count-1 # 3
-			triangle_count += 1			
-			_triangles[triangle_count] = vertice_count-4 # 0
-			triangle_count += 1
+			_triangles[triangle_count]   = vertice_count-4 # 0
+			_triangles[triangle_count+1] = vertice_count-3 # 1
+			_triangles[triangle_count+2] = vertice_count-2 # 2
+			_triangles[triangle_count+3] = vertice_count-2 # 2
+			_triangles[triangle_count+4] = vertice_count-1 # 3
+			_triangles[triangle_count+5] = vertice_count-4 # 0
+			triangle_count += 6
 
 		def _add_normals(n as Vector3):
-			_normals[normal_count] = n
-			normal_count += 1
-			_normals[normal_count] = n
-			normal_count += 1			
-			_normals[normal_count] = n
-			normal_count += 1			
-			_normals[normal_count] = n
-			normal_count += 1
+			_normals[normal_count]   = n
+			_normals[normal_count+1] = n
+			_normals[normal_count+2] = n
+			_normals[normal_count+3] = n
+			normal_count += 4
 
 		for x as byte in range(size.x):
 			for y as byte in range(size.y):
@@ -205,74 +194,55 @@ class ChunkMeshData (IChunkMeshData):
 					if block:
 						if not block_west:
 							_vertices[vertice_count] = Vector3(x, y, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y+1, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y+1, z)
-							vertice_count += 1
+							_vertices[vertice_count+1] = Vector3(x, y, z+1)
+							_vertices[vertice_count+2] = Vector3(x, y+1, z+1)
+							_vertices[vertice_count+3] = Vector3(x, y+1, z)
+							vertice_count += 4
 							_calc_triangles()
 							_add_normals(Vector3(-1, 0, 0))
-
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						if not block_east:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y+1, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y+1, z+1)
-							vertice_count += 1
+							_vertices[vertice_count+1] = Vector3(x+1, y, z)
+							_vertices[vertice_count+2] = Vector3(x+1, y+1, z)
+							_vertices[vertice_count+3] = Vector3(x+1, y+1, z+1)
+							vertice_count += 4
 							_calc_triangles()
 							_add_normals(Vector3(1, 0, 0))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)	
 						if not block_south:
 							_vertices[vertice_count] = Vector3(x+1, y, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y+1, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y+1, z)
-							vertice_count += 1
+							_vertices[vertice_count+1] = Vector3(x, y, z)
+							_vertices[vertice_count+2] = Vector3(x, y+1, z)
+							_vertices[vertice_count+3] = Vector3(x+1, y+1, z)
+							vertice_count += 4
 							_calc_triangles()
 							_add_normals(Vector3(0, 0, -1))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						if not block_north:
 							_vertices[vertice_count] = Vector3(x, y, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y+1, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y+1, z+1)
-							vertice_count += 1
+							_vertices[vertice_count+1] = Vector3(x+1, y, z+1)
+							_vertices[vertice_count+2] = Vector3(x+1, y+1, z+1)
+							_vertices[vertice_count+3] = Vector3(x, y+1, z+1)
+							vertice_count += 4
 							_calc_triangles()
 							_add_normals(Vector3(0, 0, 1))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						if not block_down:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y, z)
-							vertice_count += 1
+							_vertices[vertice_count+1] = Vector3(x, y, z+1)
+							_vertices[vertice_count+2] = Vector3(x, y, z)
+							_vertices[vertice_count+3] = Vector3(x+1, y, z)
+							vertice_count += 4
 							_calc_triangles()
 							_add_normals(Vector3(0, -1, 0))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						if not block_up:
 							_vertices[vertice_count] = Vector3(x+1, y+1, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y+1, z)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x, y+1, z+1)
-							vertice_count += 1
-							_vertices[vertice_count] = Vector3(x+1, y+1, z+1)
-							vertice_count += 1
+							_vertices[vertice_count+1] = Vector3(x, y+1, z)
+							_vertices[vertice_count+2] = Vector3(x, y+1, z+1)
+							_vertices[vertice_count+3] = Vector3(x+1, y+1, z+1)
+							vertice_count += 4
 							_calc_triangles()
 							_add_normals(Vector3(0, 1, 0))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
