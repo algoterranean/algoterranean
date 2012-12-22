@@ -46,6 +46,6 @@ class ChunkBlockData (IChunkBlockData):
 		for p in range(_size.x+2):
 			for q in range(_size.y+2):
 				for r in range(_size.z+2):
-					_blocks[p, q, r] = _noise_module.GetBlock(p + _coords.x - 1, q + _coords.y - 1, r + _coords.z - 1)
+					_blocks[p, q, r] = _noise_module.getBlock(p + _coords.x - 1, q + _coords.y - 1, r + _coords.z - 1)
 		_blocks_calculated = true
 		

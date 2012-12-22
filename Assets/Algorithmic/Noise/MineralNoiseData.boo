@@ -1,9 +1,8 @@
-import UnityEngine
+import System
+import LibNoise
+import Algorithmic
 
-class MineralNoiseData (MonoBehaviour): 
+class MineralNoiseData (INoiseData):
 
-	def Start ():
-		pass
-	
-	def Update ():
-		pass
+	def getBlock(x as long, y as long, z as long) as int:
+		return 0

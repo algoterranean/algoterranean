@@ -13,7 +13,7 @@ class CameraStatic (MonoBehaviour):
 		t = gameObject.GetComponent(Transform)
 		#t.position = Vector3(dist, dist/2, dist) + Vector3(dist, dist, dist) * 2
 
-		t.position = Vector3(_origin.x + Settings.ChunkSize/2, _origin.y + dist, _origin.z - dist)
+		t.position = Vector3(_origin.x + Settings.ChunkSize/2, _origin.y + dist*2, _origin.z - dist*1.5)
 		t.LookAt(Vector3(_origin.x + Settings.ChunkSize/2, _origin.y, _origin.z))
 		
 		v = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager

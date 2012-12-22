@@ -66,11 +66,9 @@ class BasicNoiseData (INoiseData):
 		constant1 = Primitive.Constant(1)
 		constant_neg1 = Primitive.Constant(-1)
 
-		Swamp = Primitive.Constant(51)
-		Forest = Primitive.Constant(50)
-		Magma = Primitive.Constant(2)
-		Solid = Primitive.Constant(1)
-		Air = Primitive.Constant(0)
+		Magma = Primitive.Constant(BLOCK.MAGMA cast int)
+		Solid = Primitive.Constant(BLOCK.SOLID cast int)
+		Air = Primitive.Constant(BLOCK.AIR cast int)
 		
 		
 		# basic terrain
@@ -78,8 +76,8 @@ class BasicNoiseData (INoiseData):
 		octave_sum = Filter.SumFractal(Settings.Frequency, Settings.Lacunarity, Settings.Exponent, Settings.OctaveCount)
 		octave_sum.Primitive3D = Primitive.ImprovedPerlin(seed, NoiseQuality.Standard)
 		gradient = Primitive.MyGradient(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
-		turbulence = Transformer.Turbulence(gradient, constant0, octave_sum, constant0, Settings.Power)
-		perlin_select = Modifier.Select(turbulence, constant0, constant1, -1.0, 0.2, 0.0)
+		turbulence = Transformer.Turbulence(gradient, Air, octave_sum, Air, Settings.Power)
+		perlin_select = Modifier.Select(turbulence, Air, Solid, -1.0, 0.2, 0.0)
 
 
 		# caves
@@ -89,14 +87,14 @@ class BasicNoiseData (INoiseData):
 		cave_shape_1 = Filter.RidgedMultiFractal(2.0, 1.0, 1.0, 1.0) # frequency, lacunarity, exponent, octaves
 		cave_shape_1.Primitive3D = cave_perlin_1
 		cave_select_1 = Modifier.Select(cave_shape_1,
-						constant1, constant0, 0.0, 0.8, 0.0)
+						Solid, Air, 0.0, 0.8, 0.0)
 
 		# cave 2
 		cave_perlin_2 = Primitive.BevinsGradient(seed+1001, NoiseQuality.Standard)
 		cave_shape_2 = Filter.RidgedMultiFractal(2.0, 1.0, 1.0, 1.0) # frequency, lacunarity, exponent, octaves
 		cave_shape_2.Primitive3D = cave_perlin_2
 		cave_select_2 = Modifier.Select(cave_shape_2,
-						constant1, constant0, 0.0, 0.8, 0.0)
+						Solid, Air, 0.0, 0.8, 0.0)
 		
 		# combine caves
 		cave_mult = Combiner.Max(cave_select_1, cave_select_2)
@@ -119,7 +117,7 @@ class BasicNoiseData (INoiseData):
 		##############################################################################		
 		cave_turbulence = Transformer.Turbulence(cave_mult, cave_sum_x, cave_sum_y, cave_sum_z, 0.25)
 		total_mult = Combiner.Max(perlin_select, LibNoise.Modifier.ScaleBias(cave_turbulence, -1, 1))
-		total_select = Modifier.Select(total_mult, constant1, constant0, 0.0, 0.5, 0.0) # 1 = solid, 0 = air
+		total_select = Modifier.Select(total_mult, Solid, Air, 0.0, 0.5, 0.0) # 1 = solid, 0 = air
 
 
 		# magma
@@ -135,15 +133,15 @@ class BasicNoiseData (INoiseData):
 
 		# biomes
 		##############################################################################
-		biome_voronoi = Filter.Voronoi() #2.0, 1.0, 1.0, 1.0)
-		biome_voronoi.Displacement = 2.0
-		biome_voronoi.Primitive3D = Primitive.ImprovedPerlin(3000, NoiseQuality.Standard)
-		biome_select = Modifier.Select(biome_voronoi, Air, Forest, -1.0, 0.5, 0.0)
-		biome_combiner = Combiner.Max(magma_select, biome_select)
+		## biome_voronoi = Filter.Voronoi() #2.0, 1.0, 1.0, 1.0)
+		## biome_voronoi.Displacement = 2.0
+		## biome_voronoi.Primitive3D = Primitive.ImprovedPerlin(3000, NoiseQuality.Standard)
+		## biome_select = Modifier.Select(biome_voronoi, Air, Forest, -1.0, 0.5, 0.0)
+		## biome_combiner = Combiner.Max(magma_select, biome_select)
 
 		
 
-	def GetBlock (x as int, y as int, z as int) as int:
+	def getBlock (x as long, y as long, z as long) as int:
 		# 1 = solid, 0 = air
 		block = total_select.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
 		#block = magma_combine.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)

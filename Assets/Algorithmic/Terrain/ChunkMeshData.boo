@@ -1,4 +1,5 @@
 import UnityEngine
+import Algorithmic
 
 class ChunkMeshData (IChunkMeshData):
 	_chunk as IChunkBlockData
@@ -59,36 +60,36 @@ class ChunkMeshData (IChunkMeshData):
 			for y as byte in range(size.y):
 				for z as byte in range(size.z):
 					#for p, q, r in Utils.Product(p_size, q_size, r_size):
-					solid = _chunk.getBlock(ByteVector3(x+1, y+1, z+1))
-					solid_west = _chunk.getBlock(ByteVector3(x, y+1, z+1))
-					solid_east = _chunk.getBlock(ByteVector3(x+2, y+1, z+1))
-					solid_south = _chunk.getBlock(ByteVector3(x+1, y+1, z))
-					solid_north = _chunk.getBlock(ByteVector3(x+1, y+1, z+2))
-					solid_down = _chunk.getBlock(ByteVector3(x+1, y, z+1))
-					solid_up = _chunk.getBlock(ByteVector3(x+1, y+2, z+1))
+					block = _chunk.getBlock(ByteVector3(x+1, y+1, z+1))
+					block_west = _chunk.getBlock(ByteVector3(x, y+1, z+1))
+					block_east = _chunk.getBlock(ByteVector3(x+2, y+1, z+1))
+					block_south = _chunk.getBlock(ByteVector3(x+1, y+1, z))
+					block_north = _chunk.getBlock(ByteVector3(x+1, y+1, z+2))
+					block_down = _chunk.getBlock(ByteVector3(x+1, y, z+1))
+					block_up = _chunk.getBlock(ByteVector3(x+1, y+2, z+1))
 					
-					if solid:
-						if not solid_west:
+					if block:
+						if not block_west:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
-						if not solid_east:
+						if not block_east:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6							
-						if not solid_south:
+						if not block_south:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6							
-						if not solid_north:
+						if not block_north:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6							
-						if not solid_down:
+						if not block_down:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6							
-						if not solid_up:
+						if not block_up:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
@@ -104,17 +105,17 @@ class ChunkMeshData (IChunkMeshData):
 		normal_count = 0
 
 
-		def _calc_uvs(x as int, y as int):
+		def _add_uvs(x as single, y as single):
 			# give x, y coordinates in (0-9) by (0-9)
-			_uvs[uv_count] = Vector2(0.1*x, 1.0 - 0.1*y - 0.1)
+			_uvs[uv_count] = Vector2(x, 1.0 - y - 0.1)
 			uv_count += 1
-			_uvs[uv_count] = Vector2(0.1*x, 1.0 - 0.1*y)
+			_uvs[uv_count] = Vector2(x, 1.0 - y)
 			uv_count += 1
-			_uvs[uv_count] = Vector2(0.1*x + 0.1, 1.0 - 0.1*y)
+			_uvs[uv_count] = Vector2(x + 0.1, 1.0 - y)
 			uv_count += 1
-			_uvs[uv_count] = Vector2(0.1*x + 0.1, 1.0 - 0.1*y - 0.1)
+			_uvs[uv_count] = Vector2(x + 0.1, 1.0 - y - 0.1)
 			uv_count += 1
-
+			
 		def _calc_triangles():
 			_triangles[triangle_count] = vertice_count-4 # 0
 			triangle_count += 1
@@ -142,13 +143,13 @@ class ChunkMeshData (IChunkMeshData):
 		for x as byte in range(size.x):
 			for y as byte in range(size.y):
 				for z as byte in range(size.z):
-					solid = _chunk.getBlock(ByteVector3(x+1, y+1, z+1))
-					solid_west = _chunk.getBlock(ByteVector3(x, y+1, z+1))
-					solid_east = _chunk.getBlock(ByteVector3(x+2, y+1, z+1))
-					solid_south = _chunk.getBlock(ByteVector3(x+1, y+1, z))
-					solid_north = _chunk.getBlock(ByteVector3(x+1, y+1, z+2))
-					solid_down = _chunk.getBlock(ByteVector3(x+1, y, z+1))
-					solid_up = _chunk.getBlock(ByteVector3(x+1, y+2, z+1))
+					block = _chunk.getBlock(ByteVector3(x+1, y+1, z+1))
+					block_west = _chunk.getBlock(ByteVector3(x, y+1, z+1))
+					block_east = _chunk.getBlock(ByteVector3(x+2, y+1, z+1))
+					block_south = _chunk.getBlock(ByteVector3(x+1, y+1, z))
+					block_north = _chunk.getBlock(ByteVector3(x+1, y+1, z+2))
+					block_down = _chunk.getBlock(ByteVector3(x+1, y, z+1))
+					block_up = _chunk.getBlock(ByteVector3(x+1, y+2, z+1))
 					
 					#for p, q, r in Utils.Product(p_size, q_size, r_size):
 					## solid = _chunk.getBlock(ByteVector3(x, y, z))
@@ -201,8 +202,8 @@ class ChunkMeshData (IChunkMeshData):
 					## 	solid_up = _chunk.getBlock(ByteVector3(x, y+1, z))
 
 
-					if solid:
-						if not solid_west:
+					if block:
+						if not block_west:
 							_vertices[vertice_count] = Vector3(x, y, z)
 							vertice_count += 1
 							_vertices[vertice_count] = Vector3(x, y, z+1)
@@ -213,13 +214,9 @@ class ChunkMeshData (IChunkMeshData):
 							vertice_count += 1
 							_calc_triangles()
 							_add_normals(Vector3(-1, 0, 0))
-							if solid == 1:
-								_calc_uvs(3,0)
-							elif solid == 2:
-								_calc_uvs(2,0)
-							elif solid == 50:
-								_calc_uvs(5,0)
-						if not solid_east:
+
+							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						if not block_east:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
 							vertice_count += 1
 							_vertices[vertice_count] = Vector3(x+1, y, z)
@@ -230,14 +227,8 @@ class ChunkMeshData (IChunkMeshData):
 							vertice_count += 1
 							_calc_triangles()
 							_add_normals(Vector3(1, 0, 0))
-							if solid == 1:
-								_calc_uvs(3, 0)
-							elif solid == 2:
-								_calc_uvs(2, 0)
-							elif solid == 50:
-								_calc_uvs(5,0)								
-							
-						if not solid_south:
+							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)	
+						if not block_south:
 							_vertices[vertice_count] = Vector3(x+1, y, z)
 							vertice_count += 1
 							_vertices[vertice_count] = Vector3(x, y, z)
@@ -248,14 +239,8 @@ class ChunkMeshData (IChunkMeshData):
 							vertice_count += 1
 							_calc_triangles()
 							_add_normals(Vector3(0, 0, -1))
-							if solid == 1:
-								_calc_uvs(3,0)
-							elif solid == 2:
-								_calc_uvs(2, 0)
-							elif solid == 50:
-								_calc_uvs(5,0)								
-								
-						if not solid_north:
+							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						if not block_north:
 							_vertices[vertice_count] = Vector3(x, y, z+1)
 							vertice_count += 1
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
@@ -266,14 +251,8 @@ class ChunkMeshData (IChunkMeshData):
 							vertice_count += 1
 							_calc_triangles()
 							_add_normals(Vector3(0, 0, 1))
-							if solid == 1:
-								_calc_uvs(3,0)
-							elif solid == 2:
-								_calc_uvs(2, 0)
-							elif solid == 50:
-								_calc_uvs(5,0)								
-							
-						if not solid_down:
+							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						if not block_down:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
 							vertice_count += 1
 							_vertices[vertice_count] = Vector3(x, y, z+1)
@@ -284,14 +263,8 @@ class ChunkMeshData (IChunkMeshData):
 							vertice_count += 1
 							_calc_triangles()
 							_add_normals(Vector3(0, -1, 0))
-							if solid == 1:
-								_calc_uvs(3,0)
-							elif solid == 2:
-								_calc_uvs(2, 0)
-							elif solid == 50:
-								_calc_uvs(5,0)								
-							
-						if not solid_up:
+							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						if not block_up:
 							_vertices[vertice_count] = Vector3(x+1, y+1, z)
 							vertice_count += 1
 							_vertices[vertice_count] = Vector3(x, y+1, z)
@@ -302,10 +275,5 @@ class ChunkMeshData (IChunkMeshData):
 							vertice_count += 1
 							_calc_triangles()
 							_add_normals(Vector3(0, 1, 0))
-							if solid == 1:
-								_calc_uvs(3,0)
-							elif solid == 2:							
-								_calc_uvs(2, 0)
-							elif solid == 50:
-								_calc_uvs(5,0)								
+							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 			_mesh_calculated = true
