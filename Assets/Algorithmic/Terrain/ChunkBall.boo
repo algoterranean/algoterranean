@@ -4,93 +4,6 @@ import System.Threading
 import Algorithmic
 import UnityEngine
 
-# class ChunkBall ():
-# 	chunks as Dictionary[of double, Chunk]
-	
-# 	def constructor():
-# 		chunks = Dictionary[of double, Chunk]()
-
-# 	def GetEnumerator():
-# 		return chunks.GetEnumerator()
-
-# 	def calculateDistance(x_pos as double, z_pos as double, y_pos as double):
-# 		for chunk in chunks:
-# 			chunk.Value.setDistance(x_pos, z_pos, y_pos)
-
-# 	def Contains(x_pos as long, z_pos as long, y_pos as long):
-# 		return chunks.ContainsKey(x_pos + Settings.ChunkSize*z_pos + Settings.ChunkSize*Settings.ChunkSize*y_pos)
-
-# 	def Set(x_pos as long, z_pos as long, y_pos as long, chunk as Chunk):
-# 		chunks.Add(x_pos + Settings.ChunkSize*z_pos + Settings.ChunkSize*Settings.ChunkSize*y_pos, chunk)
-# 		#updateNeighbors(x_pos, z_pos, y_pos)
-# 		#chunks.Add("$x_pos, $z_pos, $y_pos", chunk)
-
-# 	def cullChunks():
-# 		to_remove = []
-# 		to_remove2 = []
-# 		for d in chunks:
-# 			chunk = d.Value
-# 			key = d.Key
-# 			if chunk.getDistance() > Settings.MinChunkDistance:
-# 				to_remove.Push(d.Key)
-# 				to_remove2.Push(d.Value)
-
-# 		for key in to_remove:
-# 			chunks.Remove(key)
-# 		return to_remove2
-		
-
-
-# 	def updateNeighbors(): #:x_pos as long, z_pos as long, y_pos as long):
-# 		for d in chunks:
-# 			chunk = d.Value
-# 			key = d.Key
-# 			coords = chunk.getCoordinates()
-# 			x = coords[0]
-# 			z = coords[1]
-# 			y = coords[2]
-		
-# 			# chunk = chunks[x_pos + z_pos * x_pos + z_pos * x_pos * y_pos]
-# 			# x = x_pos
-# 			# z = z_pos
-# 			# y = y_pos
-			
-# 			# west_name = (x-Settings.ChunkSize, z, y) #"$(x - Settings.ChunkSize), $z, $y"
-# 			# east_name = (x+Settings.ChunkSize, z, y) #"$(x + Settings.ChunkSize), $z, $y"
-# 			# south_name = (x, z-Settings.ChunkSize, y) #"$x, $(z - Settings.ChunkSize), $y"
-# 			# north_name = (x, z+Settings.ChunkSize, y) #"$x, $(z + Settings.ChunkSize), $y"
-# 			# down_name = (x, z, y-Settings.ChunkSize) #"$x, $z, $(y - Settings.ChunkSize)"
-# 			# up_name = (x, z, y+Settings.ChunkSize) #"$x, $z, $(y + Settings.ChunkSize)"
-
-# 			# west_name = "$(x - Settings.ChunkSize), $z, $y"
-# 			# east_name = "$(x + Settings.ChunkSize), $z, $y"
-# 			# south_name = "$x, $(z - Settings.ChunkSize), $y"
-# 			# north_name = "$x, $(z + Settings.ChunkSize), $y"
-# 			# down_name = "$x, $z, $(y - Settings.ChunkSize)"
-# 			# up_name = "$x, $z, $(y + Settings.ChunkSize)"
-
-# 			west_name = (x - Settings.ChunkSize) + Settings.ChunkSize * z + Settings.ChunkSize * Settings.ChunkSize * y
-# 			east_name = (x + Settings.ChunkSize) + Settings.ChunkSize * z + Settings.ChunkSize * Settings.ChunkSize * y
-# 			south_name = x + (z - Settings.ChunkSize) * Settings.ChunkSize + Settings.ChunkSize * Settings.ChunkSize * y
-# 			north_name = x + (z + Settings.ChunkSize) * Settings.ChunkSize + Settings.ChunkSize * Settings.ChunkSize * y
-# 			down_name = x + Settings.ChunkSize * z + Settings.ChunkSize * Settings.ChunkSize * (y - Settings.ChunkSize)
-# 			up_name = x + Settings.ChunkSize * z + Settings.ChunkSize * Settings.ChunkSize * (y + Settings.ChunkSize)
-
-# 			if chunks.ContainsKey(west_name):
-# 				chunk.setWestChunk(chunks[west_name])
-# 			if chunks.ContainsKey(east_name):
-# 				chunk.setEastChunk(chunks[east_name])
-# 			if chunks.ContainsKey(south_name):
-# 				chunk.setSouthChunk(chunks[south_name])
-# 			if chunks.ContainsKey(north_name):
-# 				chunk.setNorthChunk(chunks[north_name])
-# 			if chunks.ContainsKey(down_name):
-# 				chunk.setDownChunk(chunks[down_name])
-# 			if chunks.ContainsKey(up_name):
-# 				chunk.setUpChunk(chunks[up_name])
-
-
-
 
 ################################################################################
 # Utility and Message Passing Stuff							
@@ -141,10 +54,25 @@ class ChunkBall (IChunkBall, IObservable):
 	_outgoing_queue = []
 	_chunks as Dictionary[of LongVector3, ChunkInfo]
 	_threshold = 10.0
+	_mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
 
 	def Update():
 		notifyObservers()
-	
+		
+		# check if new meshes are ready
+		ready_mesh_key as duck
+		for item in _mesh_waiting_queue:
+			chunk_info as ChunkInfo = item.Value
+			chunk_mesh as ChunkMeshData = chunk_info.getMesh()
+			if chunk_mesh.areNeighborsReady():
+				ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
+				ready_mesh_key = item.Key
+				print "FOUND MESH: $item.key. Length of remaining queue: $(len(_mesh_waiting_queue))"
+				break
+
+		if ready_mesh_key != null:
+			_mesh_waiting_queue.Remove(ready_mesh_key)
+			
 
 	def registerObserver(o as object) as void:
 		if _observers.Contains(o):
@@ -170,6 +98,7 @@ class ChunkBall (IChunkBall, IObservable):
 		setMaxChunkDistance(max_distance)
 		_chunk_size = chunk_size
 		_chunks = Dictionary[of LongVector3, ChunkInfo]()
+		_mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()		
 		_origin = Vector3(10000, 10000, 10000)
 
 
@@ -191,22 +120,25 @@ class ChunkBall (IChunkBall, IObservable):
 	def _remove_chunk():
 		pass
 
+	def _mesh_worker(chunk_info as ChunkInfo) as WaitCallback:
+		try:
+			mesh as ChunkMeshData = chunk_info.getMesh()
+			chunk as ChunkBlockData = chunk_info.getChunk()
+			mesh.CalculateMesh()
+			print "Mesh Calculated: $(chunk.getCoordinates())"
+			lock _locker:
+				_outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
+		except e:
+			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
+
 	def _noise_worker(chunk_info as ChunkInfo) as WaitCallback:
 		try:
 			chunk as ChunkBlockData = chunk_info.getChunk()
 			chunk.CalculateBlocks()
-			## lock _locker:
-			## 	_outgoing_queue.Push(ChunkBallMessage(Message.BLOCKS_READY, chunk_info))
-
-			mesh as ChunkMeshData = chunk_info.getMesh()
-			mesh.CalculateMesh()
 			lock _locker:
-				_outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
+				_mesh_waiting_queue[chunk.getCoordinates()] = chunk_info
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
-		# lock _locker:
-		# 	noise_calculated_queue.Push(chunk)
-
 			
 
 	def SetOrigin(origin as Vector3) as void:
@@ -273,10 +205,33 @@ class ChunkBall (IChunkBall, IObservable):
 			#coords = chunk_blocks.getCoordinates()
 		#notifyObservers()
 
-		# # add the new chunks to the thread pool to begin
-		# # generating blocks and meshes
+		# for all chunks, update neighbors
+		for item in _chunks:
+			chunk_info = item.Value
+			chunk_blocks = chunk_info.getChunk()
+			chunk_mesh = chunk_info.getMesh()
+			chunk_coords = chunk_blocks.getCoordinates()
 
+			west_coords = LongVector3(chunk_coords.x - Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
+			east_coords = LongVector3(chunk_coords.x + Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
+			south_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z - Settings.ChunkSize)
+			north_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z + Settings.ChunkSize)
+			down_coords = LongVector3(chunk_coords.x, chunk_coords.y - Settings.ChunkSize, chunk_coords.z)
+			up_coords = LongVector3(chunk_coords.x, chunk_coords.y + Settings.ChunkSize, chunk_coords.z)
 
+			if _chunks.ContainsKey(west_coords):
+				chunk_mesh.setWestNeighbor(_chunks[west_coords].getChunk())
+			if _chunks.ContainsKey(east_coords):
+				chunk_mesh.setEastNeighbor(_chunks[east_coords].getChunk())
+			if _chunks.ContainsKey(south_coords):
+				chunk_mesh.setSouthNeighbor(_chunks[south_coords].getChunk())
+			if _chunks.ContainsKey(north_coords):
+				chunk_mesh.setNorthNeighbor(_chunks[north_coords].getChunk())
+			if _chunks.ContainsKey(down_coords):
+				chunk_mesh.setDownNeighbor(_chunks[down_coords].getChunk())
+			if _chunks.ContainsKey(up_coords):
+				chunk_mesh.setUpNeighbor(_chunks[up_coords].getChunk())
+				
 
 		
 		

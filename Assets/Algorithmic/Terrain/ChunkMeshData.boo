@@ -35,8 +35,46 @@ class ChunkMeshData (IChunkMeshData):
 		_down_neighbor = down
 		_up_neighbor = up
 
+	def setWestNeighbor(chunk as IChunkBlockData):
+		lock _west_neighbor:
+			if chunk != _west_neighbor:
+				_west_neighbor = chunk
+	def setEastNeighbor(chunk as IChunkBlockData):
+		lock _east_neighbor:
+			if chunk != _east_neighbor:
+				_east_neighbor = chunk		
+	def setSouthNeighbor(chunk as IChunkBlockData):
+		lock _south_neighbor:
+			if chunk != _south_neighbor:
+				_south_neighbor = chunk		
+	def setNorthNeighbor(chunk as IChunkBlockData):
+		lock _north_neighbor:
+			if chunk != _north_neighbor:
+				_north_neighbor = chunk		
+	def setDownNeighbor(chunk as IChunkBlockData):
+		lock _down_neighbor:
+			if chunk != _down_neighbor:
+				_down_neighbor = chunk		
+	def setUpNeighbor(chunk as IChunkBlockData):
+		lock _up_neighbor:
+			if chunk != _up_neighbor:
+				_up_neighbor = chunk		
+
 	def isMeshCalculated() as bool:
 		return _mesh_calculated
+
+	def areNeighborsReady() as bool:
+		if (_west_neighbor.isNull() and _east_neighbor.isNull() and _south_neighbor.isNull() and \
+		    _north_neighbor.isNull() and _down_neighbor.isNull() and _up_neighbor.isNull()):
+			print "Chunk's Neighbors are all NULL!"
+		if (_west_neighbor.isNull() or _west_neighbor.areBlocksCalculated()) and \
+		    (_east_neighbor.isNull() or _east_neighbor.areBlocksCalculated()) and \
+		    (_south_neighbor.isNull() or _south_neighbor.areBlocksCalculated()) and \
+		    (_north_neighbor.isNull() or _north_neighbor.areBlocksCalculated()) and \
+		    (_down_neighbor.isNull() or _down_neighbor.areBlocksCalculated()) and \
+		    (_up_neighbor.isNull() or _up_neighbor.areBlocksCalculated()):
+			return true
+		return false
 
 	def getVertices() as (Vector3):
 		return _vertices
@@ -60,14 +98,50 @@ class ChunkMeshData (IChunkMeshData):
 			for y as byte in range(size.y):
 				for z as byte in range(size.z):
 					#for p, q, r in Utils.Product(p_size, q_size, r_size):
-					block = _chunk.getBlock(ByteVector3(x+1, y+1, z+1))
-					block_west = _chunk.getBlock(ByteVector3(x, y+1, z+1))
-					block_east = _chunk.getBlock(ByteVector3(x+2, y+1, z+1))
-					block_south = _chunk.getBlock(ByteVector3(x+1, y+1, z))
-					block_north = _chunk.getBlock(ByteVector3(x+1, y+1, z+2))
-					block_down = _chunk.getBlock(ByteVector3(x+1, y, z+1))
-					block_up = _chunk.getBlock(ByteVector3(x+1, y+2, z+1))
-					
+					block = _chunk.getBlock(ByteVector3(x, y, z))
+
+					if x == 0 and _west_neighbor.isNull():
+						block_west = BLOCK.AIR
+					elif x == 0 and not _west_neighbor.isNull():
+						block_west = _west_neighbor.getBlock(ByteVector3(size.x-1, y, z))
+					else:
+						block_west = _chunk.getBlock(ByteVector3(x-1, y, z))
+
+					if x == size.x -1 and _east_neighbor.isNull():
+						block_east = BLOCK.AIR
+					elif x == size.x - 1 and not _east_neighbor.isNull():
+						block_east = _east_neighbor.getBlock(ByteVector3(0, y, z))
+					else:
+						block_east = _chunk.getBlock(ByteVector3(x+1, y ,z))
+
+					if z == 0 and _south_neighbor.isNull():
+						block_south = BLOCK.AIR
+					elif z == 0 and not _south_neighbor.isNull():
+						block_south = _south_neighbor.getBlock(ByteVector3(x, y, size.z-1))
+					else:
+						block_south = _chunk.getBlock(ByteVector3(x, y, z-1))
+
+					if z == size.z-1 and _north_neighbor.isNull():
+						block_north = BLOCK.AIR
+					elif z == size.z - 1 and not _north_neighbor.isNull():
+						block_north = _north_neighbor.getBlock(ByteVector3(x, y, 0))
+					else:
+						block_north = _chunk.getBlock(ByteVector3(x, y, z+1))
+
+					if y == 0 and _down_neighbor.isNull():
+						block_down = BLOCK.AIR
+					elif y == 0 and not _down_neighbor.isNull():
+						block_down = _down_neighbor.getBlock(ByteVector3(x, size.y-1, z))
+					else:
+						block_down = _chunk.getBlock(ByteVector3(x, y-1, z))
+
+					if y == size.y-1 and _up_neighbor.isNull():
+						block_up = BLOCK.AIR
+					elif y == size.y-1 and not _up_neighbor.isNull():
+						block_up = _up_neighbor.getBlock(ByteVector3(x, 0, z))
+					else:
+						block_up = _chunk.getBlock(ByteVector3(x, y+1, z))
+						
 					if block:
 						if not block_west:
 							vertice_size += 4
@@ -132,63 +206,52 @@ class ChunkMeshData (IChunkMeshData):
 		for x as byte in range(size.x):
 			for y as byte in range(size.y):
 				for z as byte in range(size.z):
-					block = _chunk.getBlock(ByteVector3(x+1, y+1, z+1))
-					block_west = _chunk.getBlock(ByteVector3(x, y+1, z+1))
-					block_east = _chunk.getBlock(ByteVector3(x+2, y+1, z+1))
-					block_south = _chunk.getBlock(ByteVector3(x+1, y+1, z))
-					block_north = _chunk.getBlock(ByteVector3(x+1, y+1, z+2))
-					block_down = _chunk.getBlock(ByteVector3(x+1, y, z+1))
-					block_up = _chunk.getBlock(ByteVector3(x+1, y+2, z+1))
+					block = _chunk.getBlock(ByteVector3(x, y, z))
+					if x == 0 and _west_neighbor.isNull():
+						block_west = BLOCK.AIR
+					elif x == 0 and not _west_neighbor.isNull():
+						block_west = _west_neighbor.getBlock(ByteVector3(size.x-1, y, z))
+					else:
+						block_west = _chunk.getBlock(ByteVector3(x-1, y, z))
+
+					if x == size.x -1 and _east_neighbor.isNull():
+						block_east = BLOCK.AIR
+					elif x == size.x - 1 and not _east_neighbor.isNull():
+						block_east = _east_neighbor.getBlock(ByteVector3(0, y, z))
+					else:
+						block_east = _chunk.getBlock(ByteVector3(x+1, y ,z))
+
+					if z == 0 and _south_neighbor.isNull():
+						block_south = BLOCK.AIR
+					elif z == 0 and not _south_neighbor.isNull():
+						block_south = _south_neighbor.getBlock(ByteVector3(x, y, size.z-1))
+					else:
+						block_south = _chunk.getBlock(ByteVector3(x, y, z-1))
+
+					if z == size.z-1 and _north_neighbor.isNull():
+						block_north = BLOCK.AIR
+					elif z == size.z-1 and not _north_neighbor.isNull():
+						block_north = _north_neighbor.getBlock(ByteVector3(x, y, 0))
+					else:
+						block_north = _chunk.getBlock(ByteVector3(x, y, z+1))
+
+					if y == 0 and _down_neighbor.isNull():
+						block_down = BLOCK.AIR
+					elif y == 0 and not _down_neighbor.isNull():
+						block_down = _down_neighbor.getBlock(ByteVector3(x, size.y-1, z))
+					else:
+						block_down = _chunk.getBlock(ByteVector3(x, y-1, z))
+
+					if y == size.y-1 and _up_neighbor.isNull():
+						block_up = BLOCK.AIR
+					elif y == size.y-1 and not _up_neighbor.isNull():
+						block_up = _up_neighbor.getBlock(ByteVector3(x, 0, z))
+					else:
+						block_up = _chunk.getBlock(ByteVector3(x, y+1, z))
+
+
 					
-					#for p, q, r in Utils.Product(p_size, q_size, r_size):
-					## solid = _chunk.getBlock(ByteVector3(x, y, z))
-
-					## if x == 0 and _west_neighbor.isNull():
-					## 	solid_west = 0
-					## elif x == 0 and not _west_neighbor.isNull():
-					## 	solid_west = _west_neighbor.getBlock(ByteVector3(size.x-1, y, z))
-					## else:
-					## 	solid_west = _chunk.getBlock(ByteVector3(size.x-1, y, z))
-
-					## if x == size.x-1 and _east_neighbor.isNull():
-					## 	solid_east = 0
-					## elif x == size.x-1 and not _east_neighbor.isNull():
-					## 	solid_east = _east_neighbor.getBlock(ByteVector3(0, y, z))
-					## else:
-					## 	solid_east = _chunk.getBlock(ByteVector3(x+1, y, z))
-
-						
-
-					## if z == 0 and _south_neighbor.isNull():
-					## 	solid_south = 0
-					## elif z == 0 and not _south_neighbor.isNull():
-					## 	solid_south = _south_neighbor.getBlock(ByteVector3(x, y, size.z-1)) #q_size-1, r))
-					## else:
-					## 	solid_south = _chunk.getBlock(ByteVector3(x, y, z-1))
-
-
-					## if z == size.z - 1 and _north_neighbor.isNull():
-					## 	solid_north = 0
-					## elif z == size.z - 1 and not _north_neighbor.isNull():
-					## 	solid_north = _north_neighbor.getBlock(ByteVector3(x, y, 0))
-					## else:
-					## 	solid_north = _chunk.getBlock(ByteVector3(x, y, z+1)) #q+1, r))
-
-
-
-					## if y == 0 and _down_neighbor.isNull():
-					## 	solid_down = 0
-					## elif y == 0 and not _down_neighbor.isNull():
-					## 	solid_down = _down_neighbor.getBlock(ByteVector3(x, size.y-1, z)) #, r_size-1))
-					## else:
-					## 	solid_down = _chunk.getBlock(ByteVector3(x, y-1, z))
-
-					## if y == size.y - 1 and _up_neighbor.isNull():
-					## 	solid_up = 0
-					## elif y == size.y - 1 and not _up_neighbor.isNull():
-					## 	solid_up = _up_neighbor.getBlock(ByteVector3(x, 0, z))
-					## else:
-					## 	solid_up = _chunk.getBlock(ByteVector3(x, y+1, z))
+					
 
 
 					if block:

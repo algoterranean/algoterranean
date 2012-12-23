@@ -3,6 +3,9 @@ import UnityEngine
 class NullBlockData (IChunkBlockData):
 	def isNull():
 		return true
+	def areBlocksCalculated():
+		return false
+
 
 class ChunkBlockData (IChunkBlockData):
 	_coords as LongVector3
@@ -14,7 +17,7 @@ class ChunkBlockData (IChunkBlockData):
 	def constructor(coords as LongVector3, size as ByteVector3):
 		setCoordinates(coords)
 		setSize(size)
-		_blocks = matrix(byte, size.x+2, size.y+2, size.z+2)
+		_blocks = matrix(byte, size.x, size.y, size.z)
 		_blocks_calculated = false
 		#_noise_module = MineralNoiseData()
 		_noise_module = BasicNoiseData()
@@ -44,9 +47,9 @@ class ChunkBlockData (IChunkBlockData):
 		return false
 
 	def CalculateBlocks() as void:
-		for p in range(_size.x+2):
-			for q in range(_size.y+2):
-				for r in range(_size.z+2):
-					_blocks[p, q, r] = _noise_module.getBlock(p + _coords.x - 1, q + _coords.y - 1, r + _coords.z - 1)
+		for p in range(_size.x):
+			for q in range(_size.y):
+				for r in range(_size.z):
+					_blocks[p, q, r] = _noise_module.getBlock(p + _coords.x, q + _coords.y, r + _coords.z)
 		_blocks_calculated = true
 		

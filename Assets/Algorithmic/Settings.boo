@@ -18,9 +18,9 @@ struct Settings:
 	public static ChunkSize as int = 32
 	# these are per side. i.e., 1 would mean 1 on each side
 	# plus the origin chunk = 3 total chunks
-	public static ChunkWidth as int = 1
-	public static ChunkDepth as int = 1
-	public static ChunkHeight as int = 1
+	public static ChunkWidth as int = 2
+	public static ChunkDepth as int = 2
+	public static ChunkHeight as int = 2
 
 	
 	public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
