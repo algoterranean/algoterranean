@@ -150,19 +150,19 @@ class ChunkMeshData (IChunkMeshData):
 						if not block_east:
 							vertice_size += 4
 							uv_size += 4
-							triangle_size += 6							
+							triangle_size += 6
 						if not block_south:
 							vertice_size += 4
 							uv_size += 4
-							triangle_size += 6							
+							triangle_size += 6
 						if not block_north:
 							vertice_size += 4
 							uv_size += 4
-							triangle_size += 6							
+							triangle_size += 6
 						if not block_down:
 							vertice_size += 4
 							uv_size += 4
-							triangle_size += 6							
+							triangle_size += 6
 						if not block_up:
 							vertice_size += 4
 							uv_size += 4
