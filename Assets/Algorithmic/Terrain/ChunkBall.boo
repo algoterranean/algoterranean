@@ -60,6 +60,7 @@ class ChunkBall (IChunkBall, IObservable):
 	_threshold = 10.0
 	_mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
 
+
 	def Update():
 		notifyObservers()
 		
@@ -143,6 +144,15 @@ class ChunkBall (IChunkBall, IObservable):
 				_mesh_waiting_queue[chunk.getCoordinates()] = chunk_info
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
+
+	def getMaxHeight(location as Vector3) as int:
+		chunk_coords = Utils.whichChunk(location) # LongVector3
+		if chunk_coords in _chunks:
+			pass
+		else:
+			return 300  # TO DO: this should be able to return a failure state if the chunk doesn't exist
+
+		
 			
 
 	def SetOrigin(origin as Vector3) as void:
