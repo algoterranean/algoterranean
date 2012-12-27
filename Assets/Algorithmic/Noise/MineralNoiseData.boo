@@ -32,7 +32,7 @@ class MineralNoiseData (INoiseData):
 
 		terrain_type = Filter.SumFractal(0.5, Settings.Lacunarity, Settings.Exponent, Settings.OctaveCount)
 		terrain_type.Primitive3D = Primitive.ImprovedPerlin(seed+9943, NoiseQuality.Standard)
-		terrain_type_select = Modifier.Select(terrain_type, lowlands_turbulence, hillcountry_turbulence, -1.0, 0.0, 0.0)
+		terrain_type_select = Modifier.Select(terrain_type, lowlands_turbulence, hillcountry_turbulence, -1.0, 0.0, -0.5)
 		
 		
 		total_select = terrain_type_select

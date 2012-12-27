@@ -1,5 +1,23 @@
 import UnityEngine
 import Algorithmic
+import System.Math
+
+struct AABB:
+	center as Vector3
+	radius as Vector3
+	def constructor(_center as Vector3, _radius as Vector3):
+		center = _center
+		radius = _radius
+		
+	def Test(a as AABB, b as AABB) as bool:
+		if Math.Abs(a.center.y - b.center.y) > (a.radius.y + b.radius.y):
+			return false
+		if Math.Abs(a.center.x - b.center.x) > (a.radius.x + b.radius.x): 
+			return false
+		if Math.Abs(a.center.z - b.center.z) > (a.radius.z + b.radius.z):
+			return false
+		return true
+
 
 class ChunkMeshData (IChunkMeshData):
 	_chunk as IChunkBlockData
@@ -8,12 +26,19 @@ class ChunkMeshData (IChunkMeshData):
 	_normals as (Vector3)
 	_triangles as (int)
 	_uvs as (Vector2)
+	_bounding_volumes as (AABB)
+	_bounding_volume_tree as BoundingVolumeTree
+
+	
 	_west_neighbor as IChunkBlockData
 	_east_neighbor as IChunkBlockData
 	_south_neighbor as IChunkBlockData
 	_north_neighbor as IChunkBlockData
 	_down_neighbor as IChunkBlockData
 	_up_neighbor as IChunkBlockData
+
+	def getTree() as BoundingVolumeTree:
+		return _bounding_volume_tree
 
 	def constructor(chunk as IChunkBlockData):
 		_chunk = chunk
@@ -24,6 +49,10 @@ class ChunkMeshData (IChunkMeshData):
 		_north_neighbor = NullBlockData()
 		_down_neighbor = NullBlockData()
 		_up_neighbor = NullBlockData()
+
+		c = _chunk.getCoordinates()
+		_bounding_volume_tree = BoundingVolumeTree(AABB(Vector3(c.x + Settings.ChunkSize/2, c.y + Settings.ChunkSize/2, c.z + Settings.ChunkSize/2),
+								Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2)))
 
 	def setNeighborhoodChunks(west as IChunkBlockData, east as IChunkBlockData,
 					  south as IChunkBlockData, north as IChunkBlockData,
@@ -88,11 +117,15 @@ class ChunkMeshData (IChunkMeshData):
 	def getUVs() as (Vector2):
 		return _uvs
 
+	def getBoundingVolumes() as (AABB):
+		return _bounding_volumes
+
 	def CalculateMesh() as void:
 		size = _chunk.getSize()
 		vertice_size = 0
 		triangle_size = 0
 		uv_size = 0
+		aabb_size = 0
 
 		for x as byte in range(size.x):
 			for y as byte in range(size.y):
@@ -142,42 +175,54 @@ class ChunkMeshData (IChunkMeshData):
 					else:
 						block_up = _chunk.getBlock(ByteVector3(x, y+1, z))
 						
+					
 					if block:
+						aabb_test = false						
 						if not block_west:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
+							aabb_test = true
 						if not block_east:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
+							aabb_test = true
 						if not block_south:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
+							aabb_test = true
 						if not block_north:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
+							aabb_test = true
 						if not block_down:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
+							aabb_test = true
 						if not block_up:
 							vertice_size += 4
 							uv_size += 4
 							triangle_size += 6
+							aabb_test = true
+						if aabb_test:
+							aabb_size += 1
+
 					
 		_vertices = matrix(Vector3, vertice_size)
 		_triangles = matrix(int, triangle_size)
 		_uvs = matrix(Vector2, uv_size)
 		_normals = matrix(Vector3, vertice_size)
+		_bounding_volumes = matrix(AABB, aabb_size)
 
 		vertice_count = 0
 		triangle_count = 0
 		uv_count = 0
 		normal_count = 0
-
+		aabb_count = 0
 
 		def _add_uvs(x as single, y as single):
 			# give x, y coordinates in (0-9) by (0-9)
@@ -202,6 +247,7 @@ class ChunkMeshData (IChunkMeshData):
 			_normals[normal_count+2] = n
 			_normals[normal_count+3] = n
 			normal_count += 4
+
 
 		for x as byte in range(size.x):
 			for y as byte in range(size.y):
@@ -255,6 +301,7 @@ class ChunkMeshData (IChunkMeshData):
 
 
 					if block:
+						aabb_test = false
 						if not block_west:
 							_vertices[vertice_count] = Vector3(x, y, z)
 							_vertices[vertice_count+1] = Vector3(x, y, z+1)
@@ -264,6 +311,7 @@ class ChunkMeshData (IChunkMeshData):
 							_calc_triangles()
 							_add_normals(Vector3(-1, 0, 0))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+							aabb_test = true
 						if not block_east:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
 							_vertices[vertice_count+1] = Vector3(x+1, y, z)
@@ -272,7 +320,8 @@ class ChunkMeshData (IChunkMeshData):
 							vertice_count += 4
 							_calc_triangles()
 							_add_normals(Vector3(1, 0, 0))
-							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)	
+							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+							aabb_test = true
 						if not block_south:
 							_vertices[vertice_count] = Vector3(x+1, y, z)
 							_vertices[vertice_count+1] = Vector3(x, y, z)
@@ -282,6 +331,7 @@ class ChunkMeshData (IChunkMeshData):
 							_calc_triangles()
 							_add_normals(Vector3(0, 0, -1))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+							aabb_test = true
 						if not block_north:
 							_vertices[vertice_count] = Vector3(x, y, z+1)
 							_vertices[vertice_count+1] = Vector3(x+1, y, z+1)
@@ -291,6 +341,7 @@ class ChunkMeshData (IChunkMeshData):
 							_calc_triangles()
 							_add_normals(Vector3(0, 0, 1))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+							aabb_test = true
 						if not block_down:
 							_vertices[vertice_count] = Vector3(x+1, y, z+1)
 							_vertices[vertice_count+1] = Vector3(x, y, z+1)
@@ -300,6 +351,7 @@ class ChunkMeshData (IChunkMeshData):
 							_calc_triangles()
 							_add_normals(Vector3(0, -1, 0))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+							aabb_test = true
 						if not block_up:
 							_vertices[vertice_count] = Vector3(x+1, y+1, z)
 							_vertices[vertice_count+1] = Vector3(x, y+1, z)
@@ -309,4 +361,8 @@ class ChunkMeshData (IChunkMeshData):
 							_calc_triangles()
 							_add_normals(Vector3(0, 1, 0))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+							aabb_test = true
+						if aabb_test:
+							_bounding_volumes[aabb_count] = AABB(Vector3(x + 0.5, y + 0.5, z + 0.5), Vector3(0.5, 0.5, 0.5))
+							aabb_count += 1
 			_mesh_calculated = true

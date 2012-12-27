@@ -10,10 +10,14 @@ import UnityEngine
 class ChunkInfo():
 	_chunk as IChunkBlockData
 	_mesh as IChunkMeshData
+	_bounds as AABB
 	
 	def constructor(chunk as IChunkBlockData, mesh as IChunkMeshData):
 		_chunk = chunk
 		_mesh = mesh
+		coords = chunk.getCoordinates()
+		_bounds = AABB(Vector3(coords.x + Settings.ChunkSize/2, coords.y + Settings.ChunkSize/2, coords.z + Settings.ChunkSize/2),
+			       Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2))
 
 	def getChunk() as IChunkBlockData:
 		return _chunk
@@ -231,6 +235,17 @@ class ChunkBall (IChunkBall, IObservable):
 				chunk_mesh.setDownNeighbor(_chunks[down_coords].getChunk())
 			if _chunks.ContainsKey(up_coords):
 				chunk_mesh.setUpNeighbor(_chunks[up_coords].getChunk())
+
+
+	def CheckCollisions(_object_to_check as AABB):
+		for item in _chunks:
+			chunk_info = item.Value
+			chunk = chunk_info.getChunk()
+			chunk_mesh = chunk_info.getMesh()
+			tree as BoundingVolumeTree = chunk_mesh.getTree()
+			node as Node = tree.getTree()
+			 
+			print "BOUNDING VOLUME CHECK: $(_object_to_check.center), $(node.bounding_volume.center), $(node.bounding_volume.Test(node.bounding_volume, _object_to_check))"
 				
 
 		

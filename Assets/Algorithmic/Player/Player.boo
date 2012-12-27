@@ -1,27 +1,29 @@
 import UnityEngine
 
 class Player (MonoBehaviour):
-	chunk_manager as GameObject
+	_origin as Vector3
+	_aabb as AABB
+	_chunk_manager as ChunkManager
 	initial_startup as bool = false
-	#last_position as Vector3
-	x_pos = 0.0
-	#z_pos = 0.0
+
+	def initialize():
+		pass
 	
 	def Start ():
-		chunk_manager = gameObject.Find("ChunkManager")
-		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
-		cm_obj.setOrigin(Vector3(0, 0, 0))
-		center_player()
+		_chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
+		_origin = transform.position
+		_aabb = AABB(transform.position, Vector3(0.5, 1.0, 0.5))
+		#chunk_manager.setOrigin(transform.position)
 
-	def center_player():
-		#x = (Settings.ChunkSize * Settings.ChunkCountA)/2
-		#z = (Settings.ChunkSize * Settings.ChunkCountB)/2
-		gameObject.transform.position = Vector3(0, 200, 0)
-	
 	def Update ():
-		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
-		#cm_obj.setOrigin(transform.position)
-		## if not cm_obj.areInitialChunksComplete():
-		## 	center_player()
-		## elif not initial_startup:
-		## 	initial_startup = true
+		_aabb = AABB(transform.position, Vector3(0.5, 1.0, 0.5))
+		if _chunk_manager.isInitialized() and not initial_startup:
+			initial_startup = true
+			print 'CHUNK MANAGER IS INITIALIZED'
+
+		#if initial_startup:
+		#chunk_manager.setOrigin(transform.position)
+
+	def getAABB():
+		return _aabb
+		
