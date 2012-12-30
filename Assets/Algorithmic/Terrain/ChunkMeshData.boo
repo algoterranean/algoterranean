@@ -18,6 +18,9 @@ struct AABB:
 			return false
 		return true
 
+	def ToString():
+		return "(CENTER: $center, RADIUS: $radius)"
+
 
 class ChunkMeshData (IChunkMeshData):
 	_chunk as IChunkBlockData
@@ -51,8 +54,9 @@ class ChunkMeshData (IChunkMeshData):
 		_up_neighbor = NullBlockData()
 
 		c = _chunk.getCoordinates()
-		_bounding_volume_tree = BoundingVolumeTree(AABB(Vector3(c.x + Settings.ChunkSize/2, c.y + Settings.ChunkSize/2, c.z + Settings.ChunkSize/2),
-								Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2)))
+		#_bounding_volume_tree = BoundingVolumeTree(_chunk)
+			#AABB(Vector3(c.x + Settings.ChunkSize/2, c.y + Settings.ChunkSize/2, c.z + Settings.ChunkSize/2),
+			#					Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2)))
 
 	def setNeighborhoodChunks(west as IChunkBlockData, east as IChunkBlockData,
 					  south as IChunkBlockData, north as IChunkBlockData,
@@ -365,4 +369,5 @@ class ChunkMeshData (IChunkMeshData):
 						if aabb_test:
 							_bounding_volumes[aabb_count] = AABB(Vector3(x + 0.5, y + 0.5, z + 0.5), Vector3(0.5, 0.5, 0.5))
 							aabb_count += 1
-			_mesh_calculated = true
+		_mesh_calculated = true
+		_bounding_volume_tree = BoundingVolumeTree(_chunk)

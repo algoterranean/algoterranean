@@ -71,7 +71,12 @@ class ChunkManager (MonoBehaviour, IObserver):
         if isInitialized():
             _player = gameObject.Find("First Person Controller").GetComponent("Player") as Player
             _player_aabb = _player.getAABB()
-            _chunk_ball.CheckCollisions(_player_aabb)
+            x = gameObject.Find("First Person Controller").GetComponent("Player") as Player            
+            if _chunk_ball.CheckCollisions(_player_aabb):
+                x.stopGravity()
+            else:
+                x.startGravity()
+            
         #block_a = Vector3(Math.Floor(_origin.x), Math.Floor(_origin.y), Math.Floor(_origin.z))
         
         # 2. test each block for collision

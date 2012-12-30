@@ -20,10 +20,23 @@ class Player (MonoBehaviour):
 		if _chunk_manager.isInitialized() and not initial_startup:
 			initial_startup = true
 			print 'CHUNK MANAGER IS INITIALIZED'
-
 		#if initial_startup:
 		#chunk_manager.setOrigin(transform.position)
 
 	def getAABB():
 		return _aabb
+
+	def stopGravity():
+		x = gameObject.GetComponent(CharacterMotor) as CharacterMotor
+		x.movement.gravity = 0.0
+		x.movement.maxFallSpeed = 0.0
+
+	def startGravity():
+		x = gameObject.GetComponent(CharacterMotor) as CharacterMotor
+		x.movement.gravity = 20.0
+		x.movement.maxFallSpeed = 20.0
+		
+
+		
+
 		

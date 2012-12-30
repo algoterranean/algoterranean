@@ -254,8 +254,18 @@ class ChunkBall (IChunkBall, IObservable):
 			chunk_mesh = chunk_info.getMesh()
 			tree as BoundingVolumeTree = chunk_mesh.getTree()
 			node as Node = tree.getTree()
+
+			collisions = tree.checkCollision(_object_to_check)
+			if len(collisions) > 0:
+				return true
+			
+				#x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
+				#x.stop()
+			#print "COLLISION: $(len()) OBJECTS"
+
+			#print "$node"
 			 
-			print "BOUNDING VOLUME CHECK: $(_object_to_check.center), $(node.bounding_volume.center), $(node.bounding_volume.Test(node.bounding_volume, _object_to_check))"
+			#print "BOUNDING VOLUME CHECK: $(_object_to_check.center), $(node.bounding_volume.center), $(node.bounding_volume.Test(node.bounding_volume, _object_to_check))"
 				
 
 		
