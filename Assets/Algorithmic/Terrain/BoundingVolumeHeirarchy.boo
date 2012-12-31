@@ -34,7 +34,7 @@ class BoundingVolumeTree:
 				if (radius.x == 1.0 and
 				    radius.y == 1.0 and
 				    radius.z == 1.0 and
-				    _chunk.getBlock(ByteVector3(coords.x, coords.y, coords.z))):
+				    _chunk.getBlock(ByteVector3(coords.x % Settings.ChunkSize, coords.y % Settings.ChunkSize, coords.z % Settings.ChunkSize))):
 					running_list.Push(tree)
 				for x in range(len(tree.children)):
 					_check(tree.children[x], aabb, running_list)

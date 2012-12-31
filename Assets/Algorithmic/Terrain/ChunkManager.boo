@@ -67,7 +67,6 @@ class ChunkManager (MonoBehaviour, IObserver):
             _remove_mesh_object(chunk_info)
 
         # check AABB bounding volumes
-        # 1. grab the blocks surrounding the origin
         if isInitialized():
             _player = gameObject.Find("First Person Controller").GetComponent("Player") as Player
             _player_aabb = _player.getAABB()
@@ -76,10 +75,12 @@ class ChunkManager (MonoBehaviour, IObserver):
                 x.stopGravity()
             else:
                 x.startGravity()
-            
-        #block_a = Vector3(Math.Floor(_origin.x), Math.Floor(_origin.y), Math.Floor(_origin.z))
-        
-        # 2. test each block for collision
+
+
+    def FixedUpdate():
+        # apply gravity to the player
+        x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
+        x.addForce(Vector3(0, -9.8, 0))
         
 
     def isInitialized() as bool:

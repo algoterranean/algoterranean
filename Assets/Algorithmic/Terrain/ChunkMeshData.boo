@@ -29,7 +29,7 @@ class ChunkMeshData (IChunkMeshData):
 	_normals as (Vector3)
 	_triangles as (int)
 	_uvs as (Vector2)
-	_bounding_volumes as (AABB)
+	## _bounding_volumes as (AABB)
 	_bounding_volume_tree as BoundingVolumeTree
 
 	
@@ -121,8 +121,8 @@ class ChunkMeshData (IChunkMeshData):
 	def getUVs() as (Vector2):
 		return _uvs
 
-	def getBoundingVolumes() as (AABB):
-		return _bounding_volumes
+	## def getBoundingVolumes() as (AABB):
+	## 	return _bounding_volumes
 
 	def CalculateMesh() as void:
 		size = _chunk.getSize()
@@ -220,7 +220,7 @@ class ChunkMeshData (IChunkMeshData):
 		_triangles = matrix(int, triangle_size)
 		_uvs = matrix(Vector2, uv_size)
 		_normals = matrix(Vector3, vertice_size)
-		_bounding_volumes = matrix(AABB, aabb_size)
+		## _bounding_volumes = matrix(AABB, aabb_size)
 
 		vertice_count = 0
 		triangle_count = 0
@@ -366,8 +366,8 @@ class ChunkMeshData (IChunkMeshData):
 							_add_normals(Vector3(0, 1, 0))
 							_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 							aabb_test = true
-						if aabb_test:
-							_bounding_volumes[aabb_count] = AABB(Vector3(x + 0.5, y + 0.5, z + 0.5), Vector3(0.5, 0.5, 0.5))
-							aabb_count += 1
+						## if aabb_test:
+						## 	_bounding_volumes[aabb_count] = AABB(Vector3(x + 0.5, y + 0.5, z + 0.5), Vector3(0.5, 0.5, 0.5))
+						## 	aabb_count += 1
 		_mesh_calculated = true
 		_bounding_volume_tree = BoundingVolumeTree(_chunk)
