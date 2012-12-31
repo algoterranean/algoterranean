@@ -5,15 +5,6 @@ import UnityEngine
 #import System.Collections
 #import Amib.Threading
 
-class Gravity (IForceGenerator):
-    _g as Vector3
-    def constructor():
-        _g = Vector3(0, -9.8, 0)
-        
-    def updateForce(particle as IParticle, duration as single):
-        particle.addForce(_g)
-
-
 
 class ChunkManager (MonoBehaviour, IObserver):
     _origin as Vector3
