@@ -5,6 +5,15 @@ import UnityEngine
 #import System.Collections
 #import Amib.Threading
 
+class Gravity (IForceGenerator):
+    _g as Vector3
+    def constructor():
+        _g = Vector3(0, -9.8, 0)
+        
+    def updateForce(particle as IParticle, duration as single):
+        particle.addForce(_g)
+
+
 
 class ChunkManager (MonoBehaviour, IObserver):
     _origin as Vector3
@@ -15,6 +24,8 @@ class ChunkManager (MonoBehaviour, IObserver):
 
     _initialized as bool = false
     _wait_for_init_queue = []
+
+    _registry as ForceParticleRegistry
 
 
     def updateObserver(o as object):
@@ -35,15 +46,15 @@ class ChunkManager (MonoBehaviour, IObserver):
     def Awake():
         _chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
         _chunk_ball.registerObserver(self)
+        _registry = ForceParticleRegistry()
 
     def Start():
         # intialize world
         setOrigin(Vector3(0, 0, 0))
         _wait_for_init_queue.Push(LongVector3(0, 0, 0))
-        
-        # for x in range(Settings.ChunkHeight):
-        #     _wait_for_init_queue.Push(Vector3(0, Settings.ChunkSize*x, 0))
-        #_player = gameObject.Find("First Person Controller").GetComponent("Player")
+
+        x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
+        _registry.add(x, Gravity())
         
 
     def Update():
@@ -79,8 +90,9 @@ class ChunkManager (MonoBehaviour, IObserver):
 
     def FixedUpdate():
         # apply gravity to the player
-        x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
-        x.addForce(Vector3(0, -9.8, 0))
+        _registry.updateForces(Time.deltaTime)
+        ## x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
+        ## x.addForce(Vector3(0, -9.8, 0))
         
 
     def isInitialized() as bool:
