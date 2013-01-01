@@ -31,7 +31,7 @@ class Player (MonoBehaviour, IParticle):
 		_chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
 		_origin = transform.position
 		_aabb = AABB(transform.position, Vector3(0.5, 1.0, 0.5))
-		#chunk_manager.setOrigin(transform.position)
+
 
 	def Update ():
 		_aabb = AABB(transform.position, Vector3(0.5, 1.0, 0.5))
@@ -45,6 +45,10 @@ class Player (MonoBehaviour, IParticle):
 		return _velocity
 	def getAcceleration() as Vector3:
 		return _acceleration
+	def getMass() as single:
+		return _mass
+	def getInverseMass() as single:
+		return _inverse_mass
 	def setPosition(p as Vector3):
 		_position = p
 	def setVelocity(v as Vector3):
@@ -57,16 +61,16 @@ class Player (MonoBehaviour, IParticle):
 	
 
 	def FixedUpdate():
-		# position update
-		setAcceleration(_force_accum)
 		setPosition(_position + _velocity * Time.deltaTime)
-		setVelocity(_velocity * _damping + _acceleration * Time.deltaTime)
+		resulting_acc = _acceleration + _force_accum * _inverse_mass
+		setVelocity(_velocity + resulting_acc * Time.deltaTime)     
+		setVelocity(_velocity * Math.Pow(_damping, Time.deltaTime)) # damping/drag
+		
 		transform.position = getPosition()
 		_force_accum = Vector3(0, 0, 0)
 
 	def getAABB():
 		return _aabb
-
 
 	def stopGravity():
 		setAcceleration(Vector3(0, 0, 0))
