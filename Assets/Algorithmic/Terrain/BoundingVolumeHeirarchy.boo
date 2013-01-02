@@ -16,6 +16,8 @@ struct Node:
 		for x in range(len(children)):
 			s += "\n\t$(children[x])"
 		return s
+	
+	
 
 
 class BoundingVolumeTree:
@@ -43,8 +45,8 @@ class BoundingVolumeTree:
 		_check(_tree, _aabb, l)
 		return l
 
-					
-	
+
+
 	def constructor(chunk as ChunkBlockData):
 		_chunk = chunk
 		size = chunk.getSize()
