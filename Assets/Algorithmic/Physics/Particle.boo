@@ -46,8 +46,11 @@ class Particle (IParticle, MonoBehaviour):
 		_velocity = Vector3(0, 0, 0)
 		_acceleration = Vector3(0, 0, 0)
 		_force_accum = Vector3(0, 0, 0)
-		_inverse_mass = 1/_mass		
+		if _mass >= 0:
+			_inverse_mass = 1/_mass
+		else:
+			_inverse_mass = 0.0
 		
-	def FixedUpdate():
-		integrate(Time.deltaTime)
+	#def FixedUpdate():
+	#	integrate(Time.deltaTime)
 

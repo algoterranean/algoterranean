@@ -257,6 +257,7 @@ class ChunkMeshData (IChunkMeshData):
 			for y as byte in range(size.y):
 				for z as byte in range(size.z):
 					block = _chunk.getBlock(ByteVector3(x, y, z))
+					#print "BLOCK: $block"
 					if x == 0 and _west_neighbor.isNull():
 						block_west = BLOCK.AIR
 					elif x == 0 and not _west_neighbor.isNull():

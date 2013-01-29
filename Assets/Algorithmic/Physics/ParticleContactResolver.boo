@@ -26,5 +26,14 @@ class ParticleContactResolver:
 				break
 
 			contacts[max_index].resolve(duration)
+			move_1 = contacts[max_index].getMovement1()
+			move_2 = contacts[max_index].getMovement2()
+			for i in range(len(contacts)):
+				if contacts[i].getParticle1() == contacts[max_index].getParticle1():
+					contacts[i].setPenetration(contacts[i].getPenetration() - Vector3.Dot(move_1, contacts[i].getContactNormal()))
+				elif contacts[i].getParticle1() == contacts[max_index].getParticle2():
+					contacts[i].setPenetration(contacts[i].getPenetration() - Vector3.Dot(move_2, contacts[i].getContactNormal()))
+								   
+			
 			_iterations_used += 1
 				
