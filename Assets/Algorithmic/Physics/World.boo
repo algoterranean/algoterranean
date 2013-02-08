@@ -13,7 +13,7 @@ class World (MonoBehaviour):
 		_particles = []
 		_registry = ForceParticleRegistry()
 		_resolver = ParticleContactResolver(50)
-		p = gameObject.Find("Person").GetComponent("Particle") as Algorithmic.Particle
+		p = gameObject.Find("Person2").GetComponent("Particle") as Algorithmic.Particle
 		_registry.add(p, Gravity())
 		_particles.Push(p)		
 		p = gameObject.Find("Ground").GetComponent("Particle") as Algorithmic.Particle
@@ -25,20 +25,27 @@ class World (MonoBehaviour):
 		for x as Algorithmic.Particle in _particles:
 			x.integrate(Time.deltaTime)
 
-		p1 = gameObject.Find("Person").GetComponent("Particle") as Algorithmic.Particle
+		p1 = gameObject.Find("Person2").GetComponent("Particle") as Algorithmic.Particle
 		p2 = gameObject.Find("Ground").GetComponent("Particle") as Algorithmic.Particle
 
-		t = gameObject.Find("Person").GetComponent("Transform") as Transform
+		t = gameObject.Find("Person2").GetComponent("Transform") as Transform
 		if t.position.y <= -37:
-			c = ParticleContact(p1, null, 0.5, Vector3(0, 1, 0), -1 * (37 + t.position.y))
+			c = ParticleContact(p1, null, 0.0, Vector3(0, 1, 0), -1 * (37 + t.position.y))
 			l = List[of ParticleContact]()
 			l.Push(c)
 			_resolver.resolveContacts(l, Time.deltaTime)
 			
 	def Update():
+		p = gameObject.Find("Person2").GetComponent("Particle") as Algorithmic.Particle		
 		if Input.GetKeyDown("space"):
-			p = gameObject.Find("Person").GetComponent("Particle") as Algorithmic.Particle
 			_registry.add(p, Jump())
+		if Input.GetKey("left"):
+			_registry.add(p, MoveLeft())
+		if Input.GetKey("right"):
+			_registry.add(p, MoveRight())
+
+		if not Input.GetKey("right") and not Input.GetKey("left"):
+			_registry.add(p, StopMoving())
 
 
 
