@@ -1,4 +1,4 @@
-
+namespace Algorithmic.Terrain
 
 
 struct Node:

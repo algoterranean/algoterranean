@@ -1,3 +1,5 @@
+namespace Algorithmic.Terrain
+
 import UnityEngine
 import Algorithmic
 import System.Math

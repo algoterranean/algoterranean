@@ -1,3 +1,4 @@
+namespace Algorithmic.Terrain
 
 import System.Collections.Generic
 import System.Threading

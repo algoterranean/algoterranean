@@ -1,4 +1,8 @@
+namespace Algorithmic.Player
+
 import UnityEngine
+import Algorithmic.Terrain
+
 
 class Player (MonoBehaviour, IParticle):
 	# IParticle stuff

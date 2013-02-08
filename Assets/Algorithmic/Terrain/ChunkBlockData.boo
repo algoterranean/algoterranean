@@ -1,4 +1,7 @@
+namespace Algorithmic.Terrain
+
 import UnityEngine
+
 
 class NullBlockData (IChunkBlockData):
 	def isNull():

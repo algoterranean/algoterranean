@@ -1,6 +1,7 @@
-namespace Algorithmic
+namespace Algorithmic.Terrain
 
 import UnityEngine
+import Algorithmic.Player
 #import System.Threading
 #import System.Collections
 #import Amib.Threading

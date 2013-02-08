@@ -1,4 +1,7 @@
+
+
 import UnityEngine
+import Algorithmic.Terrain
 
 class CameraFollowing (MonoBehaviour):
 	_origin = Vector3(0.0, 0.0, 0.0)
