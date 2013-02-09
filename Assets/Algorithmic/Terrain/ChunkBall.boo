@@ -253,12 +253,14 @@ class ChunkBall (IChunkBall, IObservable):
 			chunk_info = item.Value
 			chunk = chunk_info.getChunk()
 			chunk_mesh = chunk_info.getMesh()
+			
 			tree as BoundingVolumeTree = chunk_mesh.getTree()
-			node as Node = tree.getTree()
-
-			collisions = tree.checkCollision(_object_to_check)
-			if len(collisions) > 0:
-				return true
+			if tree != null: # would be null in the case of checking chunks that don't exist (i.e., near player because they're way up in the air)
+				node as Node = tree.getTree()
+				collisions = tree.checkCollision(_object_to_check)
+				if len(collisions) > 0:
+					return collisions
+					#return true
 			
 				#x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
 				#x.stop()

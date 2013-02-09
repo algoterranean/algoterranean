@@ -104,9 +104,9 @@ class ParticleContact:
 			return
 
 		movePerIMass = _contact_normal * (_penetration / totalInverseMass)
-		print "movePerIMass: $movePerIMass"
+		#print "movePerIMass: $movePerIMass"
 		_particle_movement_1 = movePerIMass * _particle_1.getInverseMass()
-		print "particle_movement_1: $_particle_movement_1"
+		#print "particle_movement_1: $_particle_movement_1"
 		if _particle_2 != null:
 			_particle_movement_2 = movePerIMass * -_particle_2.getInverseMass()
 		else:

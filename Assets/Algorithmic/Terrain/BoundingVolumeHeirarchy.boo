@@ -28,16 +28,22 @@ class BoundingVolumeTree:
 		return _tree
 
 	def checkCollision(_aabb as AABB):
-
+		# recursive tree walker
 		def _check(tree as Node, aabb as AABB, running_list as List):
 			if tree.bounding_volume.Test(tree.bounding_volume, aabb):
+				v = tree.bounding_volume.getCollision(tree.bounding_volume, aabb)
 				coords = tree.bounding_volume.center
 				radius = tree.bounding_volume.radius
 				if (radius.x == 1.0 and
 				    radius.y == 1.0 and
-				    radius.z == 1.0 and
-				    _chunk.getBlock(ByteVector3(coords.x % Settings.ChunkSize, coords.y % Settings.ChunkSize, coords.z % Settings.ChunkSize))):
-					running_list.Push(tree)
+					radius.z == 1.0):
+					block = _chunk.getBlock(ByteVector3(Math.Abs(coords.x % Settings.ChunkSize),
+														Math.Abs(coords.y % Settings.ChunkSize),
+						Math.Abs(coords.z % Settings.ChunkSize)))
+					
+					if block:
+						running_list.Push(v)
+					
 				for x in range(len(tree.children)):
 					_check(tree.children[x], aabb, running_list)
 					

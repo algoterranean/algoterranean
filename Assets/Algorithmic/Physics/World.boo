@@ -21,10 +21,9 @@ class World (MonoBehaviour):
 		_particles.Push(p)
 		
 	def FixedUpdate():
-		_registry.updateForces(Time.deltaTime)
+		_registry.updateForces(Time.deltaTime)		
 		for x as Algorithmic.Particle in _particles:
 			x.integrate(Time.deltaTime)
-
 
 		# force a collision all hackish-like
 		p1 = gameObject.Find("Person2").GetComponent("Particle") as Algorithmic.Particle
@@ -40,7 +39,8 @@ class World (MonoBehaviour):
 			c = ParticleContact(p1, null, 0.0, Vector3(1, 0, 0), -1 * (39 + t.position.x))
 			l.Push(c)
 
-		_resolver.resolveContacts(l, Time.deltaTime)			
+		_resolver.resolveContacts(l, Time.deltaTime)
+		
 			
 	def Update():
 		p = gameObject.Find("Person2").GetComponent("Particle") as Algorithmic.Particle		

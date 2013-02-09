@@ -20,6 +20,20 @@ struct AABB:
 			return false
 		return true
 
+	def getCollision(a as AABB, b as AABB) as Vector3:
+		y_component = 0.0
+		x_component = 0.0
+		z_component = 0.0
+
+		if Math.Abs(a.center.y - b.center.y) <= (a.radius.y + b.radius.y):
+			y_component = Math.Abs(a.center.y - b.center.y)
+		if Math.Abs(a.center.x - b.center.x) <= (a.radius.x + b.radius.x):
+			x_component = Math.Abs(a.center.x - b.center.x)
+		if Math.Abs(a.center.z - b.center.z) <= (a.radius.z + b.radius.z):
+			z_component = Math.Abs(a.center.z - b.center.z)
+			
+		return Vector3(x_component, y_component, z_component)
+	
 	def ToString():
 		return "(CENTER: $center, RADIUS: $radius)"
 

@@ -1,7 +1,8 @@
-
+namespace Algorithmic.Player
 
 import UnityEngine
 import Algorithmic.Terrain
+
 
 class CameraFollowing (MonoBehaviour):
 	_origin = Vector3(0.0, 0.0, 0.0)
@@ -14,6 +15,7 @@ class CameraFollowing (MonoBehaviour):
 		chunk_manager = gameObject.Find("ChunkManager")
 		cm_obj = chunk_manager.GetComponent("ChunkManager") as ChunkManager
 		cm_obj.setOrigin(_origin)
+		
 	
 	def FixedUpdate ():
 		t = gameObject.GetComponent(Transform)

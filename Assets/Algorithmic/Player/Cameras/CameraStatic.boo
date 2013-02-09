@@ -1,6 +1,7 @@
 import UnityEngine
 #import System.Reflection
 import System
+import Algorithmic.Terrain
 
 class CameraStatic (MonoBehaviour):
 	_origin = Vector3(0, 0, 0)

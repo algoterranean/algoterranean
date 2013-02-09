@@ -64,24 +64,24 @@ class Player (MonoBehaviour, IParticle):
 		_force_accum += force
 	
 
-	def FixedUpdate():
-		setPosition(_position + _velocity * Time.deltaTime)
-		resulting_acc = _acceleration + _force_accum * _inverse_mass
-		setVelocity(_velocity + resulting_acc * Time.deltaTime)     
-		setVelocity(_velocity * Math.Pow(_damping, Time.deltaTime)) # damping/drag
+	# def FixedUpdate():
+	# 	setPosition(_position + _velocity * Time.deltaTime)
+	# 	resulting_acc = _acceleration + _force_accum * _inverse_mass
+	# 	setVelocity(_velocity + resulting_acc * Time.deltaTime)     
+	# 	setVelocity(_velocity * Math.Pow(_damping, Time.deltaTime)) # damping/drag
 		
-		transform.position = getPosition()
-		_force_accum = Vector3(0, 0, 0)
+	# 	transform.position = getPosition()
+	# 	_force_accum = Vector3(0, 0, 0)
 
 	def getAABB():
 		return _aabb
 
-	def stopGravity():
-		setAcceleration(Vector3(0, 0, 0))
-		setVelocity(Vector3(0, 0, 0))
+	# def stopGravity():
+	# 	setAcceleration(Vector3(0, 0, 0))
+	# 	setVelocity(Vector3(0, 0, 0))
 
-	def startGravity():
-		setAcceleration(_g)
+	# def startGravity():
+	# 	setAcceleration(_g)
 		
 
 		
