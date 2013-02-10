@@ -34,21 +34,35 @@ class BoundingVolumeTree:
 				v = tree.bounding_volume.getCollision(tree.bounding_volume, aabb)
 				coords = tree.bounding_volume.center
 				radius = tree.bounding_volume.radius
-				if (radius.x == 1.0 and
-				    radius.y == 1.0 and
-					radius.z == 1.0):
-					block = _chunk.getBlock(ByteVector3(Math.Abs(coords.x % Settings.ChunkSize),
-														Math.Abs(coords.y % Settings.ChunkSize),
-						Math.Abs(coords.z % Settings.ChunkSize)))
+				if (radius.x == 0.5 and
+				    radius.y == 0.5 and
+					radius.z == 0.5):
+					pos = ByteVector3(Math.Abs(coords.x % Settings.ChunkSize),
+									  Math.Abs(coords.y % Settings.ChunkSize),
+						Math.Abs(coords.z % Settings.ChunkSize))
+					block = _chunk.getBlock(pos)
 					
 					if block:
-						running_list.Push(v)
-					
+						running_list.Push([v, pos])
+						
 				for x in range(len(tree.children)):
 					_check(tree.children[x], aabb, running_list)
 					
 		l = []
 		_check(_tree, _aabb, l)
+		# if len(l) > 0:
+		# 	item as List = l[0]
+		# 	max_v as Vector3 = item[0]
+		# 	max_p as ByteVector3 = item[1]
+			
+		# 	for x as List in l:
+		# 		v as Vector3 = x[0]
+		# 		p as ByteVector3 = x[1]
+		# 		if p.y > max_p.y:
+		# 			max_p = p
+		# 			max_v = v
+		# 	return [[max_v, max_p]]
+		
 		return l
 
 
@@ -98,7 +112,7 @@ class BoundingVolumeTree:
 			center = Vector3(coords.x + size.x/2, coords.y + size.y/2, coords.z + size.z/2)
 			radius = Vector3(size.x/2, size.y/2, size.z/2)
 			_tree = Node(AABB(center, radius))
-			_build_tree(_tree, 4)
+			_build_tree(_tree, 5)
 
 					
 				
