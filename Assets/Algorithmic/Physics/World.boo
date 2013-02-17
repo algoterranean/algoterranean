@@ -52,7 +52,7 @@ class World (MonoBehaviour):
 			_registry.add(p, MoveRight())
 
 		if not Input.GetKey("right") and not Input.GetKey("left"):
-			_registry.add(p, StopMoving())
+			_registry.add(p, StopMovingSideways())
 
 
 

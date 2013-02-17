@@ -34,11 +34,11 @@ class Player (MonoBehaviour, IParticle):
 		
 		_chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
 		_origin = transform.position
-		_aabb = AABB(transform.position, Vector3(0.5, 1.0, 0.5))
+		_aabb = AABB(transform.position, Vector3(0.5, 0.5, 0.5))
 
 
 	def Update ():
-		_aabb = AABB(transform.position, Vector3(0.5, 1.0, 0.5))
+		_aabb = AABB(transform.position, Vector3(0.5, 0.5, 0.5))
 		if _chunk_manager.isInitialized() and not initial_startup:
 			initial_startup = true
 			#print 'CHUNK MANAGER IS INITIALIZED'

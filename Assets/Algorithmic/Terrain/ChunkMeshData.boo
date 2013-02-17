@@ -14,7 +14,7 @@ struct AABB:
 	def Test(a as AABB, b as AABB) as bool:
 		if Math.Abs(a.center.y - b.center.y) > (a.radius.y + b.radius.y):
 			return false
-		if Math.Abs(a.center.x - b.center.x) > (a.radius.x + b.radius.x): 
+		if Math.Abs(a.center.x - b.center.x) > (a.radius.x + b.radius.x):
 			return false
 		if Math.Abs(a.center.z - b.center.z) > (a.radius.z + b.radius.z):
 			return false
@@ -26,7 +26,8 @@ struct AABB:
 		z_component = 0.0
 
 		if Math.Abs(a.center.y - b.center.y) <= (a.radius.y + b.radius.y):
-			y_component = Math.Abs(a.center.y - b.center.y)
+			y_component = (b.center.y + b.radius.y) - (a.center.y - a.radius.y)
+			#y_component = a.center.y - b.center.y #- (a.radius.y + b.radius.y)
 		if Math.Abs(a.center.x - b.center.x) <= (a.radius.x + b.radius.x):
 			x_component = Math.Abs(a.center.x - b.center.x)
 		if Math.Abs(a.center.z - b.center.z) <= (a.radius.z + b.radius.z):
@@ -387,4 +388,4 @@ class ChunkMeshData (IChunkMeshData):
 						## 	_bounding_volumes[aabb_count] = AABB(Vector3(x + 0.5, y + 0.5, z + 0.5), Vector3(0.5, 0.5, 0.5))
 						## 	aabb_count += 1
 		_mesh_calculated = true
-		_bounding_volume_tree = BoundingVolumeTree(_chunk)
+		_bounding_volume_tree = BoundingVolumeTree(_chunk.getSize(), _chunk.getCoordinates())

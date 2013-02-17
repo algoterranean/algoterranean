@@ -41,34 +41,48 @@ class WorldPhysics (MonoBehaviour):
 		x = gameObject.Find("Player").GetComponent("Player") as Player
 		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
 		chunk_ball = chunk_manager.getChunkBall()
+		
 		l = chunk_ball.CheckCollisions(_player_aabb)
+		
 		if l:
 			print "COLLISIONS: $l"
 			contacts = List[of ParticleContact]()
 			p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-			for collision as Vector3 in l:
-				c = ParticleContact(p, null, 0.0, Vector3(0, 1, 0), 1.0 - collision.y)
+
+			for x as duck in l:
+				distance = x[0]
+				block_pos = x[1]
+				c = ParticleContact(p, null, 0.0, Vector3(0, 1, 0), distance.y)
 				contacts.Push(c)
+				
 			_resolver.resolveContacts(contacts, Time.deltaTime)
 			
+			# if _running:
+			# 	_running = false
+			# 	_registry.updateForces(Time.deltaTime)
+			# 	for x as Algorithmic.Particle in _particles:
+			# 		x.integrate(Time.deltaTime)
+			
 	def Update():
-		p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle		
+		p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
 		if Input.GetKeyDown("return"):
 			_running = not _running
 		if Input.GetKeyDown("space"):
 			_registry.add(p, Jump())
 			
-		if Input.GetKey("left"):
+		if Input.GetKey("left") and not Input.GetKey("left shift"):
 			_registry.add(p, MoveLeft())
 		if Input.GetKey("right"):
 			_registry.add(p, MoveRight())
 		if Input.GetKey("up"):
-			pass
+			_registry.add(p, MoveForward())
 		if Input.GetKey("down"):
-			pass
+			_registry.add(p, MoveBackwards())
 
 		if not Input.GetKey("right") and not Input.GetKey("left"):
-			_registry.add(p, StopMoving())
+			_registry.add(p, StopMovingSideways())
+		if not Input.GetKey("up") and not Input.GetKey("down"):
+			_registry.add(p, StopMovingToAndFro())			
 
 
 

@@ -38,11 +38,36 @@ class MoveRight(IForceGenerator):
 		particle.setAcceleration(a)
 		particle.setVelocity(v)
 
-class StopMoving(IForceGenerator):
+class MoveForward(IForceGenerator):
+	def updateForce(particle as IParticle, duration as single):
+		v = particle.getVelocity()
+		a = particle.getAcceleration()
+		v.z = 5
+		a.z = 0
+		particle.setAcceleration(a)
+		particle.setVelocity(v)
+
+class MoveBackwards(IForceGenerator):
+	def updateForce(particle as IParticle, duration as single):
+		v = particle.getVelocity()
+		a = particle.getAcceleration()
+		v.z = -5
+		a.z = 0
+		particle.setAcceleration(a)
+		particle.setVelocity(v)		
+
+class StopMovingSideways(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
 		v = particle.getVelocity()
 		v.x = 0
 		particle.setVelocity(v)
+
+class StopMovingToAndFro(IForceGenerator):
+	def updateForce(particle as IParticle, duration as single):
+		v = particle.getVelocity()
+		v.z = 0
+		particle.setVelocity(v)
+		
 
 
 

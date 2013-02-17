@@ -22,7 +22,8 @@ class ChunkBlockData (IChunkBlockData):
 		setSize(size)
 		_blocks = matrix(byte, size.x, size.y, size.z)
 		_blocks_calculated = false
-		_noise_module = MineralNoiseData()
+		#_noise_module = MineralNoiseData()
+		_noise_module = SolidNoiseData()
 		#_noise_module = BasicNoiseData()
 		
 	def setCoordinates(coords as LongVector3) as void:

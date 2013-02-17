@@ -22,4 +22,4 @@ struct ByteVector3:
 		self.z = z		
 
 	def ToString():
-		return "$x, $y, $z"
+		return "($x, $y, $z)"

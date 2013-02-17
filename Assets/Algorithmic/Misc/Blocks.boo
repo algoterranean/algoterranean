@@ -46,6 +46,7 @@ class Blocks:
 		block_def[BLOCK.GRASS] = Block(BLOCK.GRASS, 0.5, 0, "Solid/Grass")
 		block_def[BLOCK.SWAMP] = Block(BLOCK.SWAMP, 0.4, 0, "Solid/Swamp")
 
+
 		block_def[BLOCK.LIQUID] = Block(BLOCK.LIQUID, 0.7, 0, "Liquid/Generic")
 		block_def[BLOCK.WATER] = Block(BLOCK.WATER, 0.7, 0, "Liquid/Water/Generic")
 		block_def[BLOCK.MAGMA] = Block(BLOCK.MAGMA, 0.2, 0, "Liquid/Magma")

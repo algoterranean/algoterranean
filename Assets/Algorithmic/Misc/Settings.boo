@@ -22,9 +22,9 @@ struct Settings:
 	public static ChunkDepth as int = 1
 	public static ChunkHeight as int = 1
 
-	
+
 	public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
 
 	public static TerrainDepth as single = (ChunkHeight * 2 + 1) * ChunkSize /2
 	public static SolidCutoff as single = 0.0
-	
+

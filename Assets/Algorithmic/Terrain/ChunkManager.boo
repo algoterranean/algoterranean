@@ -31,7 +31,7 @@ class ChunkManager (MonoBehaviour, IObserver):
 			#chunk_mesh as IChunkMeshData = chunk_info.getMesh()
 			coords = chunk_blocks.getCoordinates()
 
-			print "ChunkManager: Receiving ChunkBall Update: $message ($(coords.x), $(coords.y), $(coords.z))"
+			#print "ChunkManager: Receiving ChunkBall Update: $message ($(coords.x), $(coords.y), $(coords.z))"
 			if message == Message.MESH_READY:
 				_add_mesh_queue.Push(chunk_info)
 			elif message == Message.REMOVE:
@@ -73,23 +73,23 @@ class ChunkManager (MonoBehaviour, IObserver):
 		if isInitialized():
 			_player = gameObject.Find("Player").GetComponent("Player") as Player
 			_player_aabb = _player.getAABB()
-			x = gameObject.Find("Player").GetComponent("Player") as Player            
+			x = gameObject.Find("Player").GetComponent("Player") as Player
 			# if _chunk_ball.CheckCollisions(_player_aabb):
 			#     x.stopGravity()
 			# else:
 			#     x.startGravity()
-			
+
 	def FixedUpdate():
 		pass
 		# apply gravity to the player
 		#_registry.updateForces(Time.deltaTime)
-		
+
 		## x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
 		## x.addForce(Vector3(0, -9.8, 0))
 
 	def isInitialized() as bool:
 		return _initialized
-	
+
 	def areInitialChunksComplete() as bool:
 		pass
 

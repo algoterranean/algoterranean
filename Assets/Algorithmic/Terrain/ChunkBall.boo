@@ -7,18 +7,18 @@ import UnityEngine
 
 
 ################################################################################
-# Utility and Message Passing Stuff							
+# Utility and Message Passing Stuff
 class ChunkInfo():
 	_chunk as IChunkBlockData
 	_mesh as IChunkMeshData
 	_bounds as AABB
-	
+
 	def constructor(chunk as IChunkBlockData, mesh as IChunkMeshData):
 		_chunk = chunk
 		_mesh = mesh
 		coords = chunk.getCoordinates()
 		_bounds = AABB(Vector3(coords.x + Settings.ChunkSize/2, coords.y + Settings.ChunkSize/2, coords.z + Settings.ChunkSize/2),
-			       Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2))
+				   Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2))
 
 	def getChunk() as IChunkBlockData:
 		return _chunk
@@ -35,7 +35,7 @@ enum Message:
 class ChunkBallMessage():
 	_message as Message
 	_data as object
-	
+
 	def constructor(message as Message, data as object):
 		_message = message
 		_data = data
@@ -64,7 +64,7 @@ class ChunkBall (IChunkBall, IObservable):
 
 	def Update():
 		notifyObservers()
-		
+
 		# check if new meshes are ready
 		ready_mesh_key as duck
 		for item in _mesh_waiting_queue:
@@ -73,12 +73,12 @@ class ChunkBall (IChunkBall, IObservable):
 			if chunk_mesh.areNeighborsReady():
 				ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
 				ready_mesh_key = item.Key
-				print "FOUND MESH: $item.key. Length of remaining queue: $(len(_mesh_waiting_queue))"
+				#print "FOUND MESH: $item.key. Length of remaining queue: $(len(_mesh_waiting_queue))"
 				break
 
 		if ready_mesh_key != null:
 			_mesh_waiting_queue.Remove(ready_mesh_key)
-			
+
 
 	def registerObserver(o as object) as void:
 		if _observers.Contains(o):
@@ -104,7 +104,7 @@ class ChunkBall (IChunkBall, IObservable):
 		setMaxChunkDistance(max_distance)
 		_chunk_size = chunk_size
 		_chunks = Dictionary[of LongVector3, ChunkInfo]()
-		_mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()		
+		_mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
 		_origin = Vector3(10000, 10000, 10000)
 
 
@@ -131,7 +131,7 @@ class ChunkBall (IChunkBall, IObservable):
 			mesh as ChunkMeshData = chunk_info.getMesh()
 			chunk as ChunkBlockData = chunk_info.getChunk()
 			mesh.CalculateMesh()
-			print "Mesh Calculated: $(chunk.getCoordinates())"
+			#print "Mesh Calculated: $(chunk.getCoordinates())"
 			lock _locker:
 				_outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
 		except e:
@@ -153,8 +153,8 @@ class ChunkBall (IChunkBall, IObservable):
 		else:
 			return 300  # TO DO: this should be able to return a failure state if the chunk doesn't exist
 
-		
-			
+
+
 
 	def SetOrigin(origin as Vector3) as void:
 		# only do something if the distance since the
@@ -179,8 +179,8 @@ class ChunkBall (IChunkBall, IObservable):
 				chunk_coords = chunk_blocks.getCoordinates()
 
 				if (current_chunk_coords.x - chunk_coords.x)/_chunk_size > _max_distance or \
-				    (current_chunk_coords.y - chunk_coords.y)/_chunk_size > _max_distance or \
-				    (current_chunk_coords.z - chunk_coords.z)/_chunk_size > _max_distance:
+					(current_chunk_coords.y - chunk_coords.y)/_chunk_size > _max_distance or \
+					(current_chunk_coords.z - chunk_coords.z)/_chunk_size > _max_distance:
 					removal_queue.Push(item.Key)
 
 		# remove all chunks that are too far away
@@ -253,31 +253,31 @@ class ChunkBall (IChunkBall, IObservable):
 			chunk_info = item.Value
 			chunk = chunk_info.getChunk()
 			chunk_mesh = chunk_info.getMesh()
-			
+
 			tree as BoundingVolumeTree = chunk_mesh.getTree()
 			if tree != null: # would be null in the case of checking chunks that don't exist (i.e., near player because they're way up in the air)
 				node as Node = tree.getTree()
-				collisions = tree.checkCollision(_object_to_check)
+				collisions = tree.checkCollision(chunk, _object_to_check)
 				if len(collisions) > 0:
 					return collisions
 					#return true
-			
+
 				#x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
 				#x.stop()
 			#print "COLLISION: $(len()) OBJECTS"
 
 			#print "$node"
-			 
+
 			#print "BOUNDING VOLUME CHECK: $(_object_to_check.center), $(node.bounding_volume.center), $(node.bounding_volume.Test(node.bounding_volume, _object_to_check))"
-				
-
-		
-		
 
 
-				
-		
-		
 
-		
-	
+
+
+
+
+
+
+
+
+
