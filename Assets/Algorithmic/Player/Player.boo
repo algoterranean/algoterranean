@@ -23,11 +23,33 @@ class Player (MonoBehaviour, IParticle):
 
 	def initialize():
 		pass
+
+
+	def integrate(duration as single):
+		if _inverse_mass <= 0:
+			return
+		_position += _velocity * duration
+		_acceleration += _force_accum * _inverse_mass
+		_velocity += _acceleration * duration
+		
+		_velocity *= Math.Pow(_damping, duration)
+		_force_accum = Vector3(0, 0, 0)
+		transform.position = _position
+
+
+	# def fake_integrate(duration as single):
+	# 	if _inverse_mass <= 0:
+	# 		return
+	# 	p = _position + _velocity * duration
+	# 	a = _acceleration + _force_accum * _inverse_mass
+	# 	v = _velocity + _acceleration * duration
+	# 	v *= Math.Pow(_damping, duration)
+	# 	return [p, v, a]
 	
 	def Start ():
 		setPosition(transform.position)
 		setVelocity(Vector3(0, 0, 0))
-		setAcceleration(_g)		
+		setAcceleration(_g)
 		_mass = 80.0
 		_inverse_mass = 1.0/_mass
 		_force_accum = Vector3(0, 0, 0)
@@ -37,7 +59,7 @@ class Player (MonoBehaviour, IParticle):
 		_aabb = AABB(transform.position, Vector3(0.5, 0.5, 0.5))
 
 
-	def Update ():
+	def FixedUpdate ():
 		_aabb = AABB(transform.position, Vector3(0.5, 0.5, 0.5))
 		if _chunk_manager.isInitialized() and not initial_startup:
 			initial_startup = true
@@ -74,6 +96,9 @@ class Player (MonoBehaviour, IParticle):
 	# 	_force_accum = Vector3(0, 0, 0)
 
 	def getAABB():
+		return _aabb
+
+	def getAABBPlusOne():
 		return _aabb
 
 	# def stopGravity():

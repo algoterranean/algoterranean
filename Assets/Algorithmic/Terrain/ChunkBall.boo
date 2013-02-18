@@ -249,26 +249,22 @@ class ChunkBall (IChunkBall, IObservable):
 
 
 	def CheckCollisions(_object_to_check as AABB):
+		collisions = [] 
+		
 		for item in _chunks:
 			chunk_info = item.Value
 			chunk = chunk_info.getChunk()
 			chunk_mesh = chunk_info.getMesh()
 
 			tree as BoundingVolumeTree = chunk_mesh.getTree()
-			if tree != null: # would be null in the case of checking chunks that don't exist (i.e., near player because they're way up in the air)
+			if tree != null: # would be null in the case of checking chunks that
+				             # don't exist (i.e., near player because they're way up in the air)
 				node as Node = tree.getTree()
-				collisions = tree.checkCollision(chunk, _object_to_check)
-				if len(collisions) > 0:
-					return collisions
-					#return true
-
-				#x = gameObject.Find("First Person Controller").GetComponent("Player") as Player
-				#x.stop()
-			#print "COLLISION: $(len()) OBJECTS"
-
-			#print "$node"
-
-			#print "BOUNDING VOLUME CHECK: $(_object_to_check.center), $(node.bounding_volume.center), $(node.bounding_volume.Test(node.bounding_volume, _object_to_check))"
+				c = tree.checkCollisionDiscrete(chunk, _object_to_check)
+				if len(c) > 0:
+					for x in c:
+						collisions.Push(x)
+		return collisions
 
 
 

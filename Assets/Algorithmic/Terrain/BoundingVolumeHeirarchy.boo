@@ -36,7 +36,19 @@ class BoundingVolumeTree:
 	def getTree():
 		return _tree
 	
-	def checkCollision(chunk as IChunkBlockData, _aabb as AABB):
+
+	def checkCollisionSwept(chunk as IChunkBlockData, _aabb as AABB) as List:
+		l = []
+		def _check(chunk as IChunkBlockData,
+				   tree as Node, aabb as AABB, running_list as List) as void:
+			
+			pass
+		_check(chunk, _tree, _aabb, l)
+		return l
+
+
+	# discrete collision detection
+	def checkCollisionDiscrete(chunk as IChunkBlockData, _aabb as AABB) as List:
 		# recursive tree walker
 		def _check(chunk as IChunkBlockData,
 				   tree as Node, aabb as AABB, running_list as List) as void:
@@ -51,14 +63,14 @@ class BoundingVolumeTree:
 					return false
 				return true
 
-			def getCollision(c1 as Vector3, r1 as Vector3,
-							 c2 as Vector3, r2 as Vector3):
+			def getCollision(c1 as Vector3, r1 as Vector3,  # terrain
+							 c2 as Vector3, r2 as Vector3): # player
 				x = 0.0
 				y = 0.0
 				z = 0.0
 				if Math.Abs(c1.y - c2.y) <= (r1.y + r2.y):
-					y = (c1.y - c2.y) #- (r1.y + r2.y)
-				
+					y = (c1.y + r1.y) - (c2.y - r2.y)
+					
 				return Vector3(x, y, z)
 
 			if test(tree.center, tree.radius, aabb.center, aabb.radius):

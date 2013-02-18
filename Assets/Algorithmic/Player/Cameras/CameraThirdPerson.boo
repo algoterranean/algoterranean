@@ -26,6 +26,8 @@ class CameraThirdPerson (MonoBehaviour):
 		else:
 			player = gameObject.Find("Player")
 			transform.position = player.transform.position + Vector3(10, 10, 10)
+
+		
 			#pos = transform.position
 			#transform.LookAt(player.transform.position)
 			#transform.LookAt(player.transform.position)

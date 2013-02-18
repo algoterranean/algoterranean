@@ -39,6 +39,8 @@ class World (MonoBehaviour):
 			c = ParticleContact(p1, null, 0.0, Vector3(1, 0, 0), -1 * (39 + t.position.x))
 			l.Push(c)
 
+		print "COLLISIONS: $l"
+
 		_resolver.resolveContacts(l, Time.deltaTime)
 		
 			
