@@ -5,12 +5,12 @@ struct Node:
 	center as Vector3
 	radius as Vector3
 	children as (Node)
-	
-	def constructor(c as Vector3, r as Vector3):
+
+	def constructor(c as Vector3, r as Vector3, child_size as int):
 		center = c
 		radius = r
-		children = array(Node, 8)
-		
+		children = array(Node, child_size)
+
 
 
 
@@ -24,10 +24,10 @@ struct Node:
 # 	root_node as PartialNode
 
 # 	def constructor(chunk_size as ByteVector3):
-		
 
 
-		
+
+
 
 class BoundingVolumeTree:
 	_tree as Node
@@ -35,13 +35,13 @@ class BoundingVolumeTree:
 
 	def getTree():
 		return _tree
-	
+
 
 	def checkCollisionSwept(chunk as IChunkBlockData, _aabb as AABB) as List:
 		l = []
 		def _check(chunk as IChunkBlockData,
 				   tree as Node, aabb as AABB, running_list as List) as void:
-			
+
 			pass
 		_check(chunk, _tree, _aabb, l)
 		return l
@@ -52,7 +52,7 @@ class BoundingVolumeTree:
 		# recursive tree walker
 		def _check(chunk as IChunkBlockData,
 				   tree as Node, aabb as AABB, running_list as List) as void:
-			
+
 			def test(c1 as Vector3, r1 as Vector3,
 					 c2 as Vector3, r2 as Vector3):
 				if Math.Abs(c1.y - c2.y) > (r1.y + r2.y):
@@ -70,14 +70,14 @@ class BoundingVolumeTree:
 				z = 0.0
 				if Math.Abs(c1.y - c2.y) <= (r1.y + r2.y):
 					y = (c1.y + r1.y) - (c2.y - r2.y)
-					
+
 				return Vector3(x, y, z)
 
 			if test(tree.center, tree.radius, aabb.center, aabb.radius):
 				if (tree.radius.x == 0.5 and
 					tree.radius.y == 0.5 and
 					tree.radius.z == 0.5):
-					
+
 					pos = ByteVector3(Math.Abs(tree.center.x % Settings.ChunkSize),
 									  Math.Abs(tree.center.y % Settings.ChunkSize),
 									  Math.Abs(tree.center.z % Settings.ChunkSize))
@@ -91,14 +91,14 @@ class BoundingVolumeTree:
 		l = []
 		_check(chunk, _tree, _aabb, l)
 		return l
-						
-					
+
+
 
 	def constructor(chunk_size as ByteVector3, chunk_coordinates as LongVector3):
 		#_chunk = chunk
 		size = chunk_size
 		coords = chunk_coordinates
-		
+
 		#if chunk.areBlocksCalculated():
 		def _build_tree(root_node as Node, depth as int) as void:
 			center = root_node.center
@@ -107,50 +107,55 @@ class BoundingVolumeTree:
 				r_half_x = radius.x/2
 				r_half_y = radius.y/2
 				r_half_z = radius.z/2
+
+				if depth > 1:         # if the child nodes will be the final step in recursion, they don't need children nodes themselves
+					child_size = 8
+				else:
+					child_size = 0
+
 				new_radius = Vector3(r_half_x,
 									 r_half_y,
 									 r_half_z)
 				new_center = Vector3(center.x + r_half_x,
 									 center.y - r_half_y,
 									 center.z - r_half_z)
-				root_node.children[0] = Node(new_center, new_radius)
+				root_node.children[0] = Node(new_center, new_radius, child_size)
 
 				new_center = Vector3(center.x + r_half_x,
 									 center.y + r_half_y,
 									 center.z - r_half_z)
-				root_node.children[1] = Node(new_center, new_radius)
+				root_node.children[1] = Node(new_center, new_radius, child_size)
 
 				new_center = Vector3(center.x + r_half_x,
 									 center.y + r_half_y,
 									 center.z + r_half_z)
-				root_node.children[2] = Node(new_center, new_radius)
+				root_node.children[2] = Node(new_center, new_radius, child_size)
 
 				new_center = Vector3(center.x + r_half_x,
 									 center.y - r_half_y,
 									 center.z + r_half_z)
-				root_node.children[3] = Node(new_center, new_radius)
+				root_node.children[3] = Node(new_center, new_radius, child_size)
 
 				new_center = Vector3(center.x - r_half_x,
 									 center.y - r_half_y,
 									 center.z - r_half_z)
-				root_node.children[4] = Node(new_center, new_radius)
+				root_node.children[4] = Node(new_center, new_radius, child_size)
 
 				new_center = Vector3(center.x - r_half_x,
 									 center.y + r_half_y,
 									 center.z - r_half_z)
-				root_node.children[5] = Node(new_center, new_radius)
+				root_node.children[5] = Node(new_center, new_radius, child_size)
 
 				new_center = Vector3(center.x - r_half_x,
 									 center.y + r_half_y,
 									 center.z + r_half_z)
-				root_node.children[6] = Node(new_center, new_radius)
+				root_node.children[6] = Node(new_center, new_radius, child_size)
 
 				new_center = Vector3(center.x - r_half_x,
 									 center.y - r_half_y,
 									 center.z + r_half_z)
-				root_node.children[7] = Node(new_center, new_radius)
+				root_node.children[7] = Node(new_center, new_radius, child_size)
 				#total_count += 8
-
 
 				for x in range(len(root_node.children)):
 					_build_tree(root_node.children[x], depth - 1)
@@ -164,12 +169,12 @@ class BoundingVolumeTree:
 						 size.y/2,
 						 size.z/2)
 
-		_tree = Node(center, radius)
+		_tree = Node(center, radius, 8)
 		_build_tree(_tree, 5)
-					
 
-			
-		
+
+
+
 
 
 
