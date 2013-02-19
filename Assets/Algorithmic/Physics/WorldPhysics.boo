@@ -36,17 +36,15 @@ class WorldPhysics (MonoBehaviour):
 		for x as Algorithmic.Particle in _particles:
 			x.integrate(Time.deltaTime)
 		
-		_player = gameObject.Find("Player").GetComponent("Player") as Player
-		#_player_aabb = _player.getAABB()
-
-		t = gameObject.Find("Player").transform
-		_player_aabb = AABB(t.position, Vector3(0.5, 0.5, 0.5))
+		_player = gameObject.Find("Player")
+		_particle = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
+		#t = gameObject.Find("Player").transform		
+		_player_aabb = AABB(_particle.getPosition(), Vector3(0.5, 0.5, 0.5))
 		
-		x = gameObject.Find("Player").GetComponent("Player") as Player
+		#x = gameObject.Find("Player").GetComponent("Player") as Player
 		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
 		chunk_ball = chunk_manager.getChunkBall()
 		l = chunk_ball.CheckCollisions(_player_aabb)
-		
 		
 		if len(l) > 0:
 			contacts = List[of ParticleContact]()
@@ -72,6 +70,9 @@ class WorldPhysics (MonoBehaviour):
 			# 	_registry.updateForces(Time.deltaTime)
 			# 	for x as Algorithmic.Particle in _particles:
 			# 		x.integrate(Time.deltaTime)
+			
+		for x as Algorithmic.Particle in _particles:
+			x.update_position()
 
 			
 	def Update():

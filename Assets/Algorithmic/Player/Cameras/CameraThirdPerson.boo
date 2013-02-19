@@ -5,11 +5,12 @@ import UnityEngine
 
 class CameraThirdPerson (MonoBehaviour):
 	pos as Vector3
+	default_offset = Vector3(10, 10, 10)
 
 	def Start ():
 		player = gameObject.Find("Player")
 		transform.position = player.transform.position
-		transform.position += Vector3(10, 10, 10)
+		transform.position += self.default_offset
 		transform.LookAt(player.transform.position)
 		pos = transform.position
 		
@@ -25,9 +26,8 @@ class CameraThirdPerson (MonoBehaviour):
 			pos = transform.position
 		else:
 			player = gameObject.Find("Player")
-			transform.position = player.transform.position + Vector3(10, 10, 10)
-
-		
+			transform.position = player.transform.position + self.default_offset
+			
 			#pos = transform.position
 			#transform.LookAt(player.transform.position)
 			#transform.LookAt(player.transform.position)

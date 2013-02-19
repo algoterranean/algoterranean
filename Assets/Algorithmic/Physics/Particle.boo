@@ -38,6 +38,8 @@ class Particle (IParticle, MonoBehaviour):
 		
 		_velocity *= Math.Pow(_damping, duration)
 		_force_accum = Vector3(0, 0, 0)
+
+	def update_position():
 		transform.position = _position
 
 
