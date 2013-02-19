@@ -13,7 +13,7 @@ class SpringBuoyancy (IForceGenerator):
 		_density = density
 		
 	def updateForce(particle as IParticle, duration as single):
-		depth = particle.getPosition().y
+		depth = particle.Position.y
 		if (depth >= _water_height + _max_depth):
 			return
 		

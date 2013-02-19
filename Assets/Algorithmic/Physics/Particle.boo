@@ -1,58 +1,56 @@
 namespace Algorithmic
 
 class Particle (IParticle, MonoBehaviour):
-	_position as Vector3
-	_velocity as Vector3
-	_acceleration as Vector3
-	public _mass as single # 80kg
-	_inverse_mass as single
-	_force_accum as Vector3
-	_damping = 0.99
+	# position as Vector3
+	# velocity as Vector3
+	# acceleration as Vector3
+	# mass as single # 80kg
+	#inverse_mass as single
+	#damping = 0.99	
 	
-	def getPosition():
-		return _position
-	def getVelocity():
-		return _velocity
-	def getAcceleration():
-		return _acceleration
-	def getMass():
-		return _mass
-	def getInverseMass():
-		return _inverse_mass
-	def setPosition(p as Vector3):
-		_position = p
-	def setVelocity(v as Vector3):
-		_velocity = v
-	def setAcceleration(a as Vector3):
-		_acceleration = a
-	def addForce(force as Vector3):
-		_force_accum += force
+	force_accum as Vector3
 
+
+	[Property(Position)]
+	position as Vector3
+	[Property(Velocity)]
+	velocity as Vector3
+	[Property(Acceleration)]
+	acceleration as Vector3
+	[Property(Mass)]
+	mass as single = 80
+	[Property(InverseMass)]
+	inverse_mass as single
+	[Property(Damping)]
+	damping as single = 0.99
+	
+	
+
+	def addForce(force as Vector3):
+		force_accum += force
 
 	def integrate(duration as single):
-		if _inverse_mass <= 0:
-			return
-		_position += _velocity * duration
-		_acceleration += _force_accum * _inverse_mass
-		_velocity += _acceleration * duration
 		
-		_velocity *= Math.Pow(_damping, duration)
-		_force_accum = Vector3(0, 0, 0)
+		if inverse_mass <= 0:
+			return
+		position += velocity * duration
+		acceleration += force_accum * inverse_mass
+		velocity += acceleration * duration
+		
+		velocity *= Math.Pow(damping, duration)
+		force_accum = Vector3(0, 0, 0)
 
 	def update_position():
-		transform.position = _position
-
+		transform.position = position
 
 	def Start():
-		_position = transform.position
-		_velocity = Vector3(0, 0, 0)
-		_acceleration = Vector3(0, 0, 0)
-		_force_accum = Vector3(0, 0, 0)
-		if _mass >= 0:
-			_inverse_mass = 1/_mass
+		position = transform.position
+		velocity = Vector3(0, 0, 0)
+		acceleration = Vector3(0, 0, 0)
+		force_accum = Vector3(0, 0, 0)
+		if mass >= 0:
+			inverse_mass = 1/mass
 		else:
-			_inverse_mass = 0.0
+			inverse_mass = 0.0
 		
-	#def FixedUpdate():
-	#	integrate(Time.deltaTime)
 

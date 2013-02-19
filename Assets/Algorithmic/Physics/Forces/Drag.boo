@@ -8,7 +8,7 @@ class Drag (IForceGenerator):
 		k2 = _k2
 		
 	def updateForce(particle as IParticle, duration as single):
-		force as Vector3 = particle.getVelocity()
+		force as Vector3 = particle.Velocity
 		dragCoeff = force.magnitude
 		dragCoeff = k1 * dragCoeff + k2 * dragCoeff * dragCoeff
 		f_n = force.normalized

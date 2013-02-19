@@ -43,9 +43,9 @@ class ParticleContact:
 		resolveInterpenetration(duration)
 
 	def calculateSeparatingVelocity() as single:
-		relativeVelocity = _particle_1.getVelocity()
+		relativeVelocity = _particle_1.Velocity
 		if _particle_2 != null:
-			relativeVelocity -= _particle_2.getVelocity()
+			relativeVelocity -= _particle_2.Velocity
 		return Vector3.Dot(relativeVelocity, _contact_normal)
 			
 
@@ -60,10 +60,10 @@ class ParticleContact:
 		#print "2: NEW SEP VELOCITY: $newSepVelocity"
 
 		### part for resting
-		accCausedVelocity = _particle_1.getAcceleration()
+		accCausedVelocity = _particle_1.Acceleration
 		#print "3: ACTUAL CAUSED VELOCITY: $accCausedVelocity"
 		if _particle_2 != null:
-			accCausedVelocity -= _particle_2.getAcceleration()
+			accCausedVelocity -= _particle_2.Acceleration
 		accCausedSepVelocity = Vector3.Dot(accCausedVelocity, _contact_normal) * duration
 		#print "4: ACTUAL CAUSE SEP VELOCITY: $accCausedSepVelocity"
 
@@ -77,9 +77,9 @@ class ParticleContact:
 		### end part for resting
 		#print "VELOCITY: $accCausedSepVelocity, $newSepVelocity, $separatingVelocity"
 
-		totalInverseMass = 1.0 / _particle_1.getInverseMass()
+		totalInverseMass = 1.0 / _particle_1.InverseMass
 		if _particle_2 != null:
-			totalInverseMass += 1.0 / _particle_2.getInverseMass()
+			totalInverseMass += 1.0 / _particle_2.InverseMass
 		totalInverseMass = 1.0 / totalInverseMass
 		if totalInverseMass <= 0:
 			return
@@ -87,36 +87,34 @@ class ParticleContact:
 		impulsePerIMass = _contact_normal * impulse
 		#print "7: IMPULSE PER MASS: $impulsePerIMass"
 
-		_particle_1.setVelocity(_particle_1.getVelocity() + impulsePerIMass * _particle_1.getInverseMass())
-		#print "8: FINAL VELOCITY: $(_particle_1.getVelocity() + impulsePerIMass * _particle_1.getInverseMass())"
-
+		_particle_1.Velocity = _particle_1.Velocity + impulsePerIMass * _particle_1.InverseMass
 		if _particle_2 != null:
-			_particle_2.setVelocity(_particle_2.getVelocity() + impulsePerIMass * -_particle_2.getInverseMass())
+			_particle_2.Velocity = _particle_2.Velocity + impulsePerIMass * -_particle_2.InverseMass
 
 	def resolveInterpenetration(duration as single):
 		if _penetration <= 0:
 			return
-		totalInverseMass = 1.0 / _particle_1.getInverseMass()
+		totalInverseMass = 1.0 / _particle_1.InverseMass
 		if _particle_2 != null:
-			totalInverseMass += 1.0 / _particle_2.getInverseMass()
+			totalInverseMass += 1.0 / _particle_2.InverseMass
 		totalInverseMass = 1.0 / totalInverseMass
 		if totalInverseMass <= 0:
 			return
 
 		movePerIMass = _contact_normal * (_penetration / totalInverseMass)
 		#print "movePerIMass: $movePerIMass"
-		_particle_movement_1 = movePerIMass * _particle_1.getInverseMass()
+		_particle_movement_1 = movePerIMass * _particle_1.InverseMass
 		#print "particle_movement_1: $_particle_movement_1"
 		if _particle_2 != null:
-			_particle_movement_2 = movePerIMass * -_particle_2.getInverseMass()
+			_particle_movement_2 = movePerIMass * -_particle_2.InverseMass
 		else:
 			_particle_movement_2 = Vector3(0, 0, 0)
 
-		_particle_1.setPosition(_particle_1.getPosition() + _particle_movement_1)
+		_particle_1.Position = _particle_1.Position + _particle_movement_1
 		#print "INTERPENETRATION: $_particle_movement_1, $movePerIMass"
 		
 		if _particle_2 != null:
-			_particle_2.setPosition(_particle_2.getPosition() + _particle_movement_2)
+			_particle_2.Position = _particle_2.Position + _particle_movement_2
 			
 
 	

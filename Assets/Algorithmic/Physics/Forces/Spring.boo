@@ -11,8 +11,8 @@ class Spring (IForceGenerator):
 		_rest_length = restLength
 
 	def updateForce(particle as IParticle, duration as single):
-		force = particle.getPosition()
-		force -= _other.getPosition()
+		force = particle.Position
+		force -= _other.Position
 		magnitude = Math.Abs(force.magnitude - _rest_length)
 		magnitude *= _spring_constant
 		f_n = force.normalized

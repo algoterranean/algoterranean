@@ -21,27 +21,20 @@ class WorldPhysics (MonoBehaviour):
 		_registry.add(p, Gravity())
 		_particles.Push(p)
 		
-		# p = gameObject.Find("Person2").GetComponent("Particle") as Algorithmic.Particle
-		# _registry.add(p, Gravity())
-		# _particles.Push(p)		
-		# p = gameObject.Find("Ground").GetComponent("Particle") as Algorithmic.Particle
-		# _registry.add(p, Gravity())
-		# _particles.Push(p)
-		
 	def FixedUpdate():
 		if not _running:
 			return
-		
+
 		_registry.updateForces(Time.deltaTime)
 		for x as Algorithmic.Particle in _particles:
 			x.integrate(Time.deltaTime)
+
+			
 		
 		_player = gameObject.Find("Player")
 		_particle = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-		#t = gameObject.Find("Player").transform		
-		_player_aabb = AABB(_particle.getPosition(), Vector3(0.5, 0.5, 0.5))
+		_player_aabb = AABB(_particle.Position, Vector3(0.5, 0.5, 0.5))
 		
-		#x = gameObject.Find("Player").GetComponent("Player") as Player
 		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
 		chunk_ball = chunk_manager.getChunkBall()
 		l = chunk_ball.CheckCollisions(_player_aabb)
@@ -53,23 +46,12 @@ class WorldPhysics (MonoBehaviour):
 			for x as duck in l:
 				distance = x[0]
 				block_pos = x[1]
-
 				c = ParticleContact(p, null, 0.0, Vector3(0, 1, 0), distance.y)
-				#print "Check: $(distance.y), $(c.getPenetration())"
 				contacts.Push(c)
+				
 			print "COLLISIONS: $contacts"
 			#_running = false
 			_resolver.resolveContacts(contacts, Time.deltaTime)
-			
-			# for x as Algorithmic.Particle in _particles:
-			# 	x.integrate(Time.deltaTime)
-
-			
-			# if _running:
-			# 	_running = false
-			# 	_registry.updateForces(Time.deltaTime)
-			# 	for x as Algorithmic.Particle in _particles:
-			# 		x.integrate(Time.deltaTime)
 			
 		for x as Algorithmic.Particle in _particles:
 			x.update_position()

@@ -10,8 +10,8 @@ class SpringBungee (IForceGenerator):
 		_rest_length = restLength
 
 	def updateForce(particle as IParticle, duration as single):
-		force = particle.getPosition()
-		force -= _other.getPosition()
+		force = particle.Position
+		force -= _other.Position
 		if (force.magnitude <= _rest_length):
 			return
 		magnitude = _spring_constant * (_rest_length - force.magnitude)

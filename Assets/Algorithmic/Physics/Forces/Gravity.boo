@@ -5,7 +5,9 @@ class Gravity (IForceGenerator):
 		_g = Vector3(0, -9.8, 0)
         
 	def updateForce(particle as IParticle, duration as single):
-		particle.addForce(_g * particle.getMass())
+		particle.addForce(_g * particle.Mass)
+
+		
 
 class Jump(IForceGenerator):
 	_jumped = false
@@ -13,60 +15,62 @@ class Jump(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
 		if not _jumped:
 			#particle.setVelocity(Vector3(0, 0, 0))
-			a = particle.getAcceleration()
+			a = particle.Acceleration
 			a.y = 0
-			particle.setAcceleration(a)
-			particle.setVelocity(particle.getVelocity() + Vector3(0, 30, 0))
+			particle.Acceleration = a
+			particle.Velocity = particle.Velocity + Vector3(0, 30, 0)
 
 			_jumped = true
 
+
+
 class MoveLeft(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
-		v = particle.getVelocity()
-		a = particle.getAcceleration()
+		v = particle.Velocity
+		a = particle.Acceleration
 		v.x = -5
 		a.x = 0
-		particle.setAcceleration(a)
-		particle.setVelocity(v)
+		particle.Acceleration = a
+		particle.Velocity = v
 
 class MoveRight(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
-		v = particle.getVelocity()
-		a = particle.getAcceleration()
+		v = particle.Velocity
+		a = particle.Acceleration
 		v.x = 5
 		a.x = 0
-		particle.setAcceleration(a)
-		particle.setVelocity(v)
+		particle.Acceleration = a
+		particle.Velocity = v
 
 class MoveForward(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
-		v = particle.getVelocity()
-		a = particle.getAcceleration()
+		v = particle.Velocity
+		a = particle.Acceleration
 		v.z = 5
 		a.z = 0
-		particle.setAcceleration(a)
-		particle.setVelocity(v)
+		particle.Acceleration = a
+		particle.Velocity = v
 
 class MoveBackwards(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
-		v = particle.getVelocity()
-		a = particle.getAcceleration()
+		v = particle.Velocity
+		a = particle.Acceleration
 		v.z = -5
 		a.z = 0
-		particle.setAcceleration(a)
-		particle.setVelocity(v)		
+		particle.Acceleration = a
+		particle.Velocity = v
 
 class StopMovingSideways(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
-		v = particle.getVelocity()
+		v = particle.Velocity
 		v.x = 0
-		particle.setVelocity(v)
+		particle.Velocity = v
 
 class StopMovingToAndFro(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
-		v = particle.getVelocity()
+		v = particle.Velocity
 		v.z = 0
-		particle.setVelocity(v)
+		particle.Velocity = v
 		
 
 

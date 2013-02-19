@@ -11,7 +11,7 @@ class SpringAnchored (IForceGenerator):
 		_rest_length = restLength
 
 	def updateForce(particle as IParticle, duration as single):
-		force = particle.getPosition()
+		force = particle.Position
 		force -= _anchor
 		magnitude = (_rest_length - force.magnitude) * _spring_constant
 		f_n = force.normalized
