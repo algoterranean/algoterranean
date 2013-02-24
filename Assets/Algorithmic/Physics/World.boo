@@ -5,6 +5,7 @@ import UnityEngine
 import Algorithmic
 import Algorithmic.Player
 import Algorithmic.Terrain
+import Algorithmic.Misc
 
 
 class World (MonoBehaviour):
@@ -56,7 +57,8 @@ class World (MonoBehaviour):
 				# 	c = ParticleContact(p, null, 0.0, Vector3(0, -1, 0), distance.y)
 				# 	contacts.Push(c)
 
-				print "Contacts: Penetration $(x[0]). Contact Normal $(x[1])"
+				Log.Log("Contacts: Penetration $(x[0]). Contact Normal $(x[1])")
+				#print "\t
 				
 				if contact_normal.y == 1 or contact_normal.y == -1:
 					c = ParticleContact(p, null, 0.0, Vector3(0, contact_normal.y, 0), penetration.y)
