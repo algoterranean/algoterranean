@@ -2,7 +2,7 @@
 namespace Algorithmic
 
 struct Settings:
-	public static Frequency as single = 1.2 #1.2
+	public static Frequency as single = 2.0 #1.2 #1.2
 	public static Lacunarity as single = 2.5
 	public static Exponent as single = 1.0
 	public static OctaveCount as single = 3.0 #3.0

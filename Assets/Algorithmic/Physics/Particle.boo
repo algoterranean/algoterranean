@@ -22,8 +22,9 @@ class Particle (IParticle, MonoBehaviour):
 		get:
 			return position
 		set:
-			last_position = position
 			position = value
+			# last_position = position
+			# position = value
 
 	# [Property(Position)]
 	# position as Vector3
@@ -41,7 +42,7 @@ class Particle (IParticle, MonoBehaviour):
 	inverse_mass as single
 	
 	[Property(Damping)]
-	damping as single = 0.99
+	damping as single = 0.98
 	
 
 	def addForce(force as Vector3):
@@ -50,13 +51,14 @@ class Particle (IParticle, MonoBehaviour):
 	def integrate(duration as single):
 		if inverse_mass <= 0:
 			return
+		Log.Log("Particle Before Integration: Pos ($(position.x), $(position.y), $(position.z)), Accel ($(acceleration.x), $(acceleration.y), $(acceleration.z)), Vel ($(velocity.x), $(velocity.y), $(velocity.z))")		
 		last_position = position
 		position += velocity * duration
 		acceleration += force_accum * inverse_mass
 		velocity += acceleration * duration
 		
 		velocity *= Math.Pow(damping, duration)
-		Log.Log("Particle: Pos $(position), Accel $(acceleration), Vel $(velocity)")
+		Log.Log("Particle After Integration: Pos ($(position.x), $(position.y), $(position.z)), Accel ($(acceleration.x), $(acceleration.y), $(acceleration.z)), Vel ($(velocity.x), $(velocity.y), $(velocity.z))")
 
 		force_accum = Vector3(0, 0, 0)
 

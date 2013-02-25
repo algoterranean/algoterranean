@@ -5,7 +5,7 @@ import UnityEngine
 
 class CameraThirdPerson (MonoBehaviour):
 	pos as Vector3
-	default_offset = Vector3(10, 10, 10)
+	default_offset = Vector3(2, 10, 2)
 
 	def Start ():
 		player = gameObject.Find("Player")

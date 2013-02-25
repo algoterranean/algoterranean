@@ -1,10 +1,11 @@
 namespace Algorithmic.Terrain
+import Algorithmic.Misc
 
 
-struct Node:
-	center as Vector3
-	radius as Vector3
-	children as (Node)
+class Node:
+	public center as Vector3
+	public radius as Vector3
+	public children as (Node)
 
 	def constructor(c as Vector3, r as Vector3, child_size as int):
 		center = c
@@ -27,8 +28,6 @@ struct Node:
 
 
 
-
-
 class BoundingVolumeTree:
 	_tree as Node
 	#_chunk as IChunkBlockData
@@ -48,48 +47,79 @@ class BoundingVolumeTree:
 
 
 	# discrete collision detection
-	def checkCollisionDiscrete(chunk as IChunkBlockData, _aabb as AABB) as List:
+	def checkCollisionDiscrete(chunk as IChunkBlockData, _aabb as AABB, _aabb_previous as AABB) as List:
 		# recursive tree walker
 		def _check(chunk as IChunkBlockData,
-				   tree as Node, aabb as AABB, running_list as List) as void:
+				   tree as Node, aabb as AABB, aabb_previous as AABB, running_list as List) as void:
 
 			def test(c1 as Vector3, r1 as Vector3,
 					 c2 as Vector3, r2 as Vector3):
-				if Math.Abs(c1.y - c2.y) > (r1.y + r2.y):
+				if Math.Abs(c1.y - c2.y) >= (r1.y + r2.y):
 					return false
-				if Math.Abs(c1.x - c2.x) > (r1.x + r2.x):
+				if Math.Abs(c1.x - c2.x) >= (r1.x + r2.x):
 					return false
-				if Math.Abs(c1.z - c2.z) > (r1.z + r2.z):
+				if Math.Abs(c1.z - c2.z) >= (r1.z + r2.z):
 					return false
 				return true
 
 			def getCollision(c1 as Vector3, r1 as Vector3,  # terrain
-							 c2 as Vector3, r2 as Vector3): # player
-				x = 0.0
-				y = 0.0
-				z = 0.0
-				if Math.Abs(c1.y - c2.y) <= (r1.y + r2.y):
-					y = (c1.y + r1.y) - (c2.y - r2.y)
+							 c2 as Vector3, r2 as Vector3,  # player
+							 c3 as Vector3, r3 as Vector3): # player previously
 
-				return Vector3(x, y, z)
+				penetration = Vector3(0, 0, 0)
+				contact_normal = Vector3(0, 0, 0)
+				pos_diff = c2 - c3
+
+				
+				if Math.Abs(c1.y - c2.y) < (r1.y + r2.y):
+					if pos_diff.y < 0: # down, so impacts top face
+						penetration.y = (c1.y + r1.y) - (c2.y - r2.y)
+						contact_normal.y = 1
+					elif pos_diff.y > 0: # up, so impacts bottom face
+						penetration.y = -((c1.y - r1.y) - (c2.y + r2.y))
+						contact_normal.y = -1
+				
+				elif Math.Abs(c1.x - c2.x) < (r1.x + r2.x):
+					if pos_diff.x < 0: # left, so right face
+						penetration.x = (c1.x + r1.x) - (c2.x - r2.x)
+						contact_normal.x = 1
+					elif pos_diff.x > 0: # right, so left face
+						penetration.x = -((c1.x - r1.x) - (c2.x + r2.x))
+						contact_normal.x = -1
+					
+				Log.Log("\tgetCollision")
+				Log.Log("\t\tPos Diff: ($(pos_diff.x), $(pos_diff.y), $(pos_diff.z)) Penetration: ($(penetration.x), $(penetration.y), $(penetration.z)) Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))")
+				#Log.Log("\tFLOATING POINT CHECK on POS_DIFF ($(pos_diff.x), $(pos_diff.y), $(pos_diff.z))")
+				# if Math.Abs(c1.x - c2.x) < (r1.x + r2.x):
+				# 	x = (c1.x + r1.x) - (c2.x - r2.x)
+					
+				# if Math.Abs(c1.z - c2.z) < (r1.z + r2.z):
+				# 	z = (c1.z + r1.z) - (c2.z - r2.z)
+
+				return [penetration, contact_normal]
+			
 
 			if test(tree.center, tree.radius, aabb.center, aabb.radius):
 				if (tree.radius.x == 0.5 and
 					tree.radius.y == 0.5 and
 					tree.radius.z == 0.5):
 
-					pos = ByteVector3(Math.Abs(tree.center.x % Settings.ChunkSize),
-									  Math.Abs(tree.center.y % Settings.ChunkSize),
-									  Math.Abs(tree.center.z % Settings.ChunkSize))
+					pos = ByteVector3(Math.Abs(tree.center.x - 0.5) % Settings.ChunkSize,
+									  Math.Abs(tree.center.y - 0.5) % Settings.ChunkSize,
+									  Math.Abs(tree.center.z - 0.5) % Settings.ChunkSize)
 					block = chunk.getBlock(pos)
 					if block:
-						running_list.Push([getCollision(tree.center, tree.radius,
-														aabb.center, aabb.radius), pos])
+						Log.Log("_check")
+						Log.Log("\tTested $(tree.center) with $(aabb.center)")
+						Log.Log("\tBlock: $block, Block Position: $pos")
+						running_list.Push(getCollision(tree.center, tree.radius,
+													   aabb.center, aabb.radius,
+													   aabb_previous.center, aabb_previous.radius))
 
 				for x in range(len(tree.children)):
-					_check(chunk, tree.children[x], aabb, running_list)
+					_check(chunk, tree.children[x], aabb, aabb_previous, running_list)
 		l = []
-		_check(chunk, _tree, _aabb, l)
+		_check(chunk, _tree, _aabb, _aabb_previous, l)
 		return l
 
 

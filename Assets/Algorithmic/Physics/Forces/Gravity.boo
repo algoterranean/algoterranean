@@ -7,6 +7,15 @@ class Gravity (IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
 		particle.addForce(_g * particle.Mass)
 
+
+class Ground (IForceGenerator):
+	_g as Vector3
+	def constructor():
+		_g = Vector3(0, 9.8, 0)
+        
+	def updateForce(particle as IParticle, duration as single):
+		particle.addForce(_g * particle.Mass)
+
 		
 
 class Jump(IForceGenerator):

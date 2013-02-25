@@ -248,9 +248,9 @@ class ChunkBall (IChunkBall, IObservable):
 				chunk_mesh.setUpNeighbor(_chunks[up_coords].getChunk())
 
 
-	def CheckCollisions(_object_to_check as AABB):
+	def CheckCollisions(_object_to_check as AABB, _object_to_check_previous as AABB):
 		collisions = [] 
-		
+
 		for item in _chunks:
 			chunk_info = item.Value
 			chunk = chunk_info.getChunk()
@@ -260,10 +260,18 @@ class ChunkBall (IChunkBall, IObservable):
 			if tree != null: # would be null in the case of checking chunks that
 				             # don't exist (i.e., near player because they're way up in the air)
 				node as Node = tree.getTree()
-				c = tree.checkCollisionDiscrete(chunk, _object_to_check)
+				c = tree.checkCollisionDiscrete(chunk, _object_to_check, _object_to_check_previous)
 				if len(c) > 0:
 					for x in c:
 						collisions.Push(x)
+
+		if len(collisions) > 0:
+			furthest_penetration as duck = collisions[0]
+			for x as duck in c:
+				if x[0].y > furthest_penetration[0].y:
+					furthest_penetration = x
+			collisions = [furthest_penetration]
+
 		return collisions
 
 

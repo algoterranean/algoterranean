@@ -62,9 +62,12 @@ class Player (MonoBehaviour):
 
 	def FixedUpdate ():
 		_aabb = AABB(transform.position, Vector3(0.5, 0.5, 0.5))
+		_origin = transform.position
 		if _chunk_manager.isInitialized() and not initial_startup:
 			initial_startup = true
 			#print 'CHUNK MANAGER IS INITIALIZED'
+		# elif _chunk_manager.isInitialized():
+		# 	_chunk_manager.setOrigin(_origin)
 	
 	# def getPosition() as Vector3:
 	# 	return _position
