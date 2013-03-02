@@ -36,7 +36,7 @@ struct AABB:
 		return Vector3(x_component, y_component, z_component)
 	
 	def ToString():
-		return "(CENTER: $center, RADIUS: $radius)"
+		return "(Center: ($(center.x), $(center.y), $(center.z)), Radius: ($(radius.x), $(radius.y), $(radius.z)))"
 
 
 class ChunkMeshData (IChunkMeshData):
@@ -388,4 +388,4 @@ class ChunkMeshData (IChunkMeshData):
 						## 	_bounding_volumes[aabb_count] = AABB(Vector3(x + 0.5, y + 0.5, z + 0.5), Vector3(0.5, 0.5, 0.5))
 						## 	aabb_count += 1
 		_mesh_calculated = true
-		_bounding_volume_tree = BoundingVolumeTree(_chunk.getSize(), _chunk.getCoordinates())
+		#_bounding_volume_tree = BoundingVolumeTree(_chunk.getSize(), _chunk.getCoordinates())

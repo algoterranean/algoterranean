@@ -4,6 +4,7 @@ import System.Collections.Generic
 import System.Threading
 import Algorithmic
 import UnityEngine
+import Algorithmic.Misc
 
 
 ################################################################################
@@ -120,7 +121,7 @@ class ChunkBall (IChunkBall, IObservable):
 	def getMaxChunkDistance() as byte:
 		return _max_distance
 
-	def _add_chunk():
+	def _add_dchunk():
 		pass
 
 	def _remove_chunk():
@@ -248,8 +249,163 @@ class ChunkBall (IChunkBall, IObservable):
 				chunk_mesh.setUpNeighbor(_chunks[up_coords].getChunk())
 
 
+	def getBlock(world_coordinates as LongVector3):
+		Log.Log("Checking for block, world: ($(world_coordinates.x), $(world_coordinates.y), $(world_coordinates.z))")
+		chunk_x as int = (world_coordinates.x -1) / Settings.ChunkSize
+		chunk_y as int = (world_coordinates.y -1)/ Settings.ChunkSize
+		chunk_z as int = (world_coordinates.z -1)/ Settings.ChunkSize
+		if world_coordinates.x < 0:
+			chunk_x -= 1
+		if world_coordinates.y < 0:
+			chunk_y -=1
+		if world_coordinates.z < 0:
+			chunk_z -=1
+		chunk_x *= 32
+		chunk_y *= 32
+		chunk_z *= 32
+		
+		block_x = (world_coordinates.x - chunk_x) - 1# % Settings.ChunkSize
+		block_y = (world_coordinates.y - chunk_y) - 1# % Settings.ChunkSize
+		block_z = (world_coordinates.z - chunk_z) - 1# % Settings.ChunkSize
+		if block_x < 0:
+			block_x = 32 + block_x
+		if block_y < 0:
+			block_y = 32 + block_y
+		if block_z < 0:
+			block_z = 32 + block_z
+		chunk_coords = LongVector3(chunk_x, chunk_y, chunk_z)
+		Log.Log("Local conversion, chunk: ($chunk_x, $chunk_y, $chunk_z), block: ($block_x, $block_y, $block_z)")
+		if chunk_coords in _chunks:
+			#print "Found Chunk"
+			i as ChunkInfo = _chunks[chunk_coords]
+			c as ChunkBlockData = i.getChunk()
+			b = c.getBlock(ByteVector3(block_x, block_y, block_z))
+			return b
+			#print "Found Block: $b"
+		else:
+			return 0
+			#print "Could not find the chunk"
+
+					   
+		#print "Chunk ($chunk_x, $chunk_y, $chunk_z), Block: ($block_x, $block_y, $block_z)"
+
+	def _generate_possible_collisions(obj as AABB, obj_prev as AABB):
+		# generate possible collisions
+		r = Vector3(0.5, 0.5, 0.5)
+
+		if obj.center.x <= obj_prev.center.x:
+			left = obj.center.x - obj.radius.x
+			right = obj_prev.center.x + obj_prev.radius.x
+		else:
+			left = obj_prev.center.x - obj_prev.radius.x
+			right = obj.center.x + obj.radius.x
+
+		if obj.center.y <= obj_prev.center.y:
+			bottom = obj.center.y - obj.radius.y
+			top = obj_prev.center.y + obj_prev.radius.y
+		else:
+			bottom = obj_prev.center.y - obj_prev.radius.y
+			top = obj.center.y + obj.radius.y
+
+		if obj.center.z <= obj_prev.center.z: # towards user
+			front = obj.center.z - obj.radius.z
+			back = obj_prev.center.z + obj_prev.radius.z
+		else:
+			front = obj_prev.center.z - obj_prev.radius.z
+			back = obj.center.z + obj.radius.z
+
+		b_left = Math.Floor(left)
+		b_right = Math.Ceiling(right)
+		b_top = Math.Ceiling(top)
+		b_bottom = Math.Floor(bottom)
+		b_front = Math.Floor(front)
+		b_back = Math.Ceiling(back)
+
+		possible_collisions = []
+		Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_back, $b_front")
+		for x in range(b_left, b_right):
+			for y in range(b_top, b_bottom-1):
+				for z in range(b_front, b_back):
+					#print "BLOCK CHECK ($x, $y, $z)"
+					b = self.getBlock(LongVector3(x, y, z))
+					if b > 0:
+						possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
+		
+		return possible_collisions
+
+	def _sweep_test(a as AABB, b as AABB, va as Vector3, vb as Vector3):
+		if a.Test(a, b):
+			return [0, 1, true]
+		t_first = 0.0
+		t_last = 1.0
+		v = vb - va
+
+		
+		if v.x < 0:
+			if b.center.x + b.radius.x < a.center.x - a.radius.x:
+				return [t_first, t_last, false]
+			if a.center.x + a.radius.x < b.center.x - b.radius.x:
+				t_first = Max((a.center.x + a.radius.x - b.center.x - b.radius.x)/v.x, t_first)
+			if b.center.x + b.radius.x > a.center.x - a.radius.x:
+				t_last = Min((a.center.x - a.radius.x - b.center.x + b.radius.x)/v.x, t_last)
+		if v.x > 0:
+			if b.center.x - b.radius.x > a.center.x + a.radius.x:
+				return [t_first, t_last, false]
+			if b.center.x + b.radius.x < a.center.x - a.radius.x:
+				t_first = Max((a.center.x - a.radius.x - b.center.x + b.radius.x)/v.x, t_first)
+			if a.center.x + a.radius.x > b.center.x - b.radius.x:
+				t_last = Min((a.center.x + a.radius.x - b.center.x - b.radius.x)/v.x, t_last)
+
+		if v.y < 0:
+			if b.center.y + b.radius.y < a.center.y - a.radius.y:
+				return [t_first, t_last, false]
+			if a.center.y + a.radius.y < b.center.y - b.radius.y:
+				t_first = Max((a.center.y + a.radius.y - b.center.y - b.radius.y)/v.y, t_first)
+			if b.center.y + b.radius.y > a.center.y - a.radius.y:
+				t_last = Min((a.center.y - a.radius.y - b.center.y + b.radius.y)/v.y, t_last)
+		if v.y > 0:
+			if b.center.y - b.radius.y > a.center.y + a.radius.y:
+				return [t_first, t_last, false]
+			if b.center.y + b.radius.y < a.center.y - a.radius.y:
+				t_first = Max((a.center.y - a.radius.y - b.center.y + b.radius.y)/v.y, t_first)
+			if a.center.y + a.radius.y > b.center.y - b.radius.y:
+				t_last = Min((a.center.y + a.radius.y - b.center.y - b.radius.y)/v.y, t_last)
+
+		if v.z < 0:
+			if b.center.z + b.radius.z < a.center.z - a.radius.z:
+				return [t_first, t_last, false]
+			if a.center.z + a.radius.z < b.center.z - b.radius.z:
+				t_first = Max((a.center.z + a.radius.z - b.center.z - b.radius.z)/v.z, t_first)
+			if b.center.z + b.radius.z > a.center.z - a.radius.z:
+				t_last = Min((a.center.z - a.radius.z - b.center.z - b.radius.z)/v.z, t_last)
+		if v.z > 0:
+			if b.center.z - b.radius.z > a.center.z + a.radius.z:
+				return [t_first, t_last, false]
+			if b.center.z + b.radius.z < a.center.z - a.radius.z:
+				t_first = Max((a.center.z - a.radius.z - b.center.z + b.radius.z)/v.z, t_first)
+			if a.center.z + a.radius.z > b.center.z - b.radius.z:
+				t_last = Min((a.center.z + a.radius.z - b.center.z + b.radius.z)/v.z, t_last)
+				
+
+		if t_first > t_last:
+			return [t_first, t_last, false]
+		return [t_first, t_last, true]
+	
+
+	def CheckCollisionsSweep(obj as AABB, obj_prev as AABB):
+		c = _generate_possible_collisions(obj, obj_prev)
+		print "Possible Collisions: $c"
+		b = []
+		for block_aabb in c:
+			b.Push([block_aabb, _sweep_test(obj_prev, block_aabb, obj.center - obj_prev.center, Vector3(0, 0, 0))])
+		return b
+		
+		#print "Possible Collisions: $possible_collisions"
+		#print "AABBs: $obj Prev: $obj_prev"
+	
+
 	def CheckCollisions(_object_to_check as AABB, _object_to_check_previous as AABB):
-		collisions = [] 
+		collisions = []
 
 		for item in _chunks:
 			chunk_info = item.Value

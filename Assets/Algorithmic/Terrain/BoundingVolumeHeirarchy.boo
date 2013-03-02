@@ -1,5 +1,6 @@
 namespace Algorithmic.Terrain
 import Algorithmic.Misc
+import System
 
 
 class Node:
@@ -15,16 +16,79 @@ class Node:
 
 
 
-# struct PartialNode:
-# 	radius as Vector3
-# 	def constructor(r as Vector3):
-# 		radius = r
+def SweepTest(a as AABB, b as AABB, va as Vector3, vb as Vector3):
+	if a.Test(a, b):
+		return [0.0, 0.0, true]
+
+	v = vb - va
+	t_first = 0.0
+	t_last = 1.0
+
+	b_max_x = b.center.x + b.radius.x
+	b_min_x = b.center.x - b.radius.x
+	a_max_x = a.center.x + a.radius.x
+	a_min_x = a.center.x - a.radius.x
+	
+	b_max_y = b.center.y + b.radius.y
+	b_min_y = b.center.y - b.radius.y
+	a_max_y = a.center.y + a.radius.y
+	a_min_y = a.center.y - a.radius.y
+	
+	b_max_z = b.center.z + b.radius.z
+	b_min_z = b.center.z - b.radius.z
+	a_max_z = a.center.z + a.radius.z
+	a_min_z = a.center.z - a.radius.z
 
 
-# class PartialBoundingTree:
-# 	root_node as PartialNode
+	if v.x < 0.0:
+		if b_max_x < a_min_x:
+			return [t_first, t_last, false]
+		elif a_max_x < b_min_x:
+			t_first = Max((a_max_x - b_min_x)/v.x, t_first)
+		elif b_max_x > a_min_x:
+			t_last = Min((a_min_x - b_max_x)/v.x, t_last)
+	if v.x > 0.0:
+		if b_min_x > a_max_x:
+			return [t_first, t_last, false]
+		elif b_max_x < a_min_x:
+			t_first = Max((a_min_x - b_max_x)/v.x, t_first)
+		elif a_max_x > b_min_x:
+			t_last = Min((a_max_x - b_min_x)/v.x, t_last)
 
-# 	def constructor(chunk_size as ByteVector3):
+	if v.y < 0.0:
+		if b_max_y < a_min_y:
+			return [t_first, t_last, false]
+		elif a_max_y < b_min_y:
+			t_first = Max((a_max_y - b_min_y)/v.y, t_first)
+		elif b_max_y > a_min_y:
+			t_last = Min((a_min_y - b_max_y)/v.y, t_last)
+	if v.y > 0.0:
+		if b_min_y > a_max_y:
+			return [t_first, t_last, false]
+		elif b_max_y < a_min_y:
+			t_first = Max((a_min_y - b_max_y)/v.y, t_first)
+		elif a_max_y > b_min_y:
+			t_last = Min((a_max_y - b_min_y)/v.y, t_last)
+
+	if v.z < 0.0:
+		if b_max_z < a_min_z:
+			return [t_first, t_last, false]
+		elif a_max_z < b_min_z:
+			t_first = Max((a_max_z - b_min_z)/v.z, t_first)
+		elif b_max_z > a_min_z:
+			t_last = Min((a_min_z - b_max_z)/v.z, t_last)
+	if v.z > 0.0:
+		if b_min_z > a_max_z:
+			return [t_first, t_last, false]
+		elif b_max_z < a_min_z:
+			t_first = Max((a_min_z - b_max_z)/v.z, t_first)
+		elif a_max_z > b_min_z:
+			t_last = Min((a_max_z - b_min_z)/v.z, t_last)			
+
+	if t_first > t_last:
+		return [t_first, t_last, false]
+	return [t_first, t_last, true]
+
 
 
 
