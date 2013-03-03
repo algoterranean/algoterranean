@@ -250,7 +250,6 @@ class ChunkBall (IChunkBall, IObservable):
 
 
 	def getBlock(world_coordinates as LongVector3):
-		Log.Log("Checking for block, world: ($(world_coordinates.x), $(world_coordinates.y), $(world_coordinates.z))")
 		chunk_x as int = (world_coordinates.x -1) / Settings.ChunkSize
 		chunk_y as int = (world_coordinates.y -1)/ Settings.ChunkSize
 		chunk_z as int = (world_coordinates.z -1)/ Settings.ChunkSize
@@ -274,12 +273,14 @@ class ChunkBall (IChunkBall, IObservable):
 		if block_z < 0:
 			block_z = 32 + block_z
 		chunk_coords = LongVector3(chunk_x, chunk_y, chunk_z)
-		Log.Log("Local conversion, chunk: ($chunk_x, $chunk_y, $chunk_z), block: ($block_x, $block_y, $block_z)")
+
 		if chunk_coords in _chunks:
 			#print "Found Chunk"
 			i as ChunkInfo = _chunks[chunk_coords]
 			c as ChunkBlockData = i.getChunk()
 			b = c.getBlock(ByteVector3(block_x, block_y, block_z))
+			Log.Log("Block World: ($(world_coordinates.x), $(world_coordinates.y), $(world_coordinates.z))")			
+			Log.Log("    Block Local: ($chunk_x, $chunk_y, $chunk_z), block: ($block_x, $block_y, $block_z) = $b")
 			return b
 			#print "Found Block: $b"
 		else:
@@ -323,81 +324,101 @@ class ChunkBall (IChunkBall, IObservable):
 
 		possible_collisions = []
 		Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_back, $b_front")
-		for x in range(b_left, b_right):
+		for x in range(b_left, b_right+1):
 			for y in range(b_top, b_bottom-1):
-				for z in range(b_front, b_back):
+				for z in range(b_front, b_back+1):
 					#print "BLOCK CHECK ($x, $y, $z)"
 					b = self.getBlock(LongVector3(x, y, z))
 					if b > 0:
-						possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
+						possible_collisions.Push(AABB(Vector3(x + - r.x, y - r.y, z - r.z), r))
+						# possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
 		
 		return possible_collisions
 
 	def _sweep_test(a as AABB, b as AABB, va as Vector3, vb as Vector3):
 		if a.Test(a, b):
-			return [0, 1, true]
+			return [0, 0, true, Vector3(0, 0, 0), Vector3(0, 0, 0)]
 		t_first = 0.0
 		t_last = 1.0
 		v = vb - va
+		overlap_time = Vector3(0, 0, 0)
+		contact_normal = Vector3(0, 0, 0)
+		movement_dir = vb - va
 
-		
+
 		if v.x < 0:
-			if b.center.x + b.radius.x < a.center.x - a.radius.x:
-				return [t_first, t_last, false]
-			if a.center.x + a.radius.x < b.center.x - b.radius.x:
-				t_first = Max((a.center.x + a.radius.x - b.center.x - b.radius.x)/v.x, t_first)
-			if b.center.x + b.radius.x > a.center.x - a.radius.x:
-				t_last = Min((a.center.x - a.radius.x - b.center.x + b.radius.x)/v.x, t_last)
+			if b.max.x < a.min.x:
+				return [t_first, t_last, false, contact_normal, movement_dir]
+			if a.max.x < b.min.x:
+				overlap_time.x = (a.max.x - b.min.x)/v.x
+				t_first = Max((a.max.x - b.min.x)/v.x, t_first)
+			if b.max.x > a.min.x:
+				t_last = Min((a.min.x - b.max.x)/v.x, t_last)
+			
 		if v.x > 0:
-			if b.center.x - b.radius.x > a.center.x + a.radius.x:
-				return [t_first, t_last, false]
-			if b.center.x + b.radius.x < a.center.x - a.radius.x:
-				t_first = Max((a.center.x - a.radius.x - b.center.x + b.radius.x)/v.x, t_first)
-			if a.center.x + a.radius.x > b.center.x - b.radius.x:
-				t_last = Min((a.center.x + a.radius.x - b.center.x - b.radius.x)/v.x, t_last)
+			if b.min.x > a.max.x:
+				return [t_first, t_last, false, contact_normal, movement_dir]
+			if b.max.x < a.min.x:
+				t_first = Max((a.min.x - b.max.x)/v.x, t_first)
+				overlap_time.x = (a.min.x - b.max.x)/v.x
+			if a.max.x > b.min.x:
+				t_last = Min((a.max.x - b.min.x)/v.x, t_last)
+
 
 		if v.y < 0:
-			if b.center.y + b.radius.y < a.center.y - a.radius.y:
-				return [t_first, t_last, false]
-			if a.center.y + a.radius.y < b.center.y - b.radius.y:
-				t_first = Max((a.center.y + a.radius.y - b.center.y - b.radius.y)/v.y, t_first)
-			if b.center.y + b.radius.y > a.center.y - a.radius.y:
-				t_last = Min((a.center.y - a.radius.y - b.center.y + b.radius.y)/v.y, t_last)
+			if b.max.y < a.min.y:
+				return [t_first, t_last, false, contact_normal, movement_dir]
+			if a.max.y < b.min.y:
+				t_first = Max((a.max.y - b.min.y)/v.y, t_first)
+				overlap_time.y = (a.max.y - b.min.y)/v.y
+			if b.max.y > a.min.y:
+				t_last = Min((a.min.y - b.max.y)/v.y, t_last)
 		if v.y > 0:
-			if b.center.y - b.radius.y > a.center.y + a.radius.y:
-				return [t_first, t_last, false]
-			if b.center.y + b.radius.y < a.center.y - a.radius.y:
-				t_first = Max((a.center.y - a.radius.y - b.center.y + b.radius.y)/v.y, t_first)
-			if a.center.y + a.radius.y > b.center.y - b.radius.y:
-				t_last = Min((a.center.y + a.radius.y - b.center.y - b.radius.y)/v.y, t_last)
+			if b.min.y > a.max.y:
+				return [t_first, t_last, false, contact_normal, movement_dir]
+			if b.max.y < a.min.y:
+				t_first = Max((a.min.y - b.max.y)/v.y, t_first)
+				overlap_time.y = (a.min.y - b.max.y)/v.y
+			if a.max.y > b.min.y:
+				t_last = Min((a.max.y - b.min.y)/v.y, t_last)
+
 
 		if v.z < 0:
-			if b.center.z + b.radius.z < a.center.z - a.radius.z:
-				return [t_first, t_last, false]
-			if a.center.z + a.radius.z < b.center.z - b.radius.z:
-				t_first = Max((a.center.z + a.radius.z - b.center.z - b.radius.z)/v.z, t_first)
-			if b.center.z + b.radius.z > a.center.z - a.radius.z:
-				t_last = Min((a.center.z - a.radius.z - b.center.z - b.radius.z)/v.z, t_last)
+			if b.max.z < a.min.z:
+				return [t_first, t_last, false, contact_normal, movement_dir]
+			if a.max.z < b.min.z:
+				t_first = Max((a.max.z - b.min.z)/v.z, t_first)
+				overlap_time.z = (a.max.z - b.min.z)/v.z
+			if b.max.z > a.min.z:
+				t_last = Min((a.min.z - b.max.z)/v.z, t_last)
 		if v.z > 0:
-			if b.center.z - b.radius.z > a.center.z + a.radius.z:
-				return [t_first, t_last, false]
-			if b.center.z + b.radius.z < a.center.z - a.radius.z:
-				t_first = Max((a.center.z - a.radius.z - b.center.z + b.radius.z)/v.z, t_first)
-			if a.center.z + a.radius.z > b.center.z - b.radius.z:
-				t_last = Min((a.center.z + a.radius.z - b.center.z + b.radius.z)/v.z, t_last)
-				
+			if b.min.z > a.max.z:
+				return [t_first, t_last, false, contact_normal, movement_dir]
+			if b.max.z < a.min.z:
+				t_first = Max((a.min.z - b.max.z)/v.z, t_first)
+				overlap_time.z = (a.min.z - b.max.z)/v.z
+			if a.max.z > b.min.z:
+				t_last = Min((a.max.z - b.min.z)/v.z, t_last)
 
 		if t_first > t_last:
-			return [t_first, t_last, false]
-		return [t_first, t_last, true]
+			return [t_first, t_last, false, contact_normal, movement_dir]
+		if overlap_time.x > overlap_time.y and overlap_time.x > overlap_time.z:
+			contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
+		elif overlap_time.y > overlap_time.x and overlap_time.y > overlap_time.z:
+			contact_normal = Vector3(0, Mathf.Sign(v.y), 0)
+		elif overlap_time.z > overlap_time.x and overlap_time.z > overlap_time.y:
+			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
+		#print "Contact Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))"
+		return [t_first, t_last, true, contact_normal, movement_dir]
 	
 
 	def CheckCollisionsSweep(obj as AABB, obj_prev as AABB):
 		c = _generate_possible_collisions(obj, obj_prev)
-		print "Possible Collisions: $c"
+		#print "Possible Collisions: $c"
 		b = []
 		for block_aabb in c:
 			b.Push([block_aabb, _sweep_test(obj_prev, block_aabb, obj.center - obj_prev.center, Vector3(0, 0, 0))])
+			
 		return b
 		
 		#print "Possible Collisions: $possible_collisions"

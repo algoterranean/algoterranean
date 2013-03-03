@@ -4,12 +4,31 @@ import UnityEngine
 import Algorithmic
 import System.Math
 
+struct AABBSize:
+	x as single
+	y as single
+	z as single
+	def constructor(x as single, y as single, z as single):
+		self.x = x
+		self.y = y
+		self.z = z
+
 struct AABB:
 	center as Vector3
 	radius as Vector3
+	min as AABBSize
+	max as AABBSize
+	
 	def constructor(_center as Vector3, _radius as Vector3):
 		center = _center
 		radius = _radius
+		min.x = center.x - radius.x
+		min.y = center.y - radius.y
+		min.z = center.z - radius.z
+		max.x = center.x + radius.x
+		max.y = center.y + radius.y
+		max.z = center.z + radius.z
+		
 		
 	def Test(a as AABB, b as AABB) as bool:
 		if Math.Abs(a.center.y - b.center.y) > (a.radius.y + b.radius.y):
@@ -37,6 +56,10 @@ struct AABB:
 	
 	def ToString():
 		return "(Center: ($(center.x), $(center.y), $(center.z)), Radius: ($(radius.x), $(radius.y), $(radius.z)))"
+
+	
+
+	
 
 
 class ChunkMeshData (IChunkMeshData):

@@ -24,11 +24,11 @@ class Jump(IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
 		if not _jumped:
 			#particle.setVelocity(Vector3(0, 0, 0))
-			a = particle.Acceleration
-			a.y = 0
-			particle.Acceleration = a
-			particle.Velocity = particle.Velocity + Vector3(0, 30, 0)
-
+			#a = particle.Acceleration
+			#a.y = 0
+			#particle.Acceleration = a
+			particle.Acceleration = Vector3(0, 0, 0)
+			particle.Velocity = Vector3(0, 30, 0)
 			_jumped = true
 
 
