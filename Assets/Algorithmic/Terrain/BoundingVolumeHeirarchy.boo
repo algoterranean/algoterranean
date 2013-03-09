@@ -151,8 +151,8 @@ class BoundingVolumeTree:
 						penetration.x = -((c1.x - r1.x) - (c2.x + r2.x))
 						contact_normal.x = -1
 					
-				Log.Log("\tgetCollision")
-				Log.Log("\t\tPos Diff: ($(pos_diff.x), $(pos_diff.y), $(pos_diff.z)) Penetration: ($(penetration.x), $(penetration.y), $(penetration.z)) Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))")
+				# Log.Log("\tgetCollision")
+				# Log.Log("\t\tPos Diff: ($(pos_diff.x), $(pos_diff.y), $(pos_diff.z)) Penetration: ($(penetration.x), $(penetration.y), $(penetration.z)) Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))", Log.PHYSICS)
 				#Log.Log("\tFLOATING POINT CHECK on POS_DIFF ($(pos_diff.x), $(pos_diff.y), $(pos_diff.z))")
 				# if Math.Abs(c1.x - c2.x) < (r1.x + r2.x):
 				# 	x = (c1.x + r1.x) - (c2.x - r2.x)
@@ -173,9 +173,9 @@ class BoundingVolumeTree:
 									  Math.Abs(tree.center.z - 0.5) % Settings.ChunkSize)
 					block = chunk.getBlock(pos)
 					if block:
-						Log.Log("_check")
-						Log.Log("\tTested $(tree.center) with $(aabb.center)")
-						Log.Log("\tBlock: $block, Block Position: $pos")
+						# Log.Log("_check")
+						# Log.Log("\tTested $(tree.center) with $(aabb.center)")
+						# Log.Log("\tBlock: $block, Block Position: $pos")
 						running_list.Push(getCollision(tree.center, tree.radius,
 													   aabb.center, aabb.radius,
 													   aabb_previous.center, aabb_previous.radius))

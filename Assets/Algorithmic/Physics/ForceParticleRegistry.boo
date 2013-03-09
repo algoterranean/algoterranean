@@ -21,27 +21,34 @@ class ForceParticleRegistry:
 		add_new = true
 		for reg in _registry:
 			if reg.particle == particle and reg.force == force:
-				Log.Log("Re-enabling particle/force to registry, $force")
+				Log.Log("Re-enabling particle/force to registry, $force", LOG_MODULE.PHYSICS)
 				add_new = false
 				reg.active = true
 
 		if add_new:
-			Log.Log("Adding particle/force to registry, $force")
+			Log.Log("Adding particle/force to registry, $force", LOG_MODULE.PHYSICS)
 			_registry.Push(Registration(particle, force))
 
 	def remove (particle as IParticle, force as IForceGenerator):
 		for reg in _registry:
 			if reg.particle == particle and reg.force == force:
-				Log.Log("Disabling particle/force from registry: $force")
+				Log.Log("Disabling particle/force from registry: $force", LOG_MODULE.PHYSICS)
 				reg.active = false
 
 	def clear ():
-		Log.Log("Clearing registry")
+		Log.Log("Clearing registry", LOG_MODULE.PHYSICS)
 		_registry = List[of Registration]()
 
 	def updateForces(duration as single):
 		for reg in _registry:
 			if reg.active:
-				Log.Log("Update Forces: Force: $(reg.force), Particle: $(reg.particle), Duration: $(duration)")
+				Log.Log("Update Forces: Force: $(reg.force), Particle: $(reg.particle), Duration: $(duration)", LOG_MODULE.PHYSICS)
 				reg.force.updateForce(reg.particle, duration)
+
+	def getForces(particle as IParticle) as List[of IForceGenerator]:
+		b = List[of IForceGenerator]()
+		for reg in _registry:
+			if reg.particle == particle:
+				b.Add(reg)
+		return b
 	

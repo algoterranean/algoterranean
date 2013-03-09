@@ -301,7 +301,7 @@ class ChunkBall (IChunkBall, IObservable):
 			#print "Found Chunk"
 			i as ChunkInfo = _chunks[chunk_coords]
 			c as ChunkBlockData = i.getChunk()
-			Log.Log("GET BLOCK: WORLD: $world_coordinates, CHUNK: $(chunk_coords), LOCAL: $block_coords")
+			#Log.Log("GET BLOCK: WORLD: $world_coordinates, CHUNK: $(chunk_coords), LOCAL: $block_coords")
 			b = c.getBlock(block_coords)
 			return b
 			#print "Found Block: $b"
@@ -345,7 +345,7 @@ class ChunkBall (IChunkBall, IObservable):
 		b_back = Math.Ceiling(back) - 1
 
 		possible_collisions = []
-		Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_front, $b_back")
+		Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_front, $b_back", LOG_MODULE.PHYSICS)
 		for x in range(b_left, b_right+1):
 			for y in range(b_top, b_bottom-1):
 				for z in range(b_front, b_back+1):
@@ -476,9 +476,9 @@ class ChunkBall (IChunkBall, IObservable):
 			
 		#print "AFTER SORT: $b"
 		
-		Log.Log("COLLISION CHECK:")
+		Log.Log("COLLISION CHECK:", LOG_MODULE.CONTACTS)
 		for x in b:
-			Log.Log("    $x")
+			Log.Log("    $x", LOG_MODULE.CONTACTS)
 		return b
 		
 		#print "Possible Collisions: $possible_collisions"

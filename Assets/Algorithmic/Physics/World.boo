@@ -37,7 +37,7 @@ class World (MonoBehaviour):
 	def FixedUpdate():
 		if not _running:
 			return
-		Log.Log("Starting World Tick")
+		Log.Log("Starting World Tick", LOG_MODULE.PHYSICS)
 
 		# generate all possible collisions
 		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
@@ -51,21 +51,22 @@ class World (MonoBehaviour):
 		_player_aabb = AABB(future_pos, Vector3(0.5, 0.5, 0.5))
 
 
-		Log.Log("Pos Now: $_player_aabb_previous")
-		Log.Log("Player Pos In Future: $_player_aabb")
+		Log.Log("Pos Now: $_player_aabb_previous", LOG_MODULE.PHYSICS)
+		Log.Log("Player Pos In Future: $_player_aabb", LOG_MODULE.PHYSICS)
 		possible_collisions = chunk_ball.CheckCollisionsSweep(_player_aabb, _player_aabb_previous)
+
+		
 		earliest_contact as duck = []
 		if len(possible_collisions) > 0:
 			earliest_contact = possible_collisions[0]
-								
 
 		fixed_time = Time.deltaTime
 		if earliest_contact != []:
-			Log.Log("Earliest Contact: $earliest_contact")
+			Log.Log("Earliest Contact: $earliest_contact", LOG_MODULE.PHYSICS)
 			fixed_time *= earliest_contact.start_time
 
 		if possible_collisions == []:
-			Log.Log("NO CONTACTS")
+			Log.Log("NO CONTACTS", LOG_MODULE.PHYSICS)
 			p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
 			_registry.remove(p, forces.ground)
 			
@@ -76,19 +77,25 @@ class World (MonoBehaviour):
 		for x as Algorithmic.Particle in _particles:
 			x.integrate(fixed_time)
 
+		if earliest_contact != []:
+			pass
+
 
 		if earliest_contact != []:
 			if earliest_contact.contact_normal == Vector3(0, 1, 0):
 				if earliest_contact.direction.x == 0 and earliest_contact.direction.y == 0 and earliest_contact.direction.z == 0:
 					pass
 				else:
-					Log.Log("Canceling Gravity")
+					Log.Log("Canceling Gravity", LOG_MODULE.PHYSICS)
 					p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
+					#_registry.add(p, Ground(-p.Acceleration))
 					_registry.add(p, forces.ground)
 					_registry.remove(p, forces.jump)
 					_jumping = false
 					p.Acceleration.y = 0
 					p.Velocity.y = 0
+
+
 			# else:
 			# 	p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
 			# 	_registry.remove(p, force_ground)
@@ -135,7 +142,7 @@ class World (MonoBehaviour):
 		for x as Algorithmic.Particle in _particles:
 			x.update_position()
 
-		Log.Log("Finished World Tick\n\n")
+		Log.Log("Finished World Tick\n\n", LOG_MODULE.PHYSICS)
 
 	def try_forces():
 		p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
@@ -144,7 +151,7 @@ class World (MonoBehaviour):
 
 		if Input.GetKeyDown("space") and not _jumping:
 			#_registry.add(p, Gravity())
-			Log.Log("BEGIN JUMP")
+			Log.Log("BEGIN JUMP", LOG_MODULE.PHYSICS)
 			#_registry.remove(p, forces.ground)
 			forces.jump = Jump()
 			_registry.add(p, forces.jump)
