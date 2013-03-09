@@ -30,7 +30,7 @@ class ParticleContactResolver:
 			contacts[max_index].resolve(duration)
 			move_1 = contacts[max_index].getMovement1()
 			move_2 = contacts[max_index].getMovement2()
-			Log.Log("Movement for index $max_index: 1 ($(move_1.x), $(move_1.y), $(move_1.z)), 2 ($(move_2.x), $(move_2.y), $(move_2.z))")
+			Log.Log("Movement for index $max_index: 1 ($(move_1.x), $(move_1.y), $(move_1.z)), 2 ($(move_2.x), $(move_2.y), $(move_2.z))", LOG_MODULE.PHYSICS)
 
 			for i in range(len(contacts)):
 				if contacts[i].getParticle1() == contacts[max_index].getParticle1():
@@ -40,7 +40,7 @@ class ParticleContactResolver:
 					d = Vector3.Dot(move_1, contacts[i].getContactNormal())
 					
 					p = contacts[i].getPenetration() - Vector3.Dot(move_1, contacts[i].getContactNormal())
-					Log.Log("Setting Penetration: $p")
+					Log.Log("Setting Penetration: $p", LOG_MODULE.PHYSICS)
 					#print "Adjusting... $a, $b, $c, $d = $p"
 					contacts[i].setPenetration(p)
 					

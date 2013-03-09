@@ -14,22 +14,45 @@ class Gravity (IForceGenerator):
 		# else:
 		# 	particle.Acceleration.y = 0
 
+	def getType() as FORCE_TYPE:
+		return FORCE_TYPE.GRAVITY
+
+	def getForce():
+		return _g
+
 	def ToString():
 		return "GRAVITY $_g"
 
-			
-
-
 class Ground (IForceGenerator):
-	_g as Vector3
-	def constructor():
-		_g = Vector3(0, 9.8, 0)
-        
+	force as Vector3
+	def constructor(f as Vector3):
+		force = f
 	def updateForce(particle as IParticle, duration as single):
-		particle.addForce(_g * particle.Mass)
-
+		particle.addForce(force * particle.Mass)
 	def ToString():
-		return "GROUND $_g"
+		return "GROUND $force"
+	def getForce():
+		return force
+	def getType():
+		return FORCE_TYPE.GROUND_REACTION
+
+
+# class Ground (IForceGenerator):
+# 	_g as Vector3
+# 	def constructor():
+# 		_g = Vector3(0, 9.8, 0)
+        
+# 	def updateForce(particle as IParticle, duration as single):
+# 		particle.addForce(_g * particle.Mass)
+
+# 	def getType() as FORCE_TYPE:
+# 		return FORCE_TYPE.GROUND_REACTION
+
+# 	def ToString():
+# 		return "GROUND $_g"
+
+# 	def getForce():
+# 		return _g
 
 		
 
@@ -49,6 +72,9 @@ class Jump(IForceGenerator):
 	def ToString():
 		return "JUMP"
 
+	def getForce():
+		return Vector3(0, 0, 0)
+	
 
 
 class MoveLeft(IForceGenerator):

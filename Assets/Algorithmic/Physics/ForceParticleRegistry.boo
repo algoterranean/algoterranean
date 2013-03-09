@@ -48,7 +48,7 @@ class ForceParticleRegistry:
 	def getForces(particle as IParticle) as List[of IForceGenerator]:
 		b = List[of IForceGenerator]()
 		for reg in _registry:
-			if reg.particle == particle:
-				b.Add(reg)
+			if reg.particle == particle and reg.active:
+				b.Add(reg.force)
 		return b
 	

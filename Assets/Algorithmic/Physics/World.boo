@@ -24,7 +24,7 @@ class World (MonoBehaviour):
 	_particles = []
 	_running = false
 	_jumping = false
-	forces = AvailableForces(Gravity(), Ground(), Jump())
+	forces = AvailableForces(Gravity(), Ground(Vector3(0, 9.8, 0)), Jump())
 
 	def Start ():
 		_particles = []
@@ -65,10 +65,14 @@ class World (MonoBehaviour):
 			Log.Log("Earliest Contact: $earliest_contact", LOG_MODULE.PHYSICS)
 			fixed_time *= earliest_contact.start_time
 
-		if possible_collisions == []:
-			Log.Log("NO CONTACTS", LOG_MODULE.PHYSICS)
-			p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-			_registry.remove(p, forces.ground)
+		# if earliest_contact == []:
+		# 	Log.Log("NO CONTACTS", LOG_MODULE.PHYSICS)
+		# 	p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
+		# 	player_forces = _registry.getForces(p)
+		# 	for f in player_forces:
+		# 		if f.getForce().y > 0 and f.getType() == FORCE_TYPE.GROUND_REACTION:
+		# 			_registry.remove(p, f)
+
 			
 			# p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
 			# _registry.remove(p, forces.ground)
@@ -77,67 +81,31 @@ class World (MonoBehaviour):
 		for x as Algorithmic.Particle in _particles:
 			x.integrate(fixed_time)
 
-		if earliest_contact != []:
-			pass
-
 
 		if earliest_contact != []:
+			#earliest_contact.contact_normal * earliest_contact.direction
+			
 			if earliest_contact.contact_normal == Vector3(0, 1, 0):
 				if earliest_contact.direction.x == 0 and earliest_contact.direction.y == 0 and earliest_contact.direction.z == 0:
 					pass
 				else:
-					Log.Log("Canceling Gravity", LOG_MODULE.PHYSICS)
 					p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-					#_registry.add(p, Ground(-p.Acceleration))
-					_registry.add(p, forces.ground)
-					_registry.remove(p, forces.jump)
+
+					Log.Log("Canceling -Y Accel", LOG_MODULE.PHYSICS)
+					all_forces = _registry.getForces(p)
+					
+					Log.Log("Forces: $all_forces", LOG_MODULE.PHYSICS)
+					force_sum = Vector3(0, 0, 0)
+					for f in all_forces:
+						force_sum.y += f.getForce().y
+					Log.Log("Reaction forces: $force_sum", LOG_MODULE.PHYSICS)
+					_registry.add(p, Ground(-force_sum))
+					
 					_jumping = false
 					p.Acceleration.y = 0
 					p.Velocity.y = 0
 
 
-			# else:
-			# 	p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-			# 	_registry.remove(p, force_ground)
-				
-				#_particle.Acceleration.y = 0
-				#_particle.Velocity.y = 0
-				
-			
-		# l = chunk_ball.CheckCollisions(_player_aabb, _player_aabb_previous)
-		# remove_y = false
-		
-		# if len(l) > 0:
-		# 	contacts = List[of ParticleContact]()
-		# 	p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-
-		# 	for x as duck in l:
-		# 		penetration = x[0]
-		# 		contact_normal = x[1]
-
-		# 		Log.Log("Contacts: Penetration ($(x[0].x), $(x[0].y), $(x[0].z)) Contact Normal ($(x[1].x), $(x[1].y), $(x[1].z))")
-
-		# 		if contact_normal.y == 1 or contact_normal.y == -1:
-		# 			c = ParticleContact(p, null, 0.0, Vector3(0, contact_normal.y, 0), penetration.y)
-		# 			contacts.Push(c)
-
-		# 			if contact_normal.y == 1:
-		# 				remove_y = true
-
-		# 	#print "COLLISIONS: $contacts"
-		# 	#_running = false
-		# 	_resolver.resolveContacts(contacts, Time.deltaTime)
-
-		# if remove_y:
-		# 	#_registry.add(p, force_ground)
-		# 	p.Acceleration.y = 0
-		# 	#_registry.clear()
-		# 	#_registry.remove(p, force_gravity)
-
-			
-		# # if add_y:
-		# # 	_registry.add(p, force_gravity)
-			
 
 		for x as Algorithmic.Particle in _particles:
 			x.update_position()
@@ -150,25 +118,35 @@ class World (MonoBehaviour):
 			_running = not _running
 
 		if Input.GetKeyDown("space") and not _jumping:
-			#_registry.add(p, Gravity())
 			Log.Log("BEGIN JUMP", LOG_MODULE.PHYSICS)
-			#_registry.remove(p, forces.ground)
-			forces.jump = Jump()
-			_registry.add(p, forces.jump)
-			_registry.remove(p, forces.ground)
+			#forces.jump = Jump()
+			player_forces = _registry.getForces(p)
+			for f in player_forces:
+				if f.getForce().y > 0 and f.getType() == FORCE_TYPE.GROUND_REACTION:
+					_registry.remove(p, f)
+			p.Velocity += Vector3(0, 30, 0)
 			_jumping = true
-			#p.Velocity = Vector3(0, -9.8, 0)
-
 			
-		if Input.GetKey("a") and not Input.GetKey("left shift"):
-			_registry.add(p, MoveLeft())
-		if Input.GetKey("d"):
-			_registry.add(p, MoveRight())
-		if Input.GetKey("w"):
-			_registry.add(p, MoveForward())
-		if Input.GetKey("s"):
-			_registry.add(p, MoveBackwards())
 
+
+		delta = 5
+		if Input.GetKeyDown("a"): #and not Input.GetKey("left shift"):
+			p.Velocity.x += delta
+		if Input.GetKeyUp("a"):
+			p.Velocity.x -= delta
+		if Input.GetKeyDown("d"):
+			p.Velocity.x -= delta
+		if Input.GetKeyUp("d"):
+			p.Velocity.x += delta
+
+		if Input.GetKeyDown("w"):
+			p.Velocity.z -= delta
+		if Input.GetKeyUp("w"):
+			p.Velocity.z += delta
+		if Input.GetKeyDown("s"):
+			p.Velocity.z += delta
+		if Input.GetKeyUp("s"):
+			p.Velocity.z -= delta
 			
 	def Update():
 		try_forces()

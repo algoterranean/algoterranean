@@ -425,26 +425,26 @@ class ChunkBall (IChunkBall, IObservable):
 		if t_first > t_last:
 			return [t_first, t_last, false, contact_normal, movement_dir]
 
-		if overlap_time.x > overlap_time.y and overlap_time.x > overlap_time.z:
-			contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
-		elif overlap_time.y > overlap_time.x and overlap_time.y > overlap_time.z:
-			contact_normal = Vector3(0, Mathf.Sign(v.y), 0)
-		elif overlap_time.z > overlap_time.x and overlap_time.z > overlap_time.y:
-			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
+		# if overlap_time.x > overlap_time.y and overlap_time.x > overlap_time.z:
+		# 	contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
+		# elif overlap_time.y > overlap_time.x and overlap_time.y > overlap_time.z:
+		# 	contact_normal = Vector3(0, Mathf.Sign(v.y), 0)
+		# elif overlap_time.z > overlap_time.x and overlap_time.z > overlap_time.y:
+		# 	contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
 
-		# # generate contact normal for resting particles
-		# if b.max.y <= a.min.y:
-		# 	contact_normal = Vector3(0, 1, 0)
-		# elif b.min.y >= a.max.y:
-		# 	contact_normal = Vector3(0, -1, 0)
-		# elif a.max.x <= b.min.x:
-		# 	contact_normal = Vector3(-1, 0, 0)
-		# elif a.min.x >= b.max.x:
-		# 	contact_normal = Vector3(1, 0, 0)
-		# elif a.max.z <= b.min.z:
-		# 	contact_normal = Vector3(0, 0, -1)
-		# elif a.min.z >= b.max.z:
-		# 	contact_normal = Vector3(0, 0, 1)
+		# generate contact normal for resting particles
+		if b.max.y <= a.min.y:
+			contact_normal = Vector3(0, 1, 0)
+		elif b.min.y >= a.max.y:
+			contact_normal = Vector3(0, -1, 0)
+		elif a.max.x <= b.min.x:
+			contact_normal = Vector3(-1, 0, 0)
+		elif a.min.x >= b.max.x:
+			contact_normal = Vector3(1, 0, 0)
+		elif a.max.z <= b.min.z:
+			contact_normal = Vector3(0, 0, -1)
+		elif a.min.z >= b.max.z:
+			contact_normal = Vector3(0, 0, 1)
 
 		#print "Contact Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))"
 		return [t_first, t_last, true, contact_normal, movement_dir]
