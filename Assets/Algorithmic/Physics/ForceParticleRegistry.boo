@@ -1,9 +1,9 @@
 import Algorithmic.Misc
 
-struct Registration:
-	particle as IParticle
-	force as IForceGenerator
-	active as bool
+class Registration:
+	public particle as IParticle
+	public force as IForceGenerator
+	public active as bool
 
 	def constructor(p as IParticle, f as IForceGenerator):
 		particle = p
@@ -18,20 +18,21 @@ class ForceParticleRegistry:
 		_registry = List[of Registration]()
 
 	def add (particle as IParticle, force as IForceGenerator):
-		Log.Log("Adding particle to registry")
 		add_new = true
 		for reg in _registry:
 			if reg.particle == particle and reg.force == force:
+				Log.Log("Re-enabling particle/force to registry, $force")
 				add_new = false
 				reg.active = true
 
 		if add_new:
+			Log.Log("Adding particle/force to registry, $force")
 			_registry.Push(Registration(particle, force))
 
 	def remove (particle as IParticle, force as IForceGenerator):
-		Log.Log("Removing particle from registry")
 		for reg in _registry:
 			if reg.particle == particle and reg.force == force:
+				Log.Log("Disabling particle/force from registry: $force")
 				reg.active = false
 
 	def clear ():
@@ -41,5 +42,6 @@ class ForceParticleRegistry:
 	def updateForces(duration as single):
 		for reg in _registry:
 			if reg.active:
+				Log.Log("Update Forces: Force: $(reg.force), Particle: $(reg.particle), Duration: $(duration)")
 				reg.force.updateForce(reg.particle, duration)
 	

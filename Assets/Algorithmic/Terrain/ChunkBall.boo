@@ -48,6 +48,24 @@ class ChunkBallMessage():
 		return _data
 
 
+struct SweepContact:
+	contact_normal as Vector3
+	direction as Vector3	
+	start_time as single
+	end_time as single
+	block_aabb as AABB
+
+	def constructor(n as Vector3, dir as Vector3, start as single, end as single, a as AABB):
+		contact_normal = n
+		direction = dir
+		start_time = start
+		end_time = end
+		block_aabb = a
+
+	def ToString():
+		return "Start: $start_time, End: $end_time, Block: ($(block_aabb.center.x), $(block_aabb.center.y), $(block_aabb.center.z)), Direction: ($(direction.x), $(direction.y), $(direction.z)), Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))"
+	
+
 ################################################################################
 # Main ChunkBall class
 class ChunkBall (IChunkBall, IObservable):
@@ -279,8 +297,8 @@ class ChunkBall (IChunkBall, IObservable):
 			i as ChunkInfo = _chunks[chunk_coords]
 			c as ChunkBlockData = i.getChunk()
 			b = c.getBlock(ByteVector3(block_x, block_y, block_z))
-			Log.Log("Block World: ($(world_coordinates.x), $(world_coordinates.y), $(world_coordinates.z))")			
-			Log.Log("    Block Local: ($chunk_x, $chunk_y, $chunk_z), block: ($block_x, $block_y, $block_z) = $b")
+			#Log.Log("Block World: ($(world_coordinates.x), $(world_coordinates.y), $(world_coordinates.z))")
+			#Log.Log("    Block Local: ($chunk_x, $chunk_y, $chunk_z), block: ($block_x, $block_y, $block_z) = $b")
 			return b
 			#print "Found Block: $b"
 		else:
@@ -410,15 +428,36 @@ class ChunkBall (IChunkBall, IObservable):
 			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
 		#print "Contact Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))"
 		return [t_first, t_last, true, contact_normal, movement_dir]
+
 	
 
 	def CheckCollisionsSweep(obj as AABB, obj_prev as AABB):
 		c = _generate_possible_collisions(obj, obj_prev)
 		#print "Possible Collisions: $c"
-		b = []
+		b = [] #List[of SweepContact]()
 		for block_aabb in c:
-			b.Push([block_aabb, _sweep_test(obj_prev, block_aabb, obj.center - obj_prev.center, Vector3(0, 0, 0))])
+			possible_c as duck = _sweep_test(obj_prev, block_aabb, obj.center - obj_prev.center, Vector3(0, 0, 0))
+			if possible_c[2]:
+				b.Push(SweepContact(possible_c[3],
+									possible_c[4],
+									possible_c[0],
+									possible_c[1],
+									block_aabb))
+			#b.Push([block_aabb, ])
+		#print "BEFORE SORT: $b"
+		b.Sort() do (x as SweepContact, y as SweepContact):
+			if x.start_time < y.start_time:
+				return -1
+			elif x.start_time > y.start_time:
+				return 1
+			else:
+				return 0
 			
+		#print "AFTER SORT: $b"
+		
+		Log.Log("COLLISION CHECK:")
+		for x in b:
+			Log.Log("    $x")
 		return b
 		
 		#print "Possible Collisions: $possible_collisions"

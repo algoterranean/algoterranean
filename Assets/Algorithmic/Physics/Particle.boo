@@ -51,6 +51,13 @@ class Particle (IParticle, MonoBehaviour):
 	def addForce(force as Vector3):
 		force_accum += force
 
+	def getFutureState(duration as single):
+		if inverse_mass <= 0:
+			return
+		return [position + (velocity * duration),
+				velocity + (acceleration * duration),
+				acceleration + (force_accum * inverse_mass)]
+
 	def integrate(duration as single):
 		if inverse_mass <= 0:
 			return
