@@ -1,6 +1,7 @@
 enum FORCE_TYPE:
 	GRAVITY
 	GROUND_REACTION
+	MOVEMENT
 
 interface IForceGenerator:
 	def updateForce(particle as IParticle, duration as single)
