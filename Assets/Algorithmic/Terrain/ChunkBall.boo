@@ -54,6 +54,7 @@ struct SweepContact:
 	start_time as single
 	end_time as single
 	block_aabb as AABB
+	offset_vector as Vector3
 
 	def constructor(n as Vector3, dir as Vector3, start as single, end as single, a as AABB):
 		contact_normal = n
@@ -61,9 +62,10 @@ struct SweepContact:
 		start_time = start
 		end_time = end
 		block_aabb = a
+		offset_vector = Vector3(n.x * dir.x * (start), n.y * dir.y * (start), n.z * dir.z * (start))
 
 	def ToString():
-		return "Start: $start_time, End: $end_time, Block: ($(block_aabb.center.x), $(block_aabb.center.y), $(block_aabb.center.z)), Direction: ($(direction.x), $(direction.y), $(direction.z)), Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))"
+		return "Start: $start_time, End: $end_time, Block: ($(block_aabb.center.x), $(block_aabb.center.y), $(block_aabb.center.z)), Direction: ($(direction.x), $(direction.y), $(direction.z)), Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z)), Offset: ($(offset_vector.x), $(offset_vector.y), $(offset_vector.z))" 
 	
 
 ################################################################################
@@ -340,7 +342,7 @@ class ChunkBall (IChunkBall, IObservable):
 		b_left = Math.Floor(left)
 		b_right = Math.Ceiling(right) - 1
 		b_top = Math.Ceiling(top)
-		b_bottom = Math.Floor(bottom)
+		b_bottom = Math.Floor(bottom) - 1
 		b_front = Math.Floor(front)
 		b_back = Math.Ceiling(back) - 1
 
@@ -354,12 +356,13 @@ class ChunkBall (IChunkBall, IObservable):
 					if b > 0:
 						possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
 						# possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
-		
+
 		return possible_collisions
 
 	def _sweep_test(a as AABB, b as AABB, va as Vector3, vb as Vector3): # e.g., a=player, b=block
-		if a.Test(a, b):
-			return [0, 0, true, Vector3(0, 0, 0), Vector3(0, 0, 0)]
+		#if a.Test(a, b):
+		#	return [0, 0, true, Vector3(0, 0, 0), Vector3(0, 0, 0)]
+		
 		t_first = 0.0
 		t_last = 1.0
 		v = vb - va
@@ -422,29 +425,33 @@ class ChunkBall (IChunkBall, IObservable):
 			if a.max.z > b.min.z:
 				t_last = Min((a.max.z - b.min.z)/v.z, t_last)
 
+
+		if overlap_time.x > overlap_time.y and overlap_time.x > overlap_time.z:
+			contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
+		elif overlap_time.y > overlap_time.x and overlap_time.y > overlap_time.z:
+			contact_normal = Vector3(0, Mathf.Sign(v.y), 0)
+		elif overlap_time.z > overlap_time.x and overlap_time.z > overlap_time.y:
+			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
+
+		# if contact_normal == Vector3(0, 0, 0):
+		# 	# generate contact normal for resting particles
+		# 	if b.max.y <= a.min.y:
+		# 		contact_normal = Vector3(0, 1, 0)
+		# 	elif b.min.y >= a.max.y:
+		# 		contact_normal = Vector3(0, -1, 0)
+
+		# 	if a.max.x <= b.min.x:
+		# 		contact_normal = Vector3(-1, 0, 0)
+		# 	elif a.min.x >= b.max.x:
+		# 		contact_normal = Vector3(1, 0, 0)
+
+		# 	if a.max.z <= b.min.z:
+		# 		contact_normal = Vector3(0, 0, -1)
+		# 	elif a.min.z >= b.max.z:
+		# 		contact_normal = Vector3(0, 0, 1)
+			
 		if t_first > t_last:
 			return [t_first, t_last, false, contact_normal, movement_dir]
-
-		# if overlap_time.x > overlap_time.y and overlap_time.x > overlap_time.z:
-		# 	contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
-		# elif overlap_time.y > overlap_time.x and overlap_time.y > overlap_time.z:
-		# 	contact_normal = Vector3(0, Mathf.Sign(v.y), 0)
-		# elif overlap_time.z > overlap_time.x and overlap_time.z > overlap_time.y:
-		# 	contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
-
-		# generate contact normal for resting particles
-		if b.max.y <= a.min.y:
-			contact_normal = Vector3(0, 1, 0)
-		elif b.min.y >= a.max.y:
-			contact_normal = Vector3(0, -1, 0)
-		elif a.max.x <= b.min.x:
-			contact_normal = Vector3(-1, 0, 0)
-		elif a.min.x >= b.max.x:
-			contact_normal = Vector3(1, 0, 0)
-		elif a.max.z <= b.min.z:
-			contact_normal = Vector3(0, 0, -1)
-		elif a.min.z >= b.max.z:
-			contact_normal = Vector3(0, 0, 1)
 
 		#print "Contact Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))"
 		return [t_first, t_last, true, contact_normal, movement_dir]
@@ -452,7 +459,8 @@ class ChunkBall (IChunkBall, IObservable):
 	
 
 	def CheckCollisionsSweep(obj as AABB, obj_prev as AABB) as List[of SweepContact]:
-		c = _generate_possible_collisions(obj, obj_prev)
+		c = _generate_possible_collisions(obj, obj_prev) # will be empty if the player hasn't moved
+		
 		#print "Possible Collisions: $c"
 		#b = [] #List[of SweepContact]()
 		b = List[of SweepContact]()
@@ -476,9 +484,9 @@ class ChunkBall (IChunkBall, IObservable):
 			
 		#print "AFTER SORT: $b"
 		
-		Log.Log("COLLISION CHECK:", LOG_MODULE.CONTACTS)
-		for x in b:
-			Log.Log("    $x", LOG_MODULE.CONTACTS)
+		# Log.Log("COLLISION CHECK:", LOG_MODULE.CONTACTS)
+		# for x in b:
+		# 	Log.Log("    $x", LOG_MODULE.CONTACTS)
 		return b
 		
 		#print "Possible Collisions: $possible_collisions"

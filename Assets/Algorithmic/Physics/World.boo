@@ -19,163 +19,152 @@ struct AvailableForces:
 
 
 class World (MonoBehaviour):
-	_registry as ForceParticleRegistry
+	registry as ForceParticleRegistry
 	_resolver as ParticleContactResolver
-	_particles = []
+	particles = []
 	_running = false
-	_jumping = false
+	jumping = false
 	forces = AvailableForces(Gravity(), Ground(Vector3(0, 9.8, 0)), Jump())
+	chunk_manager as ChunkManager
+	chunk_ball as ChunkBall
+	player_particle as Algorithmic.Particle 
+	
 
 	def Start ():
-		_particles = []
-		_registry = ForceParticleRegistry()
+		particles = []
+		registry = ForceParticleRegistry()
 		_resolver = ParticleContactResolver(50)
-		p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-		_registry.add(p, forces.gravity)
-		_particles.Push(p)
+		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager")
+		chunk_ball = chunk_manager.getChunkBall()
+		player_particle = gameObject.Find("Player").GetComponent("Particle")
+		registry.add(player_particle, forces.gravity)
+		particles.Push(player_particle)
 		
 	def FixedUpdate():
 		if not _running:
 			return
 		Log.Log("Starting World Tick", LOG_MODULE.PHYSICS)
 
-		# generate all possible collisions
-		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
-		chunk_ball = chunk_manager.getChunkBall()
-		_particle = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
+		current_time = 0.0
+		end_time = 1.0
+		while current_time < end_time:
+			future_pos, future_vel, future_accel = player_particle.getFutureState(Time.deltaTime)
+			player_aabb_previous = AABB(player_particle.Position, Vector3(0.5, 0.5, 0.5))
+			player_aabb_future = AABB(future_pos, Vector3(0.5, 0.5, 0.5))
+			sweep_contacts = chunk_ball.CheckCollisionsSweep(player_aabb_future, player_aabb_previous)
 
-		_player_aabb_previous = AABB(_particle.Position, Vector3(0.5, 0.5, 0.5))
-		future_pos = _particle.getFutureState(Time.deltaTime)[0]
-		future_vel = _particle.getFutureState(Time.deltaTime)[1]
-		future_accel = _particle.getFutureState(Time.deltaTime)[2]
-		_player_aabb = AABB(future_pos, Vector3(0.5, 0.5, 0.5))
+			found_valid_contact = false
+			if len(sweep_contacts) > 0:
+				for x in sweep_contacts:
+					Log.Log("Possible Contact: $x", LOG_MODULE.CONTACTS)
+					if x.offset_vector != Vector3(0, 0, 0):
+						found_valid_contact = true
+						earliest_contact = x
+						break
 
-
-		Log.Log("Pos Now: $_player_aabb_previous", LOG_MODULE.PHYSICS)
-		Log.Log("Player Pos In Future: $_player_aabb", LOG_MODULE.PHYSICS)
-		possible_collisions = chunk_ball.CheckCollisionsSweep(_player_aabb, _player_aabb_previous)
-
-		
-		earliest_contact as duck = []
-		if len(possible_collisions) > 0:
-			earliest_contact = possible_collisions[0]
-
-		fixed_time = Time.deltaTime
-		if earliest_contact != []:
-			Log.Log("Earliest Contact: $earliest_contact", LOG_MODULE.PHYSICS)
-			fixed_time *= earliest_contact.start_time
-
-		# if earliest_contact == []:
-		# 	Log.Log("NO CONTACTS", LOG_MODULE.PHYSICS)
-		# 	p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-		# 	player_forces = _registry.getForces(p)
-		# 	for f in player_forces:
-		# 		if f.getForce().y > 0 and f.getType() == FORCE_TYPE.GROUND_REACTION:
-		# 			_registry.remove(p, f)
-
-			
-			# p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-			# _registry.remove(p, forces.ground)
-	
-		_registry.updateForces(fixed_time)
-		for x as Algorithmic.Particle in _particles:
-			x.integrate(fixed_time)
+				if found_valid_contact:
+					for x in sweep_contacts:
+						if x.start_time <= earliest_contact.start_time and x.offset_vector != Vector3(0, 0, 0):
+							earliest_contact = x
 
 
-		if earliest_contact != []:
-			#earliest_contact.contact_normal * earliest_contact.direction
-			
-			if earliest_contact.contact_normal == Vector3(0, 1, 0):
-				if earliest_contact.direction.x == 0 and earliest_contact.direction.y == 0 and earliest_contact.direction.z == 0:
-					pass
-				else:
-					p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
+			if not found_valid_contact:
+				registry.updateForces((end_time	- current_time) * Time.deltaTime)
+				for p as Algorithmic.Particle in particles:
+					p.integrate((end_time - current_time) * Time.deltaTime)
+				break
 
-					Log.Log("Canceling -Y Accel", LOG_MODULE.PHYSICS)
-					all_forces = _registry.getForces(p)
-					
-					Log.Log("Forces: $all_forces", LOG_MODULE.PHYSICS)
+				
+			registry.updateForces((earliest_contact.start_time - current_time * Time.deltaTime))
+			for p as Algorithmic.Particle in particles:
+				p.integrate((earliest_contact.start_time - current_time) * Time.deltaTime)
+				if earliest_contact.contact_normal.x != 0:
+					p.Velocity.x = 0
+					p.Acceleration.x = 0
+				elif earliest_contact.contact_normal.y != 0:
+					p.Velocity.y = 0
+					p.Acceleration.y = 0
+					# apply opposite reaction force
+					all_forces = registry.getForces(p)
 					force_sum = Vector3(0, 0, 0)
 					for f in all_forces:
 						force_sum.y += f.getForce().y
-					Log.Log("Reaction forces: $force_sum", LOG_MODULE.PHYSICS)
-					_registry.add(p, Ground(-force_sum))
+					registry.add(p, Ground(-force_sum))
+					jumping = false
+				elif earliest_contact.contact_normal.z != 0:
+					p.Velocity.z = 0
+					p.Acceleration.z = 0
+
+				# if earliest_contact.contact_normal.y == 0:
+				# 	all_forces = registry.getForces(p)
+				# 	for f in all_forces:
+				# 		if f.getForce().y > 0:
+				# 			registry.remove(p, f)
 					
-					_jumping = false
-					p.Acceleration.y = 0
-					p.Velocity.y = 0
+			print 'hi3'
+			current_time += (earliest_contact.start_time - current_time)
+		print 'hi4'
+		for p as Algorithmic.Particle in particles:
+			p.update_position()
+				
 
 
-
-		for x as Algorithmic.Particle in _particles:
-			x.update_position()
 
 		Log.Log("Finished World Tick\n\n", LOG_MODULE.PHYSICS)
 
-	def try_forces():
-		p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-		if Input.GetKeyDown("return"):
-			_running = not _running
+	# def try_forces():
+	# 	p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
 
-		if Input.GetKeyDown("space") and not _jumping:
-			Log.Log("BEGIN JUMP", LOG_MODULE.PHYSICS)
-			#forces.jump = Jump()
-			player_forces = _registry.getForces(p)
-			for f in player_forces:
-				if f.getForce().y > 0 and f.getType() == FORCE_TYPE.GROUND_REACTION:
-					_registry.remove(p, f)
-			p.Velocity += Vector3(0, 30, 0)
-			_jumping = true
+	# 	if Input.GetKeyDown("space") and not _jumping:
+	# 		Log.Log("BEGIN JUMP", LOG_MODULE.PHYSICS)
+	# 		#forces.jump = Jump()
+	# 		player_forces = _registry.getForces(p)
+	# 		for f in player_forces:
+	# 			if f.getForce().y > 0 and f.getType() == FORCE_TYPE.GROUND_REACTION:
+	# 				_registry.remove(p, f)
+	# 		p.Velocity += Vector3(0, 30, 0)
+	# 		_jumping = true
 			
 
 
-		delta = 5
-		if Input.GetKeyDown("a"): #and not Input.GetKey("left shift"):
-			p.Velocity.x += delta
-		if Input.GetKeyUp("a"):
-			p.Velocity.x -= delta
-		if Input.GetKeyDown("d"):
-			p.Velocity.x -= delta
-		if Input.GetKeyUp("d"):
-			p.Velocity.x += delta
+	# 	delta = 5
+	# 	if Input.GetKeyDown("a"): #and not Input.GetKey("left shift"):
+	# 		p.Velocity.x += delta
+	# 	if Input.GetKeyUp("a"):
+	# 		p.Velocity.x -= delta
+	# 	if Input.GetKeyDown("d"):
+	# 		p.Velocity.x -= delta
+	# 	if Input.GetKeyUp("d"):
+	# 		p.Velocity.x += delta
 
-		if Input.GetKeyDown("w"):
-			p.Velocity.z -= delta
-		if Input.GetKeyUp("w"):
-			p.Velocity.z += delta
-		if Input.GetKeyDown("s"):
-			p.Velocity.z += delta
-		if Input.GetKeyUp("s"):
-			p.Velocity.z -= delta
+	# 	if Input.GetKeyDown("w"):
+	# 		p.Velocity.z -= delta
+	# 	if Input.GetKeyUp("w"):
+	# 		p.Velocity.z += delta
+	# 	if Input.GetKeyDown("s"):
+	# 		p.Velocity.z += delta
+	# 	if Input.GetKeyUp("s"):
+	# 		p.Velocity.z -= delta
 			
 	def Update():
-		try_forces()
+		
+		if Input.GetKeyDown("return"):
+			_running = not _running
+		if Input.GetKeyDown("space") and not jumping:
+			jumping = true
+			#registry.remove
+			player_particle.Velocity += Vector3(0, 30, 0)
+			all_forces = registry.getForces(player_particle)
+			for f in all_forces:
+				if f.getType() == FORCE_TYPE.GROUND_REACTION and f.getForce().y > 0:
+					registry.remove(player_particle, f)
 
+		if Input.GetKeyDown("w"):
+			player_particle.Velocity += Vector3(5, 0, 0)
+		# elif Input.GetKeyUp("w"):
+		# 	player_particle.Velocity -= Vector3(5, 0, 0)
 
-
-		# p = gameObject.Find("Player").GetComponent("Particle") as Algorithmic.Particle
-		# if Input.GetKeyDown("return"):
-		# 	_running = not _running
-
-		# if Input.GetKeyDown("space"):
-		# 	#_registry.add(p, Gravity())
-		# 	Log.Log("BEGIN JUMP")
-		# 	_registry.add(p, Jump())
 			
-		# if Input.GetKey("a") and not Input.GetKey("left shift"):
-		# 	_registry.add(p, MoveLeft())
-		# if Input.GetKey("d"):
-		# 	_registry.add(p, MoveRight())
-		# if Input.GetKey("w"):
-		# 	_registry.add(p, MoveForward())
-		# if Input.GetKey("s"):
-		# 	_registry.add(p, MoveBackwards())
-			
-
-		# if not Input.GetKey("d") and not Input.GetKey("a"):
-		# 	_registry.add(p, StopMovingSideways())
-		# if not Input.GetKey("w") and not Input.GetKey("s"):
-		# 	_registry.add(p, StopMovingToAndFro())
 
 
 
