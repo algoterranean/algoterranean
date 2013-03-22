@@ -65,13 +65,8 @@ class Particle (IParticle, MonoBehaviour):
 		Log.Log("Particle Before Integration: Pos ($(position.x), $(position.y), $(position.z)), Accel ($(acceleration.x), $(acceleration.y), $(acceleration.z)), Vel ($(velocity.x), $(velocity.y), $(velocity.z))", LOG_MODULE.PHYSICS)
 		last_position = position
 		position += velocity * duration
-		
 		acceleration += force_accum * inverse_mass
-
-
 		velocity += acceleration * duration
-		# if velocity.y < 0 and Abs(velocity.y) > Abs(terminal_velocity.y):
-		# 	velocity.y = terminal_velocity.y
 			
 		velocity *= Math.Pow(damping, duration)
 		Log.Log("Particle After Integration: Pos ($(position.x), $(position.y), $(position.z)), Accel ($(acceleration.x), $(acceleration.y), $(acceleration.z)), Vel ($(velocity.x), $(velocity.y), $(velocity.z))", LOG_MODULE.PHYSICS)
