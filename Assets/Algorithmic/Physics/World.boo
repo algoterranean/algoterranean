@@ -56,7 +56,6 @@ class World (MonoBehaviour):
 			player_aabb_previous = AABB(player_particle.Position, Vector3(0.5, 0.5, 0.5))
 			player_aabb_future = AABB(future_pos, Vector3(0.5, 0.5, 0.5))
 			sweep_contacts = chunk_ball.CheckCollisionsSweep(player_aabb_future, player_aabb_previous)
-			
 
 			found_valid_contact = false
 			if len(sweep_contacts) > 0:
@@ -139,14 +138,25 @@ class World (MonoBehaviour):
 			# 	if f.getType() == FORCE_TYPE.GROUND_REACTION and f.getForce().y > 0:
 			# 		registry.remove(player_particle, f)
 
-		if Input.GetKeyDown("a"):
-			player_particle.Velocity += Vector3(5, 0, 0)
-		if Input.GetKeyDown("d"):
-			player_particle.Velocity += Vector3(-5, 0, 0)
-		if Input.GetKeyDown("w"):
-			player_particle.Velocity += Vector3(0, 0, -5)
-		if Input.GetKeyDown("s"):
-			player_particle.Velocity += Vector3(0, 0, 5)
+
+		if Input.GetKey("a"):
+			print 'KEYPRESS'
+			player_particle.Velocity.x = 5
+		if Input.GetKey("d"):
+			print 'KEYPRESS'			
+			player_particle.Velocity.x = -5
+		if Input.GetKeyUp("d") or Input.GetKeyUp("a"):
+			player_particle.Velocity.x = 0
+			
+		if Input.GetKey("w"):
+			print 'KEYPRESS'			
+			player_particle.Velocity.z = -5
+		if Input.GetKey("s"):
+			print 'KEYPRESS'			
+			player_particle.Velocity.z = 5
+		if Input.GetKeyUp("s") or Input.GetKeyUp("w"):
+			player_particle.Velocity.z = 0
+			
 
 
 

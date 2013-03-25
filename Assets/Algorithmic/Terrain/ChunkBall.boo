@@ -321,23 +321,32 @@ class ChunkBall (IChunkBall, IObservable):
 		if obj.center.x <= obj_prev.center.x:
 			left = obj.center.x - obj.radius.x
 			right = obj_prev.center.x + obj_prev.radius.x
-		else:
+		elif obj.center.x > obj_prev.center.x:
 			left = obj_prev.center.x - obj_prev.radius.x
 			right = obj.center.x + obj.radius.x
+		# else:
+		# 	left = obj.center.x - obj.radius.x
+		# 	right = obj.center.x + obj.radius.x
 
 		if obj.center.y <= obj_prev.center.y:
 			bottom = obj.center.y - obj.radius.y
 			top = obj_prev.center.y + obj_prev.radius.y
-		else:
+		elif obj.center.y > obj_prev.center.y:
 			bottom = obj_prev.center.y - obj_prev.radius.y
 			top = obj.center.y + obj.radius.y
+		# else:
+		# 	bottom = obj.center.y - obj.radius.y
+		# 	top = obj.center.y + obj.radius.y
 
 		if obj.center.z <= obj_prev.center.z: # towards user
 			front = obj.center.z - obj.radius.z
 			back = obj_prev.center.z + obj_prev.radius.z
-		else:
+		elif obj.center.z > obj_prev.center.z:
 			front = obj_prev.center.z - obj_prev.radius.z
 			back = obj.center.z + obj.radius.z
+		# else:
+		# 	front = obj.center.z - obj.radius.z
+		# 	back = obj.center.z + obj.radius.z
 
 		# b_left = Math.Floor(left)
 		# b_right = Math.Ceiling(right) - 1
@@ -347,20 +356,22 @@ class ChunkBall (IChunkBall, IObservable):
 		# b_back = Math.Ceiling(back) - 1
 		b_left = Math.Floor(left)
 		b_right = Math.Floor(right)
+		if b_right == right:
+			b_right = b_right - 1
 		b_top = Math.Floor(top)
+		# if b_top == top:
+		# 	b_top = b_top - 1
 		b_bottom = Math.Floor(bottom)
 		b_front = Math.Floor(front)
 		b_back = Math.Floor(back)
+		if b_back == back:
+			b_back = b_back - 1
 
 		possible_collisions = []
 		Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_front, $b_back", LOG_MODULE.PHYSICS)
 		for x in range(b_left, b_right+1):
 			for y in range(b_bottom, b_top+1):
 				for z in range(b_front, b_back+1):
-		# for x in range(b_left, b_right+1):
-		# 	for y in range(b_top, b_bottom-1):
-		# 		for z in range(b_front, b_back+1):
-					#print "BLOCK CHECK ($x, $y, $z)"
 					b = self.getBlock(LongVector3(x, y, z))
 					if b > 0:
 						possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
@@ -370,7 +381,7 @@ class ChunkBall (IChunkBall, IObservable):
 
 	def _sweep_test(a as AABB, b as AABB, va as Vector3, vb as Vector3): # e.g., a=player, b=block
 		# if a.Test(a, b):
-		# 	return [0, 0, true, Vector3(0, 0, 0), Vector3(0, 0, 0)]
+		# 	return [0, 1, true, Vector3(0, 0, 0), Vector3(0, 0, 0)]
 		
 		t_first = 0.0
 		t_last = 1.0
@@ -378,7 +389,7 @@ class ChunkBall (IChunkBall, IObservable):
 		print "VEL CHECK: ($(v.x), $(v.y), $(v.z))"
 		#overlap_time = Vector3(0, 0, 0)
 		contact_normal = Vector3(0, 0, 0)
-		movement_dir = vb - va
+		movement_dir = va - vb
 
 		
 		overlap_time = 0
@@ -395,28 +406,28 @@ class ChunkBall (IChunkBall, IObservable):
 			if velocity < 0:
 				if b_max < a_min:
 					return [t_first, t_last, false, contact_normal, movement_dir]
-				if a_max <= b_min:
+				if a_max < b_min:
 					overlap = (a_max - b_min)/velocity
 					t_first = Max(overlap, t_first)
-					if overlap >= overlap_time:
+					if overlap > overlap_time:
 						overlap_time = overlap
 						overlap_axis = y[5]
-				if b_max >= a_min:
+				if b_max > a_min:
 					overlap = (a_min - b_max)/velocity
 					t_last = Min(overlap, t_last)
 					
 			elif velocity > 0:
 				if b_min > a_max:
 					return [t_first, t_last, false, contact_normal, movement_dir]
-				if b_max <= a_min:
+				if b_max < a_min:
 					overlap = (a_min - b_max)/velocity
 					t_first = Max(overlap, t_first)
 					print "OVERLAP CHECK: $overlap, $overlap_time, $(y[5])"
-					if overlap >= overlap_time:
+					if overlap > overlap_time:
 						overlap_time = overlap
 						overlap_axis = y[5]
 						
-				if a_max >= b_min:
+				if a_max > b_min:
 					print 'hi2'
 					overlap = (a_max - b_min)/velocity
 					t_last = Min(overlap, t_last)
@@ -426,26 +437,28 @@ class ChunkBall (IChunkBall, IObservable):
 		if overlap_axis == "x":
 			contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
 		if overlap_axis == "y":
-			contact_normal = Vector3(0, Mathf.Sign(v.y), 0)			
+			contact_normal = Vector3(0, Mathf.Sign(v.y), 0)
 		if overlap_axis == "z":
-			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))			
+			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
 
-		# if contact_normal == Vector3(0, 0, 0):
-		# 	# generate contact normal for resting particles
-		# 	if b.max.y <= a.min.y:
-		# 		contact_normal = Vector3(0, 1, 0)
-		# 	elif b.min.y >= a.max.y:
-		# 		contact_normal = Vector3(0, -1, 0)
 
-		# 	if a.max.x <= b.min.x:
-		# 		contact_normal = Vector3(-1, 0, 0)
-		# 	elif a.min.x >= b.max.x:
-		# 		contact_normal = Vector3(1, 0, 0)
+		FP_ERROR = 0.001
+		if contact_normal == Vector3(0, 0, 0):
+			# generate contact normal for resting particles
+			if b.max.y <= a.min.y + FP_ERROR:
+				contact_normal = Vector3(0, 1, 0)
+			elif b.min.y >= a.max.y - FP_ERROR:
+				contact_normal = Vector3(0, -1, 0)
 
-		# 	if a.max.z <= b.min.z:
-		# 		contact_normal = Vector3(0, 0, -1)
-		# 	elif a.min.z >= b.max.z:
-		# 		contact_normal = Vector3(0, 0, 1)
+			elif b.max.x <= a.min.x + FP_ERROR:
+				contact_normal = Vector3(1, 0, 0)
+			elif b.min.x >= a.max.x - FP_ERROR:
+				contact_normal = Vector3(-1, 0, 0)
+
+			elif b.max.z <= a.min.z + FP_ERROR:
+				contact_normal = Vector3(0, 0, 1)
+			elif b.min.z >= a.max.z - FP_ERROR:
+				contact_normal = Vector3(0, 0, -1)
 			
 		if t_first > t_last:
 			return [t_first, t_last, false, contact_normal, movement_dir]
