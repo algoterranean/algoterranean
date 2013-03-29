@@ -48,7 +48,7 @@ class World (MonoBehaviour):
 		current_time = 0.0
 		end_time = 1.0
 		loop_count = 1
-		max_loops = 60 # for degenerate cases
+		max_loops = 10 # for degenerate cases
 
 		
 		while current_time < end_time and loop_count < max_loops:
@@ -135,31 +135,14 @@ class World (MonoBehaviour):
 						#c_n = c.contact_normal
 						print "NEW CONTACT NORMAL: $c_n"
 
-						# if (c_n.x == 1 and p.Velocity.x < 0) or \
-						# 	(c_n.x == -1 and p.Velocity.x > 0):
 						if c_n.x != 0 and c.surface_area.x > c.surface_area.y and c.surface_area.x > c.surface_area.z:
-							#if earliest_contact.contact_normal.x != 0:
 							p.Velocity.x = 0
 							p.Acceleration.x = 0
-						# elif (c_n.y == 1 and p.Velocity.y < 0) or \
-						# 	(c_n.y == -1 and p.Velocity.y > 0):
 						elif c_n.y != 0 and c.surface_area.y > c.surface_area.x and c.surface_area.y > c.surface_area.z:
-							#elif earliest_contact.contact_normal.y != 0:
 							p.Velocity.y = 0
 							p.Acceleration.y = 0
-					
-							# apply opposite reaction force
-							# all_forces = registry.getForces(p)
-							# force_sum = Vector3(0, 0, 0)
-							# for f in all_forces:
-							# 	force_sum.y += f.getForce().y
-							# registry.add(p, Ground(-force_sum))
-					
-							jumping = false
-						# elif (c_n.z > 0 and p.Velocity.z < 0) or \
-						# 	(c_n.z < 0 and p.Velocity.z > 0):
+							jumping = false								
 						elif c_n.z != 0 and c.surface_area.z > c.surface_area.x and c.surface_area.z > c.surface_area.y:
-							#elif earliest_contact.contact_normal.z != 0:
 							p.Velocity.z = 0
 							p.Acceleration.z = 0
 
