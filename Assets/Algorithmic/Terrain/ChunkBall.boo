@@ -55,17 +55,20 @@ struct SweepContact:
 	end_time as single
 	block_aabb as AABB
 	offset_vector as Vector3
+	surface_area as Vector3
 
-	def constructor(n as Vector3, dir as Vector3, start as single, end as single, a as AABB):
+	def constructor(n as Vector3, dir as Vector3, start as single, end as single, a as AABB, sur as Vector3):
 		contact_normal = n
 		direction = dir
 		start_time = start
 		end_time = end
 		block_aabb = a
+		surface_area = sur
 		offset_vector = Vector3(n.x * dir.x , n.y * dir.y , n.z * dir.z)
+		
 
 	def ToString():
-		return "Start: $start_time, End: $end_time, Block: ($(block_aabb.center.x), $(block_aabb.center.y), $(block_aabb.center.z)), Direction: ($(direction.x), $(direction.y), $(direction.z)), Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z)), Offset: ($(offset_vector.x), $(offset_vector.y), $(offset_vector.z))" 
+		return "Start: $start_time, End: $end_time, Block: ($(block_aabb.center.x), $(block_aabb.center.y), $(block_aabb.center.z)), Direction: ($(direction.x), $(direction.y), $(direction.z)), Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z)), Offset: ($(offset_vector.x), $(offset_vector.y), $(offset_vector.z)), Surface Area: ($(surface_area.x), $(surface_area.y), $(surface_area.z))" 
 	
 
 ################################################################################
@@ -390,6 +393,7 @@ class ChunkBall (IChunkBall, IObservable):
 		#overlap_time = Vector3(0, 0, 0)
 		contact_normal = Vector3(0, 0, 0)
 		movement_dir = va - vb
+		surface_area = Vector3(0, 0, 0)
 
 		
 		overlap_time = 0
@@ -433,6 +437,13 @@ class ChunkBall (IChunkBall, IObservable):
 					t_last = Min(overlap, t_last)
 				print 'hi3'
 
+		# surface_area.x = a.max.x - b.min.x
+		# surface_area.y = a.max.y - b.min.y
+		# surface_area.z = a.max.z - b.min.z
+		surface_area_x = (Min(a.max.y, b.max.y) - Max(a.min.y, b.min.y)) * (Min(a.max.z, b.max.z) - Max(a.min.z, b.min.z))
+		surface_area_y = (Min(a.max.x, b.max.x) - Max(a.min.x, b.min.x)) * (Min(a.max.z, b.max.z) - Max(a.min.z, b.min.z))
+		surface_area_z = (Min(a.max.y, b.max.y) - Max(a.min.y, b.min.y)) * (Min(a.max.x, b.max.x) - Max(a.min.x, b.min.x))
+		surface_area = Vector3(surface_area_x, surface_area_y, surface_area_z)
 		print "AXIS CHECK: $overlap_axis"
 		if overlap_axis == "x":
 			contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
@@ -442,29 +453,31 @@ class ChunkBall (IChunkBall, IObservable):
 			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
 
 
-		FP_ERROR = 0.001
+		FP_ERROR = 0.0001
 		if contact_normal == Vector3(0, 0, 0):
 			# generate contact normal for resting particles
-			if b.max.y <= a.min.y + FP_ERROR:
+			if b.max.y <= a.min.y: #+ FP_ERROR: #and v.y <= 0:
 				contact_normal = Vector3(0, 1, 0)
-			elif b.min.y >= a.max.y - FP_ERROR:
+			elif b.min.y >= a.max.y: #- FP_ERROR: #and v.y >= 0:
 				contact_normal = Vector3(0, -1, 0)
 
-			elif b.max.x <= a.min.x + FP_ERROR:
+			elif b.max.x <= a.min.x: #+ FP_ERROR: #and v.x <= 0:
 				contact_normal = Vector3(1, 0, 0)
-			elif b.min.x >= a.max.x - FP_ERROR:
+			elif b.min.x >= a.max.x: #- FP_ERROR: #and v.x >= 0:
 				contact_normal = Vector3(-1, 0, 0)
 
-			elif b.max.z <= a.min.z + FP_ERROR:
+			elif b.max.z <= a.min.z: #+ FP_ERROR: #and v.z <= 0:
 				contact_normal = Vector3(0, 0, 1)
-			elif b.min.z >= a.max.z - FP_ERROR:
+			elif b.min.z >= a.max.z: #- FP_ERROR: #and v.z >= 0:
 				contact_normal = Vector3(0, 0, -1)
+
+
 			
 		if t_first > t_last:
-			return [t_first, t_last, false, contact_normal, movement_dir]
+			return [t_first, t_last, false, contact_normal, movement_dir, surface_area]
 
 		#print "Contact Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z))"
-		return [t_first, t_last, true, contact_normal, movement_dir]
+		return [t_first, t_last, true, contact_normal, movement_dir, surface_area]
 
 	
 
@@ -482,7 +495,8 @@ class ChunkBall (IChunkBall, IObservable):
 									   possible_c[4],
 									   possible_c[0],
 									   possible_c[1],
-									   block_aabb)
+									   block_aabb,
+									   possible_c[5])
 				print "POSSIBLE: $contact"
 				b.Add(contact)
 			#b.Push([block_aabb, ])

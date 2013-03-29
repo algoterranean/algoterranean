@@ -48,9 +48,10 @@ class World (MonoBehaviour):
 		current_time = 0.0
 		end_time = 1.0
 		loop_count = 1
+		max_loops = 60 # for degenerate cases
 
 		
-		while current_time < end_time:
+		while current_time < end_time and loop_count < max_loops:
 			Log.Log("LOOP COUNT $loop_count", LOG_MODULE.PHYSICS)
 			future_pos, future_vel, future_accel = player_particle.getFutureState(Time.deltaTime)
 			player_aabb_previous = AABB(player_particle.Position, Vector3(0.5, 0.5, 0.5))
@@ -61,14 +62,14 @@ class World (MonoBehaviour):
 			if len(sweep_contacts) > 0:
 				for x in sweep_contacts:
 					Log.Log("Possible Contact: $x", LOG_MODULE.CONTACTS)
-					if x.offset_vector != Vector3(0, 0, 0):
-						found_valid_contact = true
-						earliest_contact = x
-						break
+					#if x.offset_vector != Vector3(0, 0, 0):
+					found_valid_contact = true
+					earliest_contact = x
+					break
 
 				if found_valid_contact:
 					for x in sweep_contacts:
-						if x.start_time < earliest_contact.start_time and x.offset_vector != Vector3(0, 0, 0):
+						if x.start_time < earliest_contact.start_time:# and x.offset_vector != Vector3(0, 0, 0):
 							earliest_contact = x
 
 
@@ -86,28 +87,81 @@ class World (MonoBehaviour):
 				for p as Algorithmic.Particle in particles:
 					p.integrate((end_time - current_time) * Time.deltaTime)
 				break
+
+			# max_surface_area = Vector3
+			# for c in sweep_contacts:
+			# 	if c.surface_area > max_surface_area and c.start_time <= earliest_contact.start_time:
+			# 		max_surface_area = c.surface_area
 				
 			registry.updateForces((earliest_contact.start_time - current_time) * Time.deltaTime)
 			for p as Algorithmic.Particle in particles:
 				p.integrate((earliest_contact.start_time - current_time) * Time.deltaTime)
-				if earliest_contact.contact_normal.x != 0:
-					p.Velocity.x = 0
-					p.Acceleration.x = 0
-				elif earliest_contact.contact_normal.y != 0:
-					p.Velocity.y = 0
-					p.Acceleration.y = 0
+
+				
+				for c in sweep_contacts:
+					if c.start_time == earliest_contact.start_time: #and c.surface_area == max_surface_area:
+						current_aabb = AABB(p.Position, Vector3(0.5, 0.5, 0.5))
+						block_aabb = c.block_aabb
+						left_plane = current_aabb.max.x - block_aabb.min.x
+						right_plane = current_aabb.min.x - block_aabb.max.x
+						bottom_plane = current_aabb.max.y - block_aabb.min.y
+						top_plane = current_aabb.min.y - block_aabb.max.y
+						front_plane = current_aabb.max.z - block_aabb.min.z
+						back_plane = current_aabb.min.z - block_aabb.max.z
+						planes = [left_plane, right_plane,
+								  bottom_plane, top_plane,
+								  front_plane, back_plane]
+						plane_normals = [Vector3(-1, 0, 0), Vector3(1, 0, 0),
+										 Vector3(0, -1, 0), Vector3(0, 1, 0),
+										 Vector3(0, 0, -1), Vector3(0, 0, 1)]
+						surfaces = [(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
+									(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
+									
+									(Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
+									(Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
+									
+									(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x)),
+									(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x))]
+									
+						min_dist = 999999999999999999.0
+						#max_surface_area = 0
+						c_n = Vector3(0, 0, 0)
+						for i in range(len(planes)):
+							if System.Math.Abs(planes[i] cast single) < min_dist:
+								min_dist = System.Math.Abs(planes[i] cast single)
+								c_n = plane_normals[i]
+								#max_surface_area = surfaces[i]
+
+						#c_n = c.contact_normal
+						print "NEW CONTACT NORMAL: $c_n"
+
+						# if (c_n.x == 1 and p.Velocity.x < 0) or \
+						# 	(c_n.x == -1 and p.Velocity.x > 0):
+						if c_n.x != 0 and c.surface_area.x > c.surface_area.y and c.surface_area.x > c.surface_area.z:
+							#if earliest_contact.contact_normal.x != 0:
+							p.Velocity.x = 0
+							p.Acceleration.x = 0
+						# elif (c_n.y == 1 and p.Velocity.y < 0) or \
+						# 	(c_n.y == -1 and p.Velocity.y > 0):
+						elif c_n.y != 0 and c.surface_area.y > c.surface_area.x and c.surface_area.y > c.surface_area.z:
+							#elif earliest_contact.contact_normal.y != 0:
+							p.Velocity.y = 0
+							p.Acceleration.y = 0
 					
-					# apply opposite reaction force
-					# all_forces = registry.getForces(p)
-					# force_sum = Vector3(0, 0, 0)
-					# for f in all_forces:
-					# 	force_sum.y += f.getForce().y
-					# registry.add(p, Ground(-force_sum))
+							# apply opposite reaction force
+							# all_forces = registry.getForces(p)
+							# force_sum = Vector3(0, 0, 0)
+							# for f in all_forces:
+							# 	force_sum.y += f.getForce().y
+							# registry.add(p, Ground(-force_sum))
 					
-					jumping = false
-				elif earliest_contact.contact_normal.z != 0:
-					p.Velocity.z = 0
-					p.Acceleration.z = 0
+							jumping = false
+						# elif (c_n.z > 0 and p.Velocity.z < 0) or \
+						# 	(c_n.z < 0 and p.Velocity.z > 0):
+						elif c_n.z != 0 and c.surface_area.z > c.surface_area.x and c.surface_area.z > c.surface_area.y:
+							#elif earliest_contact.contact_normal.z != 0:
+							p.Velocity.z = 0
+							p.Acceleration.z = 0
 
 				# if earliest_contact.contact_normal.y == 0:
 				# 	all_forces = registry.getForces(p)
@@ -130,6 +184,7 @@ class World (MonoBehaviour):
 		if Input.GetKeyDown("return"):
 			_running = not _running
 		if Input.GetKeyDown("space") and not jumping:
+			print 'JUMP'
 			jumping = true
 			#registry.remove
 			player_particle.Velocity += Vector3(0, 30, 0)
