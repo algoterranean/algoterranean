@@ -71,10 +71,10 @@ class ChunkManager (MonoBehaviour, IObserver):
 			_remove_mesh_object(chunk_info)
 
 		# check AABB bounding volumes
-		if isInitialized():
-			_player = gameObject.Find("Player").GetComponent("Player") as Player
-			_player_aabb = _player.getAABB()
-			x = gameObject.Find("Player").GetComponent("Player") as Player
+		# if isInitialized():
+		# 	_player = gameObject.Find("Player").GetComponent("Player") as Player
+		# 	_player_aabb = _player.getAABB()
+		# 	x = gameObject.Find("Player").GetComponent("Player") as Player
 			# if _chunk_ball.CheckCollisions(_player_aabb):
 			#     x.stopGravity()
 			# else:

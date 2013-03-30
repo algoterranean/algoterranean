@@ -27,7 +27,8 @@ class World (MonoBehaviour):
 	forces = AvailableForces(Gravity(), Ground(Vector3(0, 9.8, 0)), Jump())
 	chunk_manager as ChunkManager
 	chunk_ball as ChunkBall
-	player_particle as Algorithmic.Particle 
+	player_particle as Algorithmic.Particle
+	player as Player
 	
 
 	def Start ():
@@ -37,6 +38,7 @@ class World (MonoBehaviour):
 		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager")
 		chunk_ball = chunk_manager.getChunkBall()
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
+		player = gameObject.Find("Player").GetComponent("Player")
 		registry.add(player_particle, forces.gravity)
 		particles.Push(player_particle)
 		
@@ -141,7 +143,8 @@ class World (MonoBehaviour):
 						elif c_n.y != 0 and c.surface_area.y > c.surface_area.x and c.surface_area.y > c.surface_area.z:
 							p.Velocity.y = 0
 							p.Acceleration.y = 0
-							jumping = false								
+							player.jumping = false
+
 						elif c_n.z != 0 and c.surface_area.z > c.surface_area.x and c.surface_area.z > c.surface_area.y:
 							p.Velocity.z = 0
 							p.Acceleration.z = 0
@@ -166,34 +169,7 @@ class World (MonoBehaviour):
 		
 		if Input.GetKeyDown("return"):
 			_running = not _running
-		if Input.GetKeyDown("space") and not jumping:
-			print 'JUMP'
-			jumping = true
-			#registry.remove
-			player_particle.Velocity += Vector3(0, 30, 0)
-			# all_forces = registry.getForces(player_particle)
-			# for f in all_forces:
-			# 	if f.getType() == FORCE_TYPE.GROUND_REACTION and f.getForce().y > 0:
-			# 		registry.remove(player_particle, f)
-
-
-		if Input.GetKey("a"):
-			print 'KEYPRESS'
-			player_particle.Velocity.x = 5
-		if Input.GetKey("d"):
-			print 'KEYPRESS'			
-			player_particle.Velocity.x = -5
-		if Input.GetKeyUp("d") or Input.GetKeyUp("a"):
-			player_particle.Velocity.x = 0
 			
-		if Input.GetKey("w"):
-			print 'KEYPRESS'			
-			player_particle.Velocity.z = -5
-		if Input.GetKey("s"):
-			print 'KEYPRESS'			
-			player_particle.Velocity.z = 5
-		if Input.GetKeyUp("s") or Input.GetKeyUp("w"):
-			player_particle.Velocity.z = 0
 			
 
 

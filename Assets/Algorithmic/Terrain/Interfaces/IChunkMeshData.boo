@@ -1,4 +1,5 @@
 import UnityEngine
+import Algorithmic.Terrain
 
 interface IChunkMeshData ():
 	def setNeighborhoodChunks(west as IChunkBlockData, east as IChunkBlockData,
