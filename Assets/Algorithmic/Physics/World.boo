@@ -56,8 +56,8 @@ class World (MonoBehaviour):
 		while current_time < end_time and loop_count < max_loops:
 			Log.Log("LOOP COUNT $loop_count", LOG_MODULE.PHYSICS)
 			future_pos, future_vel, future_accel = player_particle.getFutureState(Time.deltaTime)
-			player_aabb_previous = AABB(player_particle.Position, Vector3(0.5, 0.5, 0.5))
-			player_aabb_future = AABB(future_pos, Vector3(0.5, 0.5, 0.5))
+			player_aabb_previous = AABB(player_particle.Position, Vector3(0.5, 1.0, 0.5))
+			player_aabb_future = AABB(future_pos, Vector3(0.5, 1.0, 0.5))
 			sweep_contacts = chunk_ball.CheckCollisionsSweep(player_aabb_future, player_aabb_previous)
 
 			found_valid_contact = false
@@ -102,7 +102,7 @@ class World (MonoBehaviour):
 				
 				for c in sweep_contacts:
 					if c.start_time == earliest_contact.start_time: #and c.surface_area == max_surface_area:
-						current_aabb = AABB(p.Position, Vector3(0.5, 0.5, 0.5))
+						current_aabb = AABB(p.Position, Vector3(0.5, 1.0, 0.5))
 						block_aabb = c.block_aabb
 						left_plane = current_aabb.max.x - block_aabb.min.x
 						right_plane = current_aabb.min.x - block_aabb.max.x
