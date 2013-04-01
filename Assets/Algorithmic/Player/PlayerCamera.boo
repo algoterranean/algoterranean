@@ -12,6 +12,11 @@ class PlayerCamera (MonoBehaviour):
 	orientation as Vector3
 	rotate_speed as single
 	offset as Vector3
+	player_graphics as List[of GameObject]
+	mouse_look as MouseLook
+	fps_camera as GameObject
+	third_person_camera as GameObject
+	
 
 	def Start ():
 		#chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager		
@@ -22,45 +27,47 @@ class PlayerCamera (MonoBehaviour):
 		#offset = Vector3(0, 10, 0)
 		player = gameObject.Find("Player").GetComponent("Player")
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
+		player_graphics = List[of GameObject]()
+		
+		player_graphics.Push(gameObject.Find("Player/Graphics"))
+		player_graphics.Push(gameObject.Find("Player/Graphics - Forward"))
+		player_graphics.Push(gameObject.Find("Player/Headlamp"))
+		mouse_look = gameObject.Find("Player").GetComponent("MouseLook")
+		fps_camera = gameObject.Find("Player/Camera")
+		mouse_look.enabled = false
+		fps_camera.SetActive(false)
+		third_person_camera = gameObject.Find("Player Camera")
+						   
 		
 
 	def LateUpdate ():
+		#if not fps_camera.activeSelf:
 		zoom -= Input.GetAxis("Mouse ScrollWheel")
-		zoom = Mathf.Clamp(zoom, 1, 5)
-		
-		rotation = Quaternion.Euler(0, player.transform.eulerAngles.y, player.transform.eulerAngles.z)
-		#offset.y = offset.y * Input.GetAxis("Mouse Y")
-		#offset.y += Input.GetAxis("Mouse Y")
-		transform.position = player.transform.position + (rotation * (offset * zoom))
+		zoom = Mathf.Clamp(zoom, 0, 5)
+
+
+		vert = 0 #Input.GetAxis("Mouse Y") * rotate_speed
+		rotation = Quaternion.Euler(0, player.transform.eulerAngles.y, vert)
+		desired_position = player.transform.position + (rotation * (offset * zoom))
+		transform.position = Vector3.Lerp(transform.position, desired_position, 0.2)
 		transform.LookAt(player.transform)
 
+
+		g = player_graphics[0] as GameObject
+		if zoom == 0:
+			player_graphics[0].renderer.enabled = false
+			player_graphics[1].renderer.enabled = false
+			mouse_look.enabled = true
+			fps_camera.SetActive(true)
+			#third_person_camera.SetActive(false)
+		else:
+			player_graphics[0].renderer.enabled = true
+			player_graphics[1].renderer.enabled = true
+			mouse_look.enabled = false
+			fps_camera.SetActive(false)
+			#third_person_camera.SetActive(true)
 		
 		
-		# transform.position = player.transform.position
-		# transform.rotation = player.transform.rotation
-		# transform.position += offset
-		# transform.LookAt(player.transform)
-		
-
-		# transform.position = player.transform.position - (rotation * offset)
-		# transform.LookAt(player.transform)
-
-		
-		# transform.rotation = player.transform.rotation
-		
-		# zoom += -Input.GetAxis("Mouse ScrollWheel")
-		# zoom = Mathf.Clamp(zoom, 5, 30)
-
-		# transform.position += Vector3(2, 10, -10)
-		# transform.LookAt(player.transform.position)
-
-
-		# horiz = Input.GetAxis("Mouse X") * rotate_speed
-		# vert = Input.GetAxis("Mouse Y") * rotate_speed
-		# transform.Rotate(0, horiz, 0)
-
-		# transform.position = player.transform.position + offset * zoom
-		# transform.LookAt(player.transform.position)
 
 		
 

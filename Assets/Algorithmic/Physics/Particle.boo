@@ -39,7 +39,7 @@ class Particle (IParticle, MonoBehaviour):
 	acceleration as Vector3
 	
 	[Property(Mass)]
-	mass as single = 80
+	mass as single = 10
 	
 	[Property(InverseMass)]
 	inverse_mass as single

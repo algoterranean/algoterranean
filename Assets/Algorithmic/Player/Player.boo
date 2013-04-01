@@ -13,8 +13,8 @@ class Player (MonoBehaviour):
 	public jumping = false
 
 	def Start ():
-		rotate_speed = 5
-		movement_speed = 10
+		rotate_speed = 3.5
+		movement_speed = 7
 		orientation = Vector3(0, 45, 0)
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
 		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
@@ -27,17 +27,20 @@ class Player (MonoBehaviour):
 		horiz = Input.GetAxis("Mouse X") * rotate_speed
 		vert = Input.GetAxis("Mouse Y") * rotate_speed
 		transform.Rotate(0, horiz, 0)
+		#transform.Rotate(0, 0, vert)
 		
 		if Input.GetKeyDown("space") and not jumping:
 			#print 'JUMP'
 			jumping = true
-			player_particle.Velocity += Vector3(0, 30, 0)
+			player_particle.Velocity += Vector3(0, 15, 0)
 
 		world_dir = Vector3(movement_speed * Input.GetAxis("Vertical"), 0, movement_speed * -Input.GetAxis("Horizontal"))
 		local_dir = transform.rotation * world_dir
 		#local_dir = transform.TransformDirection(world_dir)
 		player_particle.Velocity.x = local_dir.x
 		player_particle.Velocity.z = local_dir.z
+
+		chunk_manager.setOrigin(transform.position)
 
 		
 		#v_x = Mathf.Sin(transform.eulerAngles.x) * 5 * Input.GetAxis("Horizontal")
