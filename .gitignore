@@ -22,8 +22,8 @@
 *.booproj
 *.cginc
 *.prefab
-*.unity
-*.unity3d
+#*.unity
+#*.unity3d
 *.shader
 *.asset
 *.GUISkin
