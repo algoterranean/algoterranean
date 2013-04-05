@@ -75,15 +75,18 @@ class World (MonoBehaviour):
 			found_valid_contact = false
 			if len(sweep_contacts) > 0:
 				for x in sweep_contacts:
-					Log.Log("Possible Contact: $x", LOG_MODULE.CONTACTS)
-					#if x.offset_vector != Vector3(0, 0, 0):
-					found_valid_contact = true
-					earliest_contact = x
-					break
-
+					if x.start_time == 0 and x.contact_normal == Vector3(0, -1, 0):
+						pass
+					else:
+						Log.Log("Possible Contact: $x", LOG_MODULE.CONTACTS)
+						#if x.offset_vector != Vector3(0, 0, 0):
+						found_valid_contact = true
+						earliest_contact = x
+						break
+				
 				if found_valid_contact:
 					for x in sweep_contacts:
-						if x.start_time < earliest_contact.start_time:# and x.offset_vector != Vector3(0, 0, 0):
+						if x.start_time < earliest_contact.start_time: # and x.offset_vector != Vector3(0, 0, 0):
 							earliest_contact = x
 
 
@@ -145,7 +148,7 @@ class World (MonoBehaviour):
 								c_n = plane_normals[i]
 								#max_surface_area = surfaces[i]
 
-						#c_n = c.contact_normal
+						c_n = c.contact_normal
 						print "NEW CONTACT NORMAL: $c_n"
 
 						if c_n.x != 0 and c.surface_area.x > c.surface_area.y and c.surface_area.x > c.surface_area.z:
@@ -159,11 +162,11 @@ class World (MonoBehaviour):
 								p.Acceleration.y = 0
 								Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
 								
-							# elif c_n.y == -1:
-							# 	if p.Velocity.y > 0 or p.Acceleration.y > 0:
-							# 		p.Velocity.y = 0
-							# 		p.Acceleration.y = 0
-							# 		Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
+							elif c_n.y == -1:
+								if p.Velocity.y > 0 or p.Acceleration.y > 0:
+									p.Velocity.y = 0
+									p.Acceleration.y = 0
+									Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
 							
 								
 						elif c_n.z != 0 and c.surface_area.z > c.surface_area.x and c.surface_area.z > c.surface_area.y:
