@@ -5,14 +5,11 @@ class Gravity (IForceGenerator):
 	
 	def constructor():
 		_g = Vector3(0, -9.8, 0)
+		_g = Vector3(0, -20, 0)
 		_terminal_velocity = Vector3(0, -250, 0)
         
 	def updateForce(particle as IParticle, duration as single):
 		particle.addForce(_g * particle.Mass)
-		# if particle.Velocity.y > _terminal_velocity.y:
-		# 	particle.addForce(_g * particle.Mass)
-		# else:
-		# 	particle.Acceleration.y = 0
 
 	def getType() as FORCE_TYPE:
 		return FORCE_TYPE.GRAVITY
@@ -22,6 +19,9 @@ class Gravity (IForceGenerator):
 
 	def ToString():
 		return "GRAVITY $_g"
+
+
+	
 
 class Ground (IForceGenerator):
 	force as Vector3
@@ -35,6 +35,7 @@ class Ground (IForceGenerator):
 		return force
 	def getType():
 		return FORCE_TYPE.GROUND_REACTION
+
 
 
 # class Ground (IForceGenerator):

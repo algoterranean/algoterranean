@@ -49,7 +49,8 @@ class PlayerCamera (MonoBehaviour):
 		vert = 0 #Input.GetAxis("Mouse Y") * rotate_speed
 		rotation = Quaternion.Euler(0, player.transform.eulerAngles.y, vert)
 		desired_position = player.transform.position + (rotation * (offset * zoom))
-		transform.position = Vector3.Lerp(transform.position, desired_position, 0.2)
+		#transform.position = Vector3.Lerp(transform.position, desired_position, 0.2)
+		transform.position = desired_position
 		transform.LookAt(player.transform)
 
 

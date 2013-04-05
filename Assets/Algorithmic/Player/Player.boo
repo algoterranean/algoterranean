@@ -32,7 +32,7 @@ class Player (MonoBehaviour):
 		if Input.GetKeyDown("space") and not jumping:
 			#print 'JUMP'
 			jumping = true
-			player_particle.Velocity += Vector3(0, 15, 0)
+			player_particle.Velocity += Vector3(0, 8, 0)
 
 		world_dir = Vector3(movement_speed * Input.GetAxis("Vertical"), 0, movement_speed * -Input.GetAxis("Horizontal"))
 		local_dir = transform.rotation * world_dir

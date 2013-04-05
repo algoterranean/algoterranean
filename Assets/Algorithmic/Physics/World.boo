@@ -42,7 +42,7 @@ class World (MonoBehaviour):
 		player = gameObject.Find("Player").GetComponent("Player")
 		registry.add(player_particle, forces.gravity)
 		particles.Push(player_particle)
-		player_radius = Vector3(0.5, 1.0, 0.5)
+		player_radius = Vector3(0.5, 0.5, 0.5)
 		
 	def FixedUpdate():
 		if not _running:
@@ -53,6 +53,16 @@ class World (MonoBehaviour):
 		end_time = 1.0
 		loop_count = 1
 		max_loops = 10 # for degenerate cases
+
+
+
+		#registry.updateForces(Time.deltaTime)
+		# for p as Algorithmic.Particle in particles:
+		# 	p.addForce(Vector3(0, -9.8*p.Mass, 0))
+		# 	p.integrate(Time.deltaTime)
+		# 	p.update_position()
+
+
 
 		
 		while current_time < end_time and loop_count < max_loops:
@@ -84,12 +94,11 @@ class World (MonoBehaviour):
 			# 	break
 
 
-			#if len(sweep_contacts) == 0:
-			if not found_valid_contact: #len(sweep_contacts) == 0:
-				#if loop_count == 1:
+			if not found_valid_contact:
 				registry.updateForces((end_time - current_time) * Time.deltaTime)
 				for p as Algorithmic.Particle in particles:
 					p.integrate((end_time - current_time) * Time.deltaTime)
+				current_time = end_time
 				break
 
 			# max_surface_area = Vector3
@@ -142,14 +151,26 @@ class World (MonoBehaviour):
 						if c_n.x != 0 and c.surface_area.x > c.surface_area.y and c.surface_area.x > c.surface_area.z:
 							p.Velocity.x = 0
 							p.Acceleration.x = 0
+							Log.Log("Setting X to 0", LOG_MODULE.PHYSICS)
 						elif c_n.y != 0 and c.surface_area.y > c.surface_area.x and c.surface_area.y > c.surface_area.z:
-							p.Velocity.y = 0
-							p.Acceleration.y = 0
-							player.jumping = false
-
+							if c_n.y == 1:
+								player.jumping = false
+								p.Velocity.y = 0
+								p.Acceleration.y = 0
+								Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
+								
+							# elif c_n.y == -1:
+							# 	if p.Velocity.y > 0 or p.Acceleration.y > 0:
+							# 		p.Velocity.y = 0
+							# 		p.Acceleration.y = 0
+							# 		Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
+							
+								
 						elif c_n.z != 0 and c.surface_area.z > c.surface_area.x and c.surface_area.z > c.surface_area.y:
 							p.Velocity.z = 0
 							p.Acceleration.z = 0
+							Log.Log("Setting Z to 0", LOG_MODULE.PHYSICS)
+							
 
 				# if earliest_contact.contact_normal.y == 0:
 				# 	all_forces = registry.getForces(p)

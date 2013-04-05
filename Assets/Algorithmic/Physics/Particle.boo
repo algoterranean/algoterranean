@@ -39,7 +39,7 @@ class Particle (IParticle, MonoBehaviour):
 	acceleration as Vector3
 	
 	[Property(Mass)]
-	mass as single = 10
+	mass as single = 80
 	
 	[Property(InverseMass)]
 	inverse_mass as single
@@ -64,10 +64,13 @@ class Particle (IParticle, MonoBehaviour):
 			return
 		Log.Log("Particle Before Integration: Pos ($(position.x), $(position.y), $(position.z)), Accel ($(acceleration.x), $(acceleration.y), $(acceleration.z)), Vel ($(velocity.x), $(velocity.y), $(velocity.z))", LOG_MODULE.PHYSICS)
 		last_position = position
+		
 		position += velocity * duration
-		acceleration += force_accum * inverse_mass
-		velocity += acceleration * duration
-			
+		resulting_accel = acceleration + (force_accum * inverse_mass)
+		velocity += resulting_accel * duration
+		# acceleration += force_accum * inverse_mass
+		# velocity += acceleration * duration
+
 		velocity *= Math.Pow(damping, duration)
 		Log.Log("Particle After Integration: Pos ($(position.x), $(position.y), $(position.z)), Accel ($(acceleration.x), $(acceleration.y), $(acceleration.z)), Vel ($(velocity.x), $(velocity.y), $(velocity.z))", LOG_MODULE.PHYSICS)
 
