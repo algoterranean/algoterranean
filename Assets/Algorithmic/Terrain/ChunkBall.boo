@@ -91,17 +91,18 @@ class ChunkBall (IChunkBall, IObservable):
 
 		# check if new meshes are ready
 		ready_mesh_key as duck
-		for item in _mesh_waiting_queue:
-			chunk_info as ChunkInfo = item.Value
-			chunk_mesh as ChunkMeshData = chunk_info.getMesh()
-			if chunk_mesh.areNeighborsReady():
-				ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
-				ready_mesh_key = item.Key
-				#print "FOUND MESH: $item.key. Length of remaining queue: $(len(_mesh_waiting_queue))"
-				break
+		lock _locker:
+			for item in _mesh_waiting_queue:
+				chunk_info as ChunkInfo = item.Value
+				chunk_mesh as ChunkMeshData = chunk_info.getMesh()
+				if chunk_mesh.areNeighborsReady():
+					ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
+					ready_mesh_key = item.Key
+					#print "FOUND MESH: $item.key. Length of remaining queue: $(len(_mesh_waiting_queue))"
+					break
 
-		if ready_mesh_key != null:
-			_mesh_waiting_queue.Remove(ready_mesh_key)
+			if ready_mesh_key != null:
+				_mesh_waiting_queue.Remove(ready_mesh_key)
 
 
 	def registerObserver(o as object) as void:
@@ -272,47 +273,94 @@ class ChunkBall (IChunkBall, IObservable):
 				chunk_mesh.setUpNeighbor(_chunks[up_coords].getChunk())
 
 
-	def getBlock(world_coordinates as LongVector3):		
-		chunk_size = Settings.ChunkSize
+	def getBlock(world as LongVector3):
+		size = Settings.ChunkSize
+		x = world.x
+		y = world.y
+		z = world.z
+		# c_x = world.x/size - (1 if world.x < 0 else 0)
+		# c_y = world.y/size - (1 if world.y < 0 else 0)
+		# c_z = world.z/size - (1 if world.z < 0 else 0)
+
+		# b_x = world.x % size + (size - 1 if world.x < 0 else 0)
+		# b_y = world.y % size + (size - 1 if world.y < 0 else 0)
+		# b_z = world.z % size + (size - 1 if world.z < 0 else 0)
+		if x < 0:
+			new_x = x + 1
+		else:
+			new_x = x
+		c_x = new_x / size - (1 if x < 0 else 0)
+		start_x = c_x * size
+		end_x = start_x + size - 1
+		b_x = x - start_x
+
+		if y < 0:
+			new_y = y + 1
+		else:
+			new_y = y
+		c_y = new_y / size - (1 if y < 0 else 0)
+		start_y = c_y * size
+		end_y = start_y + size - 1
+		b_y = y - start_y
+
+		if z < 0:
+			new_z = z + 1
+		else:
+			new_z = z
+		c_z = new_z / size - (1 if z < 0 else 0)
+		start_z = c_z * size
+		end_z = start_z + size - 1
+		b_z = z - start_z
+
+
+		
+		chunk_coords = LongVector3(c_x * size, c_y * size, c_z * size)
+		block_coords = ByteVector3(b_x, b_y, b_z)
+		#print "GetBlock: $world, $chunk_coords, $block_coords"
 	
-		chunk_x as int = (world_coordinates.x) / chunk_size
-		chunk_y as int = (world_coordinates.y) / chunk_size
-		chunk_z as int = (world_coordinates.z) / chunk_size
-		if world_coordinates.x < 0:
-			chunk_x -= 1
-		if world_coordinates.y < 0:
-			chunk_y -= 1
-		if world_coordinates.z < 0:
-			chunk_z -= 1		
-		chunk_x *= 32
-		chunk_y *= 32
-		chunk_z *= 32
+		# chunk_size = Settings.ChunkSize
+	
+		# chunk_x as int = (world_coordinates.x) / chunk_size
+		# chunk_y as int = (world_coordinates.y) / chunk_size
+		# chunk_z as int = (world_coordinates.z) / chunk_size
+		# if world_coordinates.x < 0:
+		# 	chunk_x -= 1
+		# if world_coordinates.y < 0:
+		# 	chunk_y -= 1
+		# if world_coordinates.z < 0:
+		# 	chunk_z -= 1		
+		# chunk_x *= 32
+		# chunk_y *= 32
+		# chunk_z *= 32
 
-		block_x = (world_coordinates.x - chunk_x)  # % chunk_size
-		block_y = (world_coordinates.y - chunk_y)  # % chunk_size
-		block_z = (world_coordinates.z - chunk_z)  # % chunk_size
+		# block_x = (world_coordinates.x - chunk_x)  #% chunk_size
+		# block_y = (world_coordinates.y - chunk_y)  #% chunk_size
+		# block_z = (world_coordinates.z - chunk_z)  #% chunk_size
 
-		if block_x < 0:
-			block_x = chunk_size + block_x
-		if block_y < 0:
-			block_y = chunk_size + block_y
-		if block_z < 0:
-			block_z = chunk_size + block_z
+		# if block_x < 0:
+		# 	block_x = chunk_size + block_x
+		# if block_y < 0:
+		# 	block_y = chunk_size + block_y
+		# if block_z < 0:
+		# 	block_z = chunk_size + block_z
 
-		chunk_coords = LongVector3(chunk_x, chunk_y, chunk_z)
-		block_coords = ByteVector3(block_x, block_y, block_z)
+		# chunk_coords = LongVector3(chunk_x, chunk_y, chunk_z)
+		# block_coords = ByteVector3(block_x, block_y, block_z)
 
 		if chunk_coords in _chunks:
 			#print "Found Chunk"
 			i as ChunkInfo = _chunks[chunk_coords]
 			c as ChunkBlockData = i.getChunk()
-			#Log.Log("GET BLOCK: WORLD: $world_coordinates, CHUNK: $(chunk_coords), LOCAL: $block_coords")
 			b = c.getBlock(block_coords)
+			if b > 0:
+				Log.Log("GET BLOCK: WORLD: $world, CHUNK: $(chunk_coords), LOCAL: $block_coords", LOG_MODULE.CONTACTS)
+
 			return b
 			#print "Found Block: $b"
 		else:
+			print "Could not find the chunk"			
 			return 0
-			#print "Could not find the chunk"
+			
 
 					   
 		#print "Chunk ($chunk_x, $chunk_y, $chunk_z), Block: ($block_x, $block_y, $block_z)"
