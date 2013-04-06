@@ -14,7 +14,7 @@ class Player (MonoBehaviour):
 
 	def Start ():
 		rotate_speed = 3.5
-		movement_speed = 7
+		movement_speed = 5
 		orientation = Vector3(0, 45, 0)
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
 		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
@@ -30,7 +30,7 @@ class Player (MonoBehaviour):
 		#transform.Rotate(0, 0, vert)
 		
 		if Input.GetKeyDown("space") and not jumping:
-			#print 'JUMP'
+			print 'JUMP'
 			jumping = true
 			player_particle.Velocity += Vector3(0, 8, 0)
 
@@ -47,7 +47,6 @@ class Player (MonoBehaviour):
 		#player_particle.Velocity.x = v_x
 
 
-		
 		# if Input.GetKey("a"):
 		# 	#print 'KEYPRESS'
 		# 	player_particle.Velocity.x = 5

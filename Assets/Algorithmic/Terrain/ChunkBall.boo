@@ -318,35 +318,6 @@ class ChunkBall (IChunkBall, IObservable):
 		block_coords = ByteVector3(b_x, b_y, b_z)
 		#print "GetBlock: $world, $chunk_coords, $block_coords"
 	
-		# chunk_size = Settings.ChunkSize
-	
-		# chunk_x as int = (world_coordinates.x) / chunk_size
-		# chunk_y as int = (world_coordinates.y) / chunk_size
-		# chunk_z as int = (world_coordinates.z) / chunk_size
-		# if world_coordinates.x < 0:
-		# 	chunk_x -= 1
-		# if world_coordinates.y < 0:
-		# 	chunk_y -= 1
-		# if world_coordinates.z < 0:
-		# 	chunk_z -= 1		
-		# chunk_x *= 32
-		# chunk_y *= 32
-		# chunk_z *= 32
-
-		# block_x = (world_coordinates.x - chunk_x)  #% chunk_size
-		# block_y = (world_coordinates.y - chunk_y)  #% chunk_size
-		# block_z = (world_coordinates.z - chunk_z)  #% chunk_size
-
-		# if block_x < 0:
-		# 	block_x = chunk_size + block_x
-		# if block_y < 0:
-		# 	block_y = chunk_size + block_y
-		# if block_z < 0:
-		# 	block_z = chunk_size + block_z
-
-		# chunk_coords = LongVector3(chunk_x, chunk_y, chunk_z)
-		# block_coords = ByteVector3(block_x, block_y, block_z)
-
 		if chunk_coords in _chunks:
 			#print "Found Chunk"
 			i as ChunkInfo = _chunks[chunk_coords]

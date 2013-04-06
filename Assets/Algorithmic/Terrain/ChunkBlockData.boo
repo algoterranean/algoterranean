@@ -42,6 +42,9 @@ class ChunkBlockData (IChunkBlockData):
 		_blocks[coords.x, coords.y, coords.z] = block
 
 	def getBlock(coords as ByteVector3) as byte:
+		# if coords.x >= _size.x or coords.y >= _size.y or coords.z >= _size.z:
+		# 	print "ERROR: Invalid Block Coordinates: ($(coords.x), $(coords.y), $(coords.z))"
+		# 	return BLOCK.AIR
 		return _blocks[coords.x, coords.y, coords.z]
 
 	def areBlocksCalculated() as bool:
