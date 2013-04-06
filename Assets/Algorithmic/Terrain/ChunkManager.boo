@@ -39,7 +39,8 @@ class ChunkManager (MonoBehaviour, IObserver):
 				_remove_mesh_queue.Push(chunk_info)
 
 	def Awake():
-		_chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
+		#_chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
+		_chunk_ball = ChunkBall(2, 2, Settings.ChunkSize)		
 		_chunk_ball.registerObserver(self)
 		#_registry = ForceParticleRegistry()
 
@@ -127,4 +128,6 @@ class ChunkManager (MonoBehaviour, IObserver):
 		o.GetComponent(MeshFilter).sharedMesh = mesh
 		#o.GetComponent(MeshCollider).sharedMesh = mesh
 
+		t = gameObject.Find("Terrain").transform
+		o.transform.parent = t
 		o.transform.position = Vector3(coords.x, coords.y, coords.z)
