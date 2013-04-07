@@ -11,52 +11,52 @@ class NullBlockData (IChunkBlockData):
 
 
 class ChunkBlockData (IChunkBlockData):
-	_coords as LongVector3
-	_size as ByteVector3
-	_blocks as (byte, 3)
-	_blocks_calculated as bool
-	_noise_module as INoiseData
+	coords as LongVector3
+	size as ByteVector3
+	blocks as (byte, 3)
+	blocks_calculated as bool
+	noise_module as INoiseData
 
 	def constructor(coords as LongVector3, size as ByteVector3):
 		setCoordinates(coords)
 		setSize(size)
-		_blocks = matrix(byte, size.x, size.y, size.z)
-		_blocks_calculated = false
-		_noise_module = MineralNoiseData()
-		#_noise_module = SolidNoiseData()
-		#_noise_module = BasicNoiseData()
+		blocks = matrix(byte, size.x, size.y, size.z)
+		blocks_calculated = false
+		noise_module = MineralNoiseData()
+		#noise_module = SolidNoiseData()
+		#noise_module = BasicNoiseData()
 		
 	def setCoordinates(coords as LongVector3) as void:
-		_coords = coords
+		self.coords = coords
 
 	def getCoordinates() as LongVector3:
-		return _coords
+		return coords
 
 	def setSize(size as ByteVector3) as void:
-		_size = size
+		self.size = size
 
 	def getSize() as ByteVector3:
-		return _size
+		return size
 
 	def setBlock(coords as ByteVector3, block as byte) as void:
-		_blocks[coords.x, coords.y, coords.z] = block
+		blocks[coords.x, coords.y, coords.z] = block
 
 	def getBlock(coords as ByteVector3) as byte:
-		# if coords.x >= _size.x or coords.y >= _size.y or coords.z >= _size.z:
+		# if coords.x >= size.x or coords.y >= size.y or coords.z >= size.z:
 		# 	print "ERROR: Invalid Block Coordinates: ($(coords.x), $(coords.y), $(coords.z))"
 		# 	return BLOCK.AIR
-		return _blocks[coords.x, coords.y, coords.z]
+		return blocks[coords.x, coords.y, coords.z]
 
 	def areBlocksCalculated() as bool:
-		return _blocks_calculated
+		return blocks_calculated
 
 	def isNull() as bool:
 		return false
 
 	def CalculateBlocks() as void:
-		for p in range(_size.x):
-			for q in range(_size.y):
-				for r in range(_size.z):
-					_blocks[p, q, r] = _noise_module.getBlock(p + _coords.x, q + _coords.y, r + _coords.z)
-		_blocks_calculated = true
+		for p in range(size.x):
+			for q in range(size.y):
+				for r in range(size.z):
+					blocks[p, q, r] = noise_module.getBlock(p + coords.x, q + coords.y, r + coords.z)
+		blocks_calculated = true
 		

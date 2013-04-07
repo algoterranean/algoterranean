@@ -9,19 +9,19 @@ import Algorithmic.Player
 
 
 class ChunkManager (MonoBehaviour, IObserver):
-	_origin as Vector3
-	_chunk_ball as ChunkBall
-	_add_mesh_queue = []
-	_remove_mesh_queue = []
-	_mesh_cleanup_queue = []
+	origin as Vector3
+	chunk_ball as ChunkBall
+	add_mesh_queue = []
+	remove_mesh_queue = []
+	#mesh_cleanup_queue = []
 
-	_initialized as bool = false
-	_wait_for_init_queue = []
+	initialized as bool = false
+	wait_for_init_queue = []
 
 	#_registry as ForceParticleRegistry
 
 	def getChunkBall():
-		return _chunk_ball
+		return chunk_ball
 
 	def updateObserver(o as object):
 		if o isa ChunkBallMessage:
@@ -34,41 +34,41 @@ class ChunkManager (MonoBehaviour, IObserver):
 
 			#print "ChunkManager: Receiving ChunkBall Update: $message ($(coords.x), $(coords.y), $(coords.z))"
 			if message == Message.MESH_READY:
-				_add_mesh_queue.Push(chunk_info)
+				add_mesh_queue.Push(chunk_info)
 			elif message == Message.REMOVE:
-				_remove_mesh_queue.Push(chunk_info)
+				remove_mesh_queue.Push(chunk_info)
 
 	def Awake():
-		#_chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
-		_chunk_ball = ChunkBall(2, 2, Settings.ChunkSize)		
-		_chunk_ball.registerObserver(self)
+		#chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
+		chunk_ball = ChunkBall(2, 2, Settings.ChunkSize)		
+		chunk_ball.registerObserver(self)
 		#_registry = ForceParticleRegistry()
 
 	def Start():
 		# intialize world
 		setOrigin(Vector3(0, 0, 0))
-		_wait_for_init_queue.Push(LongVector3(0, 0, 0))
+		wait_for_init_queue.Push(LongVector3(0, 0, 0))
 
 		#x = gameObject.Find("Player").GetComponent("Player") as Player
 		#_registry.add(x, Gravity())
 
 	def Update():
 		chunk_info as ChunkInfo
-		_chunk_ball.Update()
+		chunk_ball.Update()
 		# check if all the needed chunks in initial load are completed
-		if len(_wait_for_init_queue) == 0:
-			_initialized = true
+		if len(wait_for_init_queue) == 0:
+			initialized = true
 
-		if len(_add_mesh_queue) > 0:
-			chunk_info = _add_mesh_queue.Pop()
+		if len(add_mesh_queue) > 0:
+			chunk_info = add_mesh_queue.Pop()
 			chunk = chunk_info.getChunk()
 			coord = chunk.getCoordinates()
 			_create_mesh_object(chunk_info)
-			if coord in _wait_for_init_queue:
-				_wait_for_init_queue.Remove(coord)
+			if coord in wait_for_init_queue:
+				wait_for_init_queue.Remove(coord)
 
-		if len(_remove_mesh_queue) > 0:
-			chunk_info = _remove_mesh_queue.Pop()
+		if len(remove_mesh_queue) > 0:
+			chunk_info = remove_mesh_queue.Pop()
 			_remove_mesh_object(chunk_info)
 
 		# check AABB bounding volumes
@@ -76,7 +76,7 @@ class ChunkManager (MonoBehaviour, IObserver):
 		# 	_player = gameObject.Find("Player").GetComponent("Player") as Player
 		# 	_player_aabb = _player.getAABB()
 		# 	x = gameObject.Find("Player").GetComponent("Player") as Player
-			# if _chunk_ball.CheckCollisions(_player_aabb):
+			# if chunk_ball.CheckCollisions(_player_aabb):
 			#     x.stopGravity()
 			# else:
 			#     x.startGravity()
@@ -90,14 +90,14 @@ class ChunkManager (MonoBehaviour, IObserver):
 		## x.addForce(Vector3(0, -9.8, 0))
 
 	def isInitialized() as bool:
-		return _initialized
+		return initialized
 
 	def areInitialChunksComplete() as bool:
 		pass
 
 	def setOrigin(origin as Vector3) as void:
-		_chunk_ball.SetOrigin(origin)
-		_origin = origin
+		chunk_ball.SetOrigin(origin)
+		self.origin = origin
 
 	def _remove_mesh_object(chunk_info as ChunkInfo):
 		chunk_blocks as ChunkBlockData = chunk_info.getChunk()

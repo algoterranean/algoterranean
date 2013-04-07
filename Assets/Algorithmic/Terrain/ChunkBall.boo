@@ -10,22 +10,24 @@ import Algorithmic.Misc
 ################################################################################
 # Utility and Message Passing Stuff
 class ChunkInfo():
-	_chunk as IChunkBlockData
-	_mesh as IChunkMeshData
-	_bounds as AABB
+	chunk as IChunkBlockData
+	mesh as IChunkMeshData
+	bounds as AABB
 
 	def constructor(chunk as IChunkBlockData, mesh as IChunkMeshData):
-		_chunk = chunk
-		_mesh = mesh
+		self.chunk = chunk
+		self.mesh = mesh
 		coords = chunk.getCoordinates()
-		_bounds = AABB(Vector3(coords.x + Settings.ChunkSize/2, coords.y + Settings.ChunkSize/2, coords.z + Settings.ChunkSize/2),
-				   Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2))
+		radius = Settings.ChunkSize/2
+		bounds = AABB(Vector3(coords.x + radius, coords.y + radius, coords.z + radius),
+					  Vector3(radius, radius, radius))
 
 	def getChunk() as IChunkBlockData:
-		return _chunk
+		return chunk
 
 	def getMesh() as IChunkMeshData:
-		return _mesh
+		return mesh
+	
 
 enum Message:
 	REMOVE
@@ -34,18 +36,18 @@ enum Message:
 	MESH_READY
 
 class ChunkBallMessage():
-	_message as Message
-	_data as object
+	message as Message
+	data as object
 
 	def constructor(message as Message, data as object):
-		_message = message
-		_data = data
+		self.message = message
+		self.data = data
 
 	def getMessage() as Message:
-		return _message
+		return message
 
 	def getData() as object:
-		return _data
+		return data
 
 
 struct SweepContact:
@@ -74,16 +76,16 @@ struct SweepContact:
 ################################################################################
 # Main ChunkBall class
 class ChunkBall (IChunkBall, IObservable):
-	_locker = object()
-	_origin as Vector3
-	_min_distance as byte
-	_max_distance as byte
-	_chunk_size as byte
-	_observers = []
-	_outgoing_queue = []
-	_chunks as Dictionary[of LongVector3, ChunkInfo]
-	_threshold = 10.0
-	_mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
+	locker = object()
+	origin as Vector3
+	min_distance as byte
+	max_distance as byte
+	chunk_size as byte
+	observers = []
+	outgoing_queue = []
+	chunks as Dictionary[of LongVector3, ChunkInfo]
+	threshold = 10.0
+	mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
 
 
 	def Update():
@@ -91,59 +93,59 @@ class ChunkBall (IChunkBall, IObservable):
 
 		# check if new meshes are ready
 		ready_mesh_key as duck
-		lock _locker:
-			for item in _mesh_waiting_queue:
+		lock locker:
+			for item in mesh_waiting_queue:
 				chunk_info as ChunkInfo = item.Value
 				chunk_mesh as ChunkMeshData = chunk_info.getMesh()
 				if chunk_mesh.areNeighborsReady():
 					ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
 					ready_mesh_key = item.Key
-					#print "FOUND MESH: $item.key. Length of remaining queue: $(len(_mesh_waiting_queue))"
+					#print "FOUND MESH: $item.key. Length of remaining queue: $(len(mesh_waiting_queue))"
 					break
 
 			if ready_mesh_key != null:
-				_mesh_waiting_queue.Remove(ready_mesh_key)
+				mesh_waiting_queue.Remove(ready_mesh_key)
 
 
 	def registerObserver(o as object) as void:
-		if _observers.Contains(o):
+		if observers.Contains(o):
 			pass
 		else:
-			lock _locker:
-				_observers.Push(o)
+			lock locker:
+				observers.Push(o)
 
 	def removeObserver(o as object) as void:
-		if _observers.Contains(o):
-			lock _locker:
-				_observers.Remove(o)
+		if observers.Contains(o):
+			lock locker:
+				observers.Remove(o)
 
 	def notifyObservers() as void:
-		lock _locker:
-			for x as IObserver in _observers:
-				for y in _outgoing_queue:
+		lock locker:
+			for x as IObserver in observers:
+				for y in outgoing_queue:
 					x.updateObserver(y)
-			_outgoing_queue = []
+			outgoing_queue = []
 
 	def constructor(min_distance, max_distance, chunk_size):
 		setMinChunkDistance(min_distance)
 		setMaxChunkDistance(max_distance)
-		_chunk_size = chunk_size
-		_chunks = Dictionary[of LongVector3, ChunkInfo]()
-		_mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
-		_origin = Vector3(10000, 10000, 10000)
+		self.chunk_size = chunk_size
+		chunks = Dictionary[of LongVector3, ChunkInfo]()
+		mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
+		origin = Vector3(10000, 10000, 10000)
 
 
-	def setMinChunkDistance(min_distance as byte) as void:
-		_min_distance = min_distance
+	def setMinChunkDistance(m as byte) as void:
+		min_distance = m
 
 	def getMinChunkDistance() as byte:
-		return _min_distance
+		return min_distance
 
-	def setMaxChunkDistance(max_distance as byte) as void:
-		_max_distance = max_distance
+	def setMaxChunkDistance(m as byte) as void:
+		max_distance = m
 
 	def getMaxChunkDistance() as byte:
-		return _max_distance
+		return max_distance
 
 	def _add_dchunk():
 		pass
@@ -157,8 +159,8 @@ class ChunkBall (IChunkBall, IObservable):
 			chunk as ChunkBlockData = chunk_info.getChunk()
 			mesh.CalculateMesh()
 			#print "Mesh Calculated: $(chunk.getCoordinates())"
-			lock _locker:
-				_outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
+			lock locker:
+				outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
 
@@ -166,14 +168,14 @@ class ChunkBall (IChunkBall, IObservable):
 		try:
 			chunk as ChunkBlockData = chunk_info.getChunk()
 			chunk.CalculateBlocks()
-			lock _locker:
-				_mesh_waiting_queue[chunk.getCoordinates()] = chunk_info
+			lock locker:
+				mesh_waiting_queue[chunk.getCoordinates()] = chunk_info
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
 
 	def getMaxHeight(location as Vector3) as int:
 		chunk_coords = Utils.whichChunk(location) # LongVector3
-		if chunk_coords in _chunks:
+		if chunk_coords in chunks:
 			pass
 		else:
 			return 300  # TO DO: this should be able to return a failure state if the chunk doesn't exist
@@ -181,49 +183,49 @@ class ChunkBall (IChunkBall, IObservable):
 
 
 
-	def SetOrigin(origin as Vector3) as void:
+	def SetOrigin(o as Vector3) as void:
 		# only do something if the distance since the
 		# last update is greater than some threshold
-		a = _origin.x - origin.x
-		b = _origin.y - origin.y
-		c = _origin.z - origin.z
-		if Math.Sqrt(a*a + b*b + c*c) < _threshold:
+		a = origin.x - o.x
+		b = origin.y - o.y
+		c = origin.z - o.z
+		if Math.Sqrt(a*a + b*b + c*c) < threshold:
 			return
-		_origin = origin
+		origin = o
 
 
 		#############################################
 		# determine which chunks are now too far away
-		current_chunk_coords = Utils.whichChunk(_origin)
+		current_chunk_coords = Utils.whichChunk(origin)
 		removal_queue = []
-		lock _locker:
-			for item in _chunks:
+		lock locker:
+			for item in chunks:
 				chunk_info = item.Value
 				chunk_blocks = chunk_info.getChunk()
 				chunk_mesh  = chunk_info.getMesh()
 				chunk_coords = chunk_blocks.getCoordinates()
 
-				if (current_chunk_coords.x - chunk_coords.x)/_chunk_size > _max_distance or \
-					(current_chunk_coords.y - chunk_coords.y)/_chunk_size > _max_distance or \
-					(current_chunk_coords.z - chunk_coords.z)/_chunk_size > _max_distance:
+				if (current_chunk_coords.x - chunk_coords.x)/chunk_size > max_distance or \
+					(current_chunk_coords.y - chunk_coords.y)/chunk_size > max_distance or \
+					(current_chunk_coords.z - chunk_coords.z)/chunk_size > max_distance:
 					removal_queue.Push(item.Key)
 
 		# remove all chunks that are too far away
 		for key in removal_queue:
-			lock _locker:
-				_outgoing_queue.Push(ChunkBallMessage(Message.REMOVE, _chunks[key]))
-			_chunks.Remove(key)
+			lock locker:
+				outgoing_queue.Push(ChunkBallMessage(Message.REMOVE, chunks[key]))
+			chunks.Remove(key)
 
 		###########################################
 		# determine which chunks need to be added
 		creation_queue = []
-		for a in range(_max_distance*2+1):
-			for b in range(_max_distance*2+1):
-				for c in range(_max_distance*2+1):
-					x_coord = (a - _max_distance)*_chunk_size + current_chunk_coords.x
-					y_coord = (b - _max_distance)*_chunk_size + current_chunk_coords.y
-					z_coord = (c - _max_distance)*_chunk_size + current_chunk_coords.z
-					if not _chunks.ContainsKey(LongVector3(x_coord, y_coord, z_coord)):
+		for a in range(max_distance*2+1):
+			for b in range(max_distance*2+1):
+				for c in range(max_distance*2+1):
+					x_coord = (a - max_distance)*chunk_size + current_chunk_coords.x
+					y_coord = (b - max_distance)*chunk_size + current_chunk_coords.y
+					z_coord = (c - max_distance)*chunk_size + current_chunk_coords.z
+					if not chunks.ContainsKey(LongVector3(x_coord, y_coord, z_coord)):
 						creation_queue.Push(LongVector3(x_coord, y_coord, z_coord))
 				c = 0
 			c = 0
@@ -231,22 +233,22 @@ class ChunkBall (IChunkBall, IObservable):
 
 		# sort so that they are from closest to farthest from origin
 		creation_queue.Sort() do (left as LongVector3, right as LongVector3):
-			return _origin.Distance(_origin, Vector3(right.x, right.y, right.z)) - _origin.Distance(_origin, Vector3(left.x, left.y, left.z))
+			return origin.Distance(origin, Vector3(right.x, right.y, right.z)) - origin.Distance(origin, Vector3(left.x, left.y, left.z))
 
 		# add all new chunks
 		for item as LongVector3 in creation_queue:
-			size = ByteVector3(_chunk_size, _chunk_size, _chunk_size)
+			size = ByteVector3(chunk_size, chunk_size, chunk_size)
 			chunk_blocks = ChunkBlockData(item, size)
 			chunk_mesh = ChunkMeshData(chunk_blocks)
 			chunk_info = ChunkInfo(chunk_blocks, chunk_mesh)
-			_chunks.Add(item, chunk_info)
+			chunks.Add(item, chunk_info)
 			ThreadPool.QueueUserWorkItem(_noise_worker, chunk_info)
-			#_outgoing_queue.Push(ChunkBallMessage(Message.ADD, chunk_info))
+			#outgoing_queue.Push(ChunkBallMessage(Message.ADD, chunk_info))
 			#coords = chunk_blocks.getCoordinates()
 		#notifyObservers()
 
 		# for all chunks, update neighbors
-		for item in _chunks:
+		for item in chunks:
 			chunk_info = item.Value
 			chunk_blocks = chunk_info.getChunk()
 			chunk_mesh = chunk_info.getMesh()
@@ -259,18 +261,18 @@ class ChunkBall (IChunkBall, IObservable):
 			down_coords = LongVector3(chunk_coords.x, chunk_coords.y - Settings.ChunkSize, chunk_coords.z)
 			up_coords = LongVector3(chunk_coords.x, chunk_coords.y + Settings.ChunkSize, chunk_coords.z)
 
-			if _chunks.ContainsKey(west_coords):
-				chunk_mesh.setWestNeighbor(_chunks[west_coords].getChunk())
-			if _chunks.ContainsKey(east_coords):
-				chunk_mesh.setEastNeighbor(_chunks[east_coords].getChunk())
-			if _chunks.ContainsKey(south_coords):
-				chunk_mesh.setSouthNeighbor(_chunks[south_coords].getChunk())
-			if _chunks.ContainsKey(north_coords):
-				chunk_mesh.setNorthNeighbor(_chunks[north_coords].getChunk())
-			if _chunks.ContainsKey(down_coords):
-				chunk_mesh.setDownNeighbor(_chunks[down_coords].getChunk())
-			if _chunks.ContainsKey(up_coords):
-				chunk_mesh.setUpNeighbor(_chunks[up_coords].getChunk())
+			if chunks.ContainsKey(west_coords):
+				chunk_mesh.setWestNeighbor(chunks[west_coords].getChunk())
+			if chunks.ContainsKey(east_coords):
+				chunk_mesh.setEastNeighbor(chunks[east_coords].getChunk())
+			if chunks.ContainsKey(south_coords):
+				chunk_mesh.setSouthNeighbor(chunks[south_coords].getChunk())
+			if chunks.ContainsKey(north_coords):
+				chunk_mesh.setNorthNeighbor(chunks[north_coords].getChunk())
+			if chunks.ContainsKey(down_coords):
+				chunk_mesh.setDownNeighbor(chunks[down_coords].getChunk())
+			if chunks.ContainsKey(up_coords):
+				chunk_mesh.setUpNeighbor(chunks[up_coords].getChunk())
 
 
 	def getBlock(world as LongVector3):
@@ -318,9 +320,9 @@ class ChunkBall (IChunkBall, IObservable):
 		block_coords = ByteVector3(b_x, b_y, b_z)
 		#print "GetBlock: $world, $chunk_coords, $block_coords"
 	
-		if chunk_coords in _chunks:
+		if chunk_coords in chunks:
 			#print "Found Chunk"
-			i as ChunkInfo = _chunks[chunk_coords]
+			i as ChunkInfo = chunks[chunk_coords]
 			c as ChunkBlockData = i.getChunk()
 			b = c.getBlock(block_coords)
 			if b > 0:
@@ -542,7 +544,7 @@ class ChunkBall (IChunkBall, IObservable):
 	def CheckCollisions(_object_to_check as AABB, _object_to_check_previous as AABB):
 		collisions = []
 
-		for item in _chunks:
+		for item in chunks:
 			chunk_info = item.Value
 			chunk = chunk_info.getChunk()
 			chunk_mesh = chunk_info.getMesh()
