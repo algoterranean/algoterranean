@@ -27,7 +27,7 @@
 *.shader
 *.asset
 *.GUISkin
-*.mat
+#*.mat
 *.rendertexture
 *.physicmaterial
 *.flare:
