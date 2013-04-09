@@ -189,8 +189,8 @@ class ChunkBall (IChunkBall, IObservable):
 
 
 	def SetOrigin(o as Vector3) as void:
-		watch = System.Diagnostics.Stopwatch()
-		watch.Start()
+		# watch = System.Diagnostics.Stopwatch()
+		# watch.Start()
 		# only do something if the distance since the
 		# last update is greater than some threshold
 		a = origin.x - o.x
@@ -223,10 +223,10 @@ class ChunkBall (IChunkBall, IObservable):
 				outgoing_queue.Push(ChunkBallMessage(Message.REMOVE, chunks[key]))
 			chunks.Remove(key)
 		
-		watch.Stop()
-		print "Elapsed1: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
-		watch = System.Diagnostics.Stopwatch()
-		watch.Start()
+		# watch.Stop()
+		# print "Elapsed1: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
+		# watch = System.Diagnostics.Stopwatch()
+		# watch.Start()
 		###########################################
 		# determine which chunks need to be added
 		creation_queue = []
@@ -245,10 +245,10 @@ class ChunkBall (IChunkBall, IObservable):
 		# sort so that they are from closest to farthest from origin
 		creation_queue.Sort() do (left as LongVector3, right as LongVector3):
 			return origin.Distance(origin, Vector3(right.x, right.y, right.z)) - origin.Distance(origin, Vector3(left.x, left.y, left.z))
-		watch.Stop()
-		print "Elapsed2: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
-		watch = System.Diagnostics.Stopwatch()
-		watch.Start()
+		# watch.Stop()
+		# print "Elapsed2: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
+		# watch = System.Diagnostics.Stopwatch()
+		# watch.Start()
 		
 
 		# add all new chunks
@@ -260,10 +260,10 @@ class ChunkBall (IChunkBall, IObservable):
 			chunks.Add(item, chunk_info)
 			thread_queue.Push(chunk_info)
 			
-		watch.Stop()
-		print "Elapsed3: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
-		watch = System.Diagnostics.Stopwatch()
-		watch.Start()
+		# watch.Stop()
+		# print "Elapsed3: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
+		# watch = System.Diagnostics.Stopwatch()
+		# watch.Start()
 			
 
 		# for all chunks, update neighbors
@@ -292,8 +292,8 @@ class ChunkBall (IChunkBall, IObservable):
 				chunk_mesh.setDownNeighbor(chunks[down_coords].getChunk())
 			if chunks.ContainsKey(up_coords):
 				chunk_mesh.setUpNeighbor(chunks[up_coords].getChunk())
-		watch.Stop()
-		print "Elapsed4: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
+		# watch.Stop()
+		# print "Elapsed4: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
 
 
 	def getBlock(world as LongVector3):
