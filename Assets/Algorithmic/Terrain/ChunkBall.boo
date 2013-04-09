@@ -83,6 +83,7 @@ class ChunkBall (IChunkBall, IObservable):
 	chunk_size as byte
 	observers = []
 	outgoing_queue = []
+	thread_queue = []
 	chunks as Dictionary[of LongVector3, ChunkInfo]
 	threshold = 10.0
 	mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
@@ -105,6 +106,10 @@ class ChunkBall (IChunkBall, IObservable):
 
 			if ready_mesh_key != null:
 				mesh_waiting_queue.Remove(ready_mesh_key)
+
+			if len(thread_queue) > 0:
+				ci = thread_queue.Pop()
+				ThreadPool.QueueUserWorkItem(_noise_worker, ci)
 
 
 	def registerObserver(o as object) as void:
@@ -184,6 +189,8 @@ class ChunkBall (IChunkBall, IObservable):
 
 
 	def SetOrigin(o as Vector3) as void:
+		watch = System.Diagnostics.Stopwatch()
+		watch.Start()
 		# only do something if the distance since the
 		# last update is greater than some threshold
 		a = origin.x - o.x
@@ -215,7 +222,11 @@ class ChunkBall (IChunkBall, IObservable):
 			lock locker:
 				outgoing_queue.Push(ChunkBallMessage(Message.REMOVE, chunks[key]))
 			chunks.Remove(key)
-
+		
+		watch.Stop()
+		print "Elapsed1: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
+		watch = System.Diagnostics.Stopwatch()
+		watch.Start()
 		###########################################
 		# determine which chunks need to be added
 		creation_queue = []
@@ -234,6 +245,11 @@ class ChunkBall (IChunkBall, IObservable):
 		# sort so that they are from closest to farthest from origin
 		creation_queue.Sort() do (left as LongVector3, right as LongVector3):
 			return origin.Distance(origin, Vector3(right.x, right.y, right.z)) - origin.Distance(origin, Vector3(left.x, left.y, left.z))
+		watch.Stop()
+		print "Elapsed2: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
+		watch = System.Diagnostics.Stopwatch()
+		watch.Start()
+		
 
 		# add all new chunks
 		for item as LongVector3 in creation_queue:
@@ -242,10 +258,13 @@ class ChunkBall (IChunkBall, IObservable):
 			chunk_mesh = ChunkMeshData(chunk_blocks)
 			chunk_info = ChunkInfo(chunk_blocks, chunk_mesh)
 			chunks.Add(item, chunk_info)
-			ThreadPool.QueueUserWorkItem(_noise_worker, chunk_info)
-			#outgoing_queue.Push(ChunkBallMessage(Message.ADD, chunk_info))
-			#coords = chunk_blocks.getCoordinates()
-		#notifyObservers()
+			thread_queue.Push(chunk_info)
+			
+		watch.Stop()
+		print "Elapsed3: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
+		watch = System.Diagnostics.Stopwatch()
+		watch.Start()
+			
 
 		# for all chunks, update neighbors
 		for item in chunks:
@@ -273,6 +292,8 @@ class ChunkBall (IChunkBall, IObservable):
 				chunk_mesh.setDownNeighbor(chunks[down_coords].getChunk())
 			if chunks.ContainsKey(up_coords):
 				chunk_mesh.setUpNeighbor(chunks[up_coords].getChunk())
+		watch.Stop()
+		print "Elapsed4: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
 
 
 	def getBlock(world as LongVector3):
