@@ -79,14 +79,14 @@ class World (MonoBehaviour):
 						pass
 					else:
 						Log.Log("Possible Contact: $x", LOG_MODULE.CONTACTS)
-						#if x.offset_vector != Vector3(0, 0, 0):
-						found_valid_contact = true
-						earliest_contact = x
-						break
+						if x.offset_vector != Vector3(0, 0, 0):
+							found_valid_contact = true
+							earliest_contact = x
+							break
 				
 				if found_valid_contact:
 					for x in sweep_contacts:
-						if x.start_time < earliest_contact.start_time: # and x.offset_vector != Vector3(0, 0, 0):
+						if x.start_time < earliest_contact.start_time and x.offset_vector != Vector3(0, 0, 0):
 							earliest_contact = x
 
 
