@@ -1,5 +1,5 @@
 """World keeps track of all particles and updates them according to collisions."""
-namespace Algorithmic
+namespace Algorithmic.Physics
 
 import UnityEngine
 import Algorithmic
@@ -30,6 +30,7 @@ class World (MonoBehaviour):
 	player_particle as Algorithmic.Particle
 	player as Player
 	player_radius as Vector3
+	terrain_collider as TerrainCollider
 	
 
 	def Start ():
@@ -43,6 +44,7 @@ class World (MonoBehaviour):
 		registry.add(player_particle, forces.gravity)
 		particles.Push(player_particle)
 		player_radius = Vector3(0.5, 0.5, 0.5)
+		terrain_collider = TerrainCollider(chunk_ball)
 		
 	def FixedUpdate():
 		if not _running:
@@ -70,7 +72,7 @@ class World (MonoBehaviour):
 			future_pos, future_vel, future_accel = player_particle.getFutureState(Time.deltaTime)
 			player_aabb_previous = AABB(player_particle.Position, player_radius)
 			player_aabb_future = AABB(future_pos, player_radius)
-			sweep_contacts = chunk_ball.CheckCollisionsSweep(player_aabb_future, player_aabb_previous)
+			sweep_contacts = terrain_collider.CheckCollisionsSweep(player_aabb_future, player_aabb_previous)
 
 			found_valid_contact = false
 			if len(sweep_contacts) > 0:
