@@ -22,7 +22,8 @@ class ChunkBlockData (IChunkBlockData):
 		setSize(size)
 		blocks = matrix(byte, size.x, size.y, size.z)
 		blocks_calculated = false
-		noise_module = MineralNoiseData()
+		noise_module = HeightNoiseData()
+		#noise_module = MineralNoiseData()
 		#noise_module = SolidNoiseData()
 		#noise_module = BasicNoiseData()
 		
