@@ -34,7 +34,11 @@ class Player (MonoBehaviour):
 			jumping = true
 			player_particle.Velocity += Vector3(0, 8, 0)
 
-		world_dir = Vector3(movement_speed * Input.GetAxis("Vertical"), 0, movement_speed * -Input.GetAxis("Horizontal"))
+		tmp_speed = movement_speed
+		if Input.GetKey(KeyCode.LeftShift):
+			tmp_speed *= 2.2
+ 
+		world_dir = Vector3(tmp_speed * Input.GetAxis("Vertical"), 0, tmp_speed * -Input.GetAxis("Horizontal"))
 		local_dir = transform.rotation * world_dir
 		#local_dir = transform.TransformDirection(world_dir)
 		player_particle.Velocity.x = local_dir.x
