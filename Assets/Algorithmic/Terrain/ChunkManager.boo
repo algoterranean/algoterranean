@@ -43,7 +43,7 @@ class ChunkManager (MonoBehaviour, IObserver):
 
 	def Awake():
 		#chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
-		chunk_ball = ChunkBall(1, 1, Settings.ChunkSize)		
+		chunk_ball = ChunkBall(Settings.MaxChunks, Settings.ChunkSize)
 		chunk_ball.registerObserver(self)
 		mesh_mat = Resources.Load("Materials/Measure") as Material
 		Screen.lockCursor = true

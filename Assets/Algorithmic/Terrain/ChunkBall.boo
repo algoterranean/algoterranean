@@ -57,7 +57,7 @@ class ChunkBallMessage():
 class ChunkBall (IChunkBall, IObservable):
 	locker = object()
 	origin as Vector3
-	min_distance as byte
+	#min_distance as byte
 	max_distance as byte
 	chunk_size as byte
 	observers = []
@@ -110,8 +110,8 @@ class ChunkBall (IChunkBall, IObservable):
 					x.updateObserver(y)
 			outgoing_queue = []
 
-	def constructor(min_distance, max_distance, chunk_size):
-		setMinChunkDistance(min_distance)
+	def constructor(max_distance, chunk_size):
+		#setMinChunkDistance(min_distance)
 		setMaxChunkDistance(max_distance)
 		self.chunk_size = chunk_size
 		chunks = Dictionary[of LongVector3, ChunkInfo]()
@@ -119,11 +119,11 @@ class ChunkBall (IChunkBall, IObservable):
 		origin = Vector3(10000, 10000, 10000)
 
 
-	def setMinChunkDistance(m as byte) as void:
-		min_distance = m
+	# def setMinChunkDistance(m as byte) as void:
+	# 	min_distance = m
 
-	def getMinChunkDistance() as byte:
-		return min_distance
+	# def getMinChunkDistance() as byte:
+	# 	return min_distance
 
 	def setMaxChunkDistance(m as byte) as void:
 		max_distance = m

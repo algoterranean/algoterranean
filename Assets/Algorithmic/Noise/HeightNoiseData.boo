@@ -4,7 +4,7 @@ import Algorithmic
 class HeightNoiseData (INoiseData):
 	total_select as Modifier.Select
 	seed = Settings.Seed
-	coord_scale = 1/Settings.TerrainDepth
+	coord_scale = 1/Settings.TerrainDepth * 4
 	
 	def constructor():
 		Lowland_Block = Primitive.Constant(BLOCK.DIRT cast int)
