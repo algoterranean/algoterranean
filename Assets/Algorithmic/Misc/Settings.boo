@@ -19,6 +19,9 @@ struct Settings:
 
 	public static ChunkSize as int = 32
 	public static MaxChunks as int = 2
+
+	public static PlayerRadius = Vector3(0.5, 1.0, 0.5)
+
 	# these are per side. i.e., 1 would mean 1 on each side
 	# plus the origin chunk = 3 total chunks
 	# public static ChunkWidth as int = 1
