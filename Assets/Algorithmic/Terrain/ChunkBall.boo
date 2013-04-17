@@ -112,7 +112,8 @@ class ChunkBall (IChunkGenerator, IObservable):
 
 	def constructor(max_distance, chunk_size):
 		#setMinChunkDistance(min_distance)
-		setMaxChunkDistance(max_distance)
+		self.max_distance = max_distance
+		#setMaxChunkDistance(max_distance)
 		self.chunk_size = chunk_size
 		chunks = Dictionary[of LongVector3, ChunkInfo]()
 		mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
@@ -125,11 +126,11 @@ class ChunkBall (IChunkGenerator, IObservable):
 	# def getMinChunkDistance() as byte:
 	# 	return min_distance
 
-	def setMaxChunkDistance(m as byte) as void:
-		max_distance = m
+	# def setMaxChunkDistance(m as byte) as void:
+	# 	max_distance = m
 
-	def getMaxChunkDistance() as byte:
-		return max_distance
+	# def getMaxChunkDistance() as byte:
+	# 	return max_distance
 
 	def _add_dchunk():
 		pass
@@ -157,12 +158,12 @@ class ChunkBall (IChunkGenerator, IObservable):
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
 
-	def getMaxHeight(location as Vector3) as int:
-		chunk_coords = Utils.whichChunk(location) # LongVector3
-		if chunk_coords in chunks:
-			pass
-		else:
-			return 300  # TO DO: this should be able to return a failure state if the chunk doesn't exist
+	# def getMaxHeight(location as Vector3) as int:
+	# 	chunk_coords = Utils.whichChunk(location) # LongVector3
+	# 	if chunk_coords in chunks:
+	# 		pass
+	# 	else:
+	# 		return 300  # TO DO: this should be able to return a failure state if the chunk doesn't exist
 
 
 
