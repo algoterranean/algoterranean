@@ -27,8 +27,8 @@ class ChunkManager (MonoBehaviour, IObserver):
 		return chunk_ball
 
 	def updateObserver(o as object):
-		if o isa ChunkBallMessage:
-			cm = o cast ChunkBallMessage
+		if o isa ChunkGeneratorMessage:
+			cm = o cast ChunkGeneratorMessage
 			message = cm.getMessage()
 			chunk_info as ChunkInfo = cm.getData()
 			chunk_blocks as IChunkBlockData = chunk_info.getChunk()

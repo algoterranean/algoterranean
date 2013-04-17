@@ -35,7 +35,7 @@ enum Message:
 	BLOCKS_READY
 	MESH_READY
 
-class ChunkBallMessage():
+class ChunkGeneratorMessage():
 	message as Message
 	data as object
 
@@ -54,7 +54,7 @@ class ChunkBallMessage():
 
 ################################################################################
 # Main ChunkBall class
-class ChunkBall (IChunkBall, IObservable):
+class ChunkBall (IChunkGenerator, IObservable):
 	locker = object()
 	origin as Vector3
 	#min_distance as byte
@@ -144,7 +144,7 @@ class ChunkBall (IChunkBall, IObservable):
 			mesh.CalculateMesh()
 			#print "Mesh Calculated: $(chunk.getCoordinates())"
 			lock locker:
-				outgoing_queue.Push(ChunkBallMessage(Message.MESH_READY, chunk_info))
+				outgoing_queue.Push(ChunkGeneratorMessage(Message.MESH_READY, chunk_info))
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
 
@@ -199,7 +199,7 @@ class ChunkBall (IChunkBall, IObservable):
 		# remove all chunks that are too far away
 		for key in removal_queue:
 			lock locker:
-				outgoing_queue.Push(ChunkBallMessage(Message.REMOVE, chunks[key]))
+				outgoing_queue.Push(ChunkGeneratorMessage(Message.REMOVE, chunks[key]))
 			chunks.Remove(key)
 		
 		# watch.Stop()

@@ -1,6 +1,6 @@
 import UnityEngine
 
-interface IChunkBall ():
+interface IChunkGenerator ():
 	def setMinChunkDistance(min_distance as byte) as void
 	def getMinChunkDistance() as byte
 	def setMaxChunkDistance(max_distance as byte) as void
