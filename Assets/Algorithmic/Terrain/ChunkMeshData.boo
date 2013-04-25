@@ -270,10 +270,10 @@ class ChunkMeshData (IChunkMeshData):
 
 		def _add_uvs(x as single, y as single):
 			# give x, y coordinates in (0-9) by (0-9)
-			uvs[uv_count]   = Vector2(x, 1.0 - y - 0.1)
-			uvs[uv_count+1] = Vector2(x, 1.0 - y)
-			uvs[uv_count+2] = Vector2(x + 0.1, 1.0 - y)
-			uvs[uv_count+3] = Vector2(x + 0.1, 1.0 - y - 0.1)
+			uvs[uv_count]   = Vector2(x + 0.01, 1.0 - y - 0.1 + 0.01)
+			uvs[uv_count+1] = Vector2(x + 0.01, 1.0 - y - 0.01)
+			uvs[uv_count+2] = Vector2(x - 0.01 + 0.1, 1.0 - y - 0.01)
+			uvs[uv_count+3] = Vector2(x - 0.01 + 0.1, 1.0 - y - 0.1 + 0.01)
 			uv_count += 4
 			
 		def _calc_triangles():
