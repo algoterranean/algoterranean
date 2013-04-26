@@ -40,6 +40,9 @@ class ChunkManager (MonoBehaviour, IObserver):
 				add_mesh_queue.Push(chunk_info)
 			elif message == Message.REMOVE:
 				remove_mesh_queue.Push(chunk_info)
+			elif message = Message.REFRESH:
+				print 'Received REFRESH'
+				refresh_mesh(chunk_info)
 
 	def Awake():
 		#chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
@@ -111,6 +114,22 @@ class ChunkManager (MonoBehaviour, IObserver):
 	def setOrigin(origin as Vector3) as void:
 		chunk_ball.SetOrigin(origin)
 		self.origin = origin
+
+	def refresh_mesh(i as ChunkInfo):
+		chunk_blocks as ChunkBlockData = i.getChunk()
+		chunk_mesh as ChunkMeshData = i.getMesh()
+		coords = chunk_blocks.getCoordinates()
+		n = "Chunk ($(coords.x), $(coords.y), $(coords.z))"
+		#visible_meshes.Remove(n)
+		
+		actual_mesh = visible_meshes[n][1]
+		actual_mesh.vertices = chunk_mesh.getVertices()
+		actual_mesh.triangles = chunk_mesh.getTriangles()
+		actual_mesh.normals = chunk_mesh.getNormals()
+		actual_mesh.uv = chunk_mesh.getUVs()
+		visible_meshes[n][1] = actual_mesh
+		
+		#visible_meshes[n] = [coords, m]
 
 	def _remove_mesh_object(chunk_info as ChunkInfo):
 		chunk_blocks as ChunkBlockData = chunk_info.getChunk()

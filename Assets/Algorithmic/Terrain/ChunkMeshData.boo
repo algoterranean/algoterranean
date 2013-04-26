@@ -98,6 +98,9 @@ class ChunkMeshData (IChunkMeshData):
 			#AABB(Vector3(c.x + Settings.ChunkSize/2, c.y + Settings.ChunkSize/2, c.z + Settings.ChunkSize/2),
 			#					Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2)))
 
+	def setBlockData(chunk as IChunkBlockData):
+		self.chunk = chunk
+
 	def setNeighborhoodChunks(west as IChunkBlockData, east as IChunkBlockData,
 					  south as IChunkBlockData, north as IChunkBlockData,
 					  down as IChunkBlockData, up as IChunkBlockData) as void:

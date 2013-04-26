@@ -12,10 +12,12 @@ interface IChunkMeshData ():
 	def setDownNeighbor(chunk as IChunkBlockData) as void
 	def setUpNeighbor(chunk as IChunkBlockData) as void
 		
+		
 
 	def isMeshCalcualted() as bool
 	def areNeighborsReady() as bool
 	def CalculateMesh() as void
+	def setBlockData(chunk as IChunkBlockData) as void
 		
 	def getVertices() as (Vector3)
 	def getNormals() as (Vector3)

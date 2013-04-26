@@ -90,7 +90,7 @@ class TerrainCollider ():
 			b_back = b_back - 1
 
 		possible_collisions = []
-		Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_front, $b_back", LOG_MODULE.PHYSICS)
+		#Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_front, $b_back", LOG_MODULE.PHYSICS)
 		for x in range(b_left, b_right+1):
 			for y in range(b_bottom, b_top+1):
 				for z in range(b_front, b_back+1):
@@ -108,7 +108,7 @@ class TerrainCollider ():
 		t_first = 0.0
 		t_last = 1.0
 		v = vb - va
-		print "VEL CHECK: ($(v.x), $(v.y), $(v.z))"
+		#print "VEL CHECK: ($(v.x), $(v.y), $(v.z))"
 		#overlap_time = Vector3(0, 0, 0)
 		contact_normal = Vector3(0, 0, 0)
 		movement_dir = va - vb
@@ -145,16 +145,16 @@ class TerrainCollider ():
 				if b_max < a_min:
 					overlap = (a_min - b_max)/velocity
 					t_first = Max(overlap, t_first)
-					print "OVERLAP CHECK: $overlap, $overlap_time, $(y[5])"
+					#print "OVERLAP CHECK: $overlap, $overlap_time, $(y[5])"
 					if overlap > overlap_time:
 						overlap_time = overlap
 						overlap_axis = y[5]
 						
 				if a_max > b_min:
-					print 'hi2'
+					#print 'hi2'
 					overlap = (a_max - b_min)/velocity
 					t_last = Min(overlap, t_last)
-				print 'hi3'
+				#print 'hi3'
 
 		# surface_area.x = a.max.x - b.min.x
 		# surface_area.y = a.max.y - b.min.y
@@ -163,7 +163,7 @@ class TerrainCollider ():
 		surface_area_y = (Min(a.max.x, b.max.x) - Max(a.min.x, b.min.x)) * (Min(a.max.z, b.max.z) - Max(a.min.z, b.min.z))
 		surface_area_z = (Min(a.max.y, b.max.y) - Max(a.min.y, b.min.y)) * (Min(a.max.x, b.max.x) - Max(a.min.x, b.min.x))
 		surface_area = Vector3(surface_area_x, surface_area_y, surface_area_z)
-		print "AXIS CHECK: $overlap_axis"
+		#print "AXIS CHECK: $overlap_axis"
 		if overlap_axis == "x":
 			contact_normal = Vector3(Mathf.Sign(v.x), 0, 0)
 		if overlap_axis == "y":
@@ -216,7 +216,7 @@ class TerrainCollider ():
 									   possible_c[1],
 									   block_aabb,
 									   possible_c[5])
-				print "POSSIBLE: $contact"
+				#print "POSSIBLE: $contact"
 				b.Add(contact)
 			#b.Push([block_aabb, ])
 		#print "BEFORE SORT: $b"

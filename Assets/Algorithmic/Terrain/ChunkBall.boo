@@ -27,6 +27,9 @@ class ChunkInfo():
 
 	def getMesh() as IChunkMeshData:
 		return mesh
+
+	def setMesh(m as IChunkMeshData):
+		mesh = m
 	
 
 enum Message:
@@ -34,6 +37,7 @@ enum Message:
 	ADD
 	BLOCKS_READY
 	MESH_READY
+	REFRESH
 
 class ChunkGeneratorMessage():
 	message as Message
@@ -66,6 +70,7 @@ class ChunkBall (IChunkGenerator, IObservable):
 	chunks as Dictionary[of LongVector3, ChunkInfo]
 	threshold = 10.0
 	mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
+
 
 
 	def Update():
@@ -275,19 +280,74 @@ class ChunkBall (IChunkGenerator, IObservable):
 		# watch.Stop()
 		# print "Elapsed4: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
 
+	def setBlock(world as LongVector3):
+		size = Settings.ChunkSize
+		x = world.x
+		y = world.y
+		z = world.z
+		
+		if x < 0:
+			new_x = x + 1
+		else:
+			new_x = x
+		c_x = new_x / size - (1 if x < 0 else 0)
+		start_x = c_x * size
+		end_x = start_x + size - 1
+		b_x = x - start_x
+
+		if y < 0:
+			new_y = y + 1
+		else:
+			new_y = y
+		c_y = new_y / size - (1 if y < 0 else 0)
+		start_y = c_y * size
+		end_y = start_y + size - 1
+		b_y = y - start_y
+
+		if z < 0:
+			new_z = z + 1
+		else:
+			new_z = z
+		c_z = new_z / size - (1 if z < 0 else 0)
+		start_z = c_z * size
+		end_z = start_z + size - 1
+		b_z = z - start_z
+
+
+		
+		chunk_coords = LongVector3(c_x * size, c_y * size, c_z * size)
+		block_coords = ByteVector3(b_x, b_y, b_z)
+		#print "GetBlock: $world, $chunk_coords, $block_coords"
+	
+		if chunk_coords in chunks:
+			#print "Found Chunk"
+			i as ChunkInfo = chunks[chunk_coords]
+			c as ChunkBlockData = i.getChunk()
+			c.setBlock(block_coords, 0)
+			m = ChunkMeshData(c)
+			m.CalculateMesh()
+			i.setMesh(m)
+			# mesh = i.getMesh()
+			# mesh.setBlockData(c)
+			# mesh.CalculateMesh()
+			# i.setMesh(mesh)
+			lock locker:
+				for x as IObserver in observers:
+					x.updateObserver(ChunkGeneratorMessage(Message.REFRESH, i))
+			outgoing_queue = []
+			
+			return 0
+		else:
+			print "Could not find the chunk"			
+			return 0
+
 
 	def getBlock(world as LongVector3):
 		size = Settings.ChunkSize
 		x = world.x
 		y = world.y
 		z = world.z
-		# c_x = world.x/size - (1 if world.x < 0 else 0)
-		# c_y = world.y/size - (1 if world.y < 0 else 0)
-		# c_z = world.z/size - (1 if world.z < 0 else 0)
-
-		# b_x = world.x % size + (size - 1 if world.x < 0 else 0)
-		# b_y = world.y % size + (size - 1 if world.y < 0 else 0)
-		# b_z = world.z % size + (size - 1 if world.z < 0 else 0)
+		
 		if x < 0:
 			new_x = x + 1
 		else:
@@ -327,17 +387,20 @@ class ChunkBall (IChunkGenerator, IObservable):
 			c as ChunkBlockData = i.getChunk()
 			b = c.getBlock(block_coords)
 			if b > 0:
-				Log.Log("GET BLOCK: WORLD: $world, CHUNK: $(chunk_coords), LOCAL: $block_coords", LOG_MODULE.CONTACTS)
+				pass
+				#Log.Log("GET BLOCK: WORLD: $world, CHUNK: $(chunk_coords), LOCAL: $block_coords", LOG_MODULE.CONTACTS)
 
 			return b
 			#print "Found Block: $b"
 		else:
 			print "Could not find the chunk"			
 			return 0
-			
 
-					   
-		#print "Chunk ($chunk_x, $chunk_y, $chunk_z), Block: ($block_x, $block_y, $block_z)"
+
+		
+		
+		
+			
 
 
 
