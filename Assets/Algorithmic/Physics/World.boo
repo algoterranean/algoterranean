@@ -31,6 +31,9 @@ class World (MonoBehaviour):
 	player as Player
 	player_radius as Vector3
 	terrain_collider as TerrainCollider
+
+	def getTerrainCollider():
+		return terrain_collider
 	
 
 	def Start ():
@@ -68,7 +71,7 @@ class World (MonoBehaviour):
 
 		
 		while current_time < end_time and loop_count < max_loops:
-			Log.Log("LOOP COUNT $loop_count", LOG_MODULE.PHYSICS)
+			#Log.Log("LOOP COUNT $loop_count", LOG_MODULE.PHYSICS)
 			future_pos, future_vel, future_accel = player_particle.getFutureState(Time.deltaTime)
 			player_aabb_previous = AABB(player_particle.Position, player_radius)
 			player_aabb_future = AABB(future_pos, player_radius)
@@ -80,7 +83,7 @@ class World (MonoBehaviour):
 					if x.start_time == 0 and x.contact_normal == Vector3(0, -1, 0):
 						pass
 					else:
-						Log.Log("Possible Contact: $x", LOG_MODULE.CONTACTS)
+						#Log.Log("Possible Contact: $x", LOG_MODULE.CONTACTS)
 						if x.offset_vector != Vector3(0, 0, 0):
 							found_valid_contact = true
 							earliest_contact = x
@@ -151,30 +154,30 @@ class World (MonoBehaviour):
 								#max_surface_area = surfaces[i]
 
 						c_n = c.contact_normal
-						print "NEW CONTACT NORMAL: $c_n"
+						#print "NEW CONTACT NORMAL: $c_n"
 
 						if c_n.x != 0 and c.surface_area.x > c.surface_area.y and c.surface_area.x > c.surface_area.z:
 							p.Velocity.x = 0
 							p.Acceleration.x = 0
-							Log.Log("Setting X to 0", LOG_MODULE.PHYSICS)
+							#Log.Log("Setting X to 0", LOG_MODULE.PHYSICS)
 						elif c_n.y != 0 and c.surface_area.y > c.surface_area.x and c.surface_area.y > c.surface_area.z:
 							if c_n.y == 1:
 								player.jumping = false
 								p.Velocity.y = 0
 								p.Acceleration.y = 0
-								Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
+								#Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
 								
 							elif c_n.y == -1:
 								if p.Velocity.y > 0 or p.Acceleration.y > 0:
 									p.Velocity.y = 0
 									p.Acceleration.y = 0
-									Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
+									#Log.Log("Setting Y to 0", LOG_MODULE.PHYSICS)
 							
 								
 						elif c_n.z != 0 and c.surface_area.z > c.surface_area.x and c.surface_area.z > c.surface_area.y:
 							p.Velocity.z = 0
 							p.Acceleration.z = 0
-							Log.Log("Setting Z to 0", LOG_MODULE.PHYSICS)
+							#Log.Log("Setting Z to 0", LOG_MODULE.PHYSICS)
 							
 
 				# if earliest_contact.contact_normal.y == 0:

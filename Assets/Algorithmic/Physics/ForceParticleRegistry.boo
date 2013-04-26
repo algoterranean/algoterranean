@@ -42,7 +42,7 @@ class ForceParticleRegistry:
 	def updateForces(duration as single):
 		for reg in _registry:
 			if reg.active:
-				Log.Log("Update Forces: Force: $(reg.force), Particle: $(reg.particle), Duration: $(duration)", LOG_MODULE.PHYSICS)
+				#Log.Log("Update Forces: Force: $(reg.force), Particle: $(reg.particle), Duration: $(duration)", LOG_MODULE.PHYSICS)
 				reg.force.updateForce(reg.particle, duration)
 
 	def getForces(particle as IParticle) as List[of IForceGenerator]:
