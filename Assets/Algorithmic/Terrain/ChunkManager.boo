@@ -2,6 +2,7 @@ namespace Algorithmic.Terrain
 
 import UnityEngine
 import Algorithmic.Player
+import Algorithmic.Misc
 
 #import System.Threading
 #import System.Collections
@@ -20,6 +21,7 @@ class ChunkManager (MonoBehaviour, IObserver):
 
 	initialized as bool = false
 	wait_for_init_queue = []
+	draw_meshes_directly = true
 
 	#_registry as ForceParticleRegistry
 
@@ -37,11 +39,13 @@ class ChunkManager (MonoBehaviour, IObserver):
 
 			#print "ChunkManager: Receiving ChunkBall Update: $message ($(coords.x), $(coords.y), $(coords.z))"
 			if message == Message.MESH_READY:
+				Log.Log("Add $chunk_info", LOG_MODULE.CHUNKS)
 				add_mesh_queue.Push(chunk_info)
 			elif message == Message.REMOVE:
+				Log.Log("Remove $chunk_info", LOG_MODULE.CHUNKS)
 				remove_mesh_queue.Push(chunk_info)
 			elif message = Message.REFRESH:
-				print 'Received REFRESH'
+				Log.Log("Refresh $chunk_info", LOG_MODULE.CHUNKS)
 				refresh_mesh(chunk_info)
 
 	def Awake():
@@ -79,12 +83,11 @@ class ChunkManager (MonoBehaviour, IObserver):
 			chunk_info = remove_mesh_queue.Pop()
 			_remove_mesh_object(chunk_info)
 
-		for x in visible_meshes:
-			#m = visible_meshes[x]
-			#print "DRAWING MESH $x"
-			coords = x.Value[0]
-			m = x.Value[1]
-			Graphics.DrawMesh(m, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)
+		if draw_meshes_directly:
+			for x in visible_meshes:
+				coords = x.Value[0]
+				m = x.Value[1]
+				Graphics.DrawMesh(m, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)
 			
 
 		# check AABB bounding volumes
@@ -119,7 +122,8 @@ class ChunkManager (MonoBehaviour, IObserver):
 		chunk_blocks as ChunkBlockData = i.getChunk()
 		chunk_mesh as ChunkMeshData = i.getMesh()
 		coords = chunk_blocks.getCoordinates()
-		n = "Chunk ($(coords.x), $(coords.y), $(coords.z))"
+		
+		n = "$i"
 		#visible_meshes.Remove(n)
 		
 		actual_mesh = visible_meshes[n][1]
@@ -128,49 +132,43 @@ class ChunkManager (MonoBehaviour, IObserver):
 		actual_mesh.normals = chunk_mesh.getNormals()
 		actual_mesh.uv = chunk_mesh.getUVs()
 		visible_meshes[n][1] = actual_mesh
-		
 		#visible_meshes[n] = [coords, m]
 
 	def _remove_mesh_object(chunk_info as ChunkInfo):
 		chunk_blocks as ChunkBlockData = chunk_info.getChunk()
 		coords = chunk_blocks.getCoordinates()
-		n = "Chunk ($(coords.x), $(coords.y), $(coords.z))"
-		visible_meshes.Remove(n)
-		# o = gameObject.Find("Chunk ($(coords.x), $(coords.y), $(coords.z))")
-		# if o != null:
-		# 	gameObject.Destroy(o)
-		# else:
-		# 	updateObserver(ChunkBallMessage(Message.REMOVE, chunk_info))
+		if draw_meshes_directly:
+			visible_meshes.Remove("$chunk_info")
+		else:
+			o = gameObject.Find("$chunk_info")
+			if o != null:
+				gameObject.Destroy(o)
+			else:
+			 	updateObserver(ChunkGeneratorMessage(Message.REMOVE, chunk_info))
 
 	def _create_mesh_object(chunk_info as ChunkInfo):
 		chunk_blocks as ChunkBlockData = chunk_info.getChunk()
 		chunk_mesh as ChunkMeshData = chunk_info.getMesh()
 		coords = chunk_blocks.getCoordinates()
 		
-		c_name = "Chunk ($(coords.x), $(coords.y), $(coords.z))"
-		m = Mesh()
-		m.vertices = chunk_mesh.getVertices()
-		m.triangles = chunk_mesh.getTriangles()
-		m.normals = chunk_mesh.getNormals()
-		m.uv = chunk_mesh.getUVs()
+		mesh = Mesh()
+		mesh.vertices = chunk_mesh.getVertices()
+		mesh.triangles = chunk_mesh.getTriangles()
+		mesh.normals = chunk_mesh.getNormals()
+		mesh.uv = chunk_mesh.getUVs()
 		#visible_meshes.Push(m)
-		visible_meshes[c_name] = [coords, m]
+		if draw_meshes_directly:
+			visible_meshes["$chunk_info"] = [coords, mesh]
+		else:
+			o = GameObject()
+			o.name = "$chunk_info"
+			o.AddComponent(MeshFilter)
+			o.AddComponent(MeshRenderer)
+			o.AddComponent(MeshCollider)
+			o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
+			o.GetComponent(MeshFilter).sharedMesh = mesh
+			o.GetComponent(MeshCollider).sharedMesh = mesh
 
-		# o = GameObject()
-		# o.name = "Chunk ($(coords.x), $(coords.y), $(coords.z))"
-		# #o.transform.parent = gameObject.Find("Terrain Parent").transform
-		# o.AddComponent(MeshFilter)
-		# o.AddComponent(MeshRenderer)
-		# o.AddComponent(MeshCollider)
-		# mesh = Mesh()
-		# mesh.vertices = chunk_mesh.getVertices()
-		# mesh.triangles = chunk_mesh.getTriangles()
-		# mesh.normals = chunk_mesh.getNormals()
-		# mesh.uv = chunk_mesh.getUVs()
-		# o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
-		# o.GetComponent(MeshFilter).sharedMesh = mesh
-		# #o.GetComponent(MeshCollider).sharedMesh = mesh
-
-		# t = gameObject.Find("Terrain").transform
-		# o.transform.parent = t
-		# o.transform.position = Vector3(coords.x, coords.y, coords.z)
+			# t = gameObject.Find("Terrain").transform
+			# o.transform.parent = t
+			o.transform.position = Vector3(coords.x, coords.y, coords.z)
