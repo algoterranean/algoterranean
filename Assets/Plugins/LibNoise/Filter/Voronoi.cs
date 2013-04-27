@@ -147,9 +147,10 @@ namespace LibNoise.Filter {
 
 						// Calculate the position and distance to the seed point inside of
 						// this unit cube.
-						float xPos = xCur + _source3D.GetValue(xCur, yCur, zCur);
-						float yPos = yCur + _source3D.GetValue(xCur, yCur, zCur);
-						float zPos = zCur + _source3D.GetValue(xCur, yCur, zCur);
+					  float the_val = _source3D.GetValue(xCur, yCur, zCur);
+					  float xPos = xCur + the_val;
+					  float yPos = yCur + the_val;
+					  float zPos = zCur + the_val;
 
 						float xDist = xPos - x;
 						float yDist = yPos - y;

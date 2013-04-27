@@ -48,23 +48,23 @@ class Player (MonoBehaviour):
 		player_particle.Velocity.x = local_dir.x
 		player_particle.Velocity.z = local_dir.z
 
-		if Input.GetButtonDown("Fire1"):
-			player_camera = gameObject.Find("Player/Camera")			
-			p1 = player_camera.transform.position
-			dir = player_camera.transform.forward
-			dir.Normalize()
-			p2 = Vector3(dir.x * 5, dir.y * 5, dir.z * 5)
+		# if Input.GetButtonDown("Fire1"):
+		# 	player_camera = gameObject.Find("Player/Camera")			
+		# 	p1 = player_camera.transform.position
+		# 	dir = player_camera.transform.forward
+		# 	dir.Normalize()
+		# 	p2 = Vector3(dir.x * 5, dir.y * 5, dir.z * 5)
 
-			tc = world.getTerrainCollider()
-			c = tc.CheckCollisionsSweep(AABB(p1, Vector3(0, 0, 0)),
-										AABB(dir, Vector3(0, 0, 0)))
-			if len(c) > 0:
-				print "REMOVE BLOCK $(c[0])"
-				ba = c[0].block_aabb
-				chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x,
-												ba.center.y - ba.radius.y,
-												ba.center.z - ba.radius.z))
-			#print "DIGGING: $c"
+		# 	tc = world.getTerrainCollider()
+		# 	c = tc.CheckCollisionsSweep(AABB(p1, Vector3(0, 0, 0)),
+		# 								AABB(dir, Vector3(0, 0, 0)))
+		# 	if len(c) > 0:
+		# 		print "REMOVE BLOCK $(c[0])"
+		# 		ba = c[0].block_aabb
+		# 		chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x,
+		# 										ba.center.y - ba.radius.y,
+		# 										ba.center.z - ba.radius.z))
+		# 	#print "DIGGING: $c"
 			
 		chunk_manager.setOrigin(transform.position)
 
