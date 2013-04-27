@@ -31,7 +31,9 @@ class HeightNoiseData (INoiseData):
 											Modifier.ScaleBias(highlands, 0.8, 0.0),
 											Primitive.Constant(1))
 		
-		d = Filter.SumFractal(1.0, 0.5, 0.5, 1.0)
+		d = Filter.SumFractal(0.1, 1.0, 1.0, 1.0) # lowering frequency drasticly spreads out the biome select function
+		#d = Filter.Billow()
+		
 		d.Primitive3D = Primitive.ImprovedPerlin(seed, NoiseQuality.Standard)
 		
 		total_select = Modifier.Select(d, lowlands_turb, highlands_turb, -1.0, 0.0, 0.0)
