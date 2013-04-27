@@ -3,6 +3,7 @@ namespace Algorithmic.Misc
 enum LOG_MODULE:
 	PHYSICS
 	CONTACTS
+	CHUNKS
 
 
 static class Log:
@@ -14,6 +15,8 @@ static class Log:
 			m = "PHYSICS"
 		elif module == LOG_MODULE.CONTACTS:
 			m = "CONTACTS"
+		elif module == LOG_MODULE.CHUNKS:
+			m = "CHUNKS"
 		else:
 			m = "UNKNOWN"
 		dt = System.DateTime.Now
