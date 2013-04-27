@@ -13,6 +13,7 @@ class ChunkInfo():
 	chunk as IChunkBlockData
 	mesh as IChunkMeshData
 	bounds as AABB
+	coords as LongVector3
 
 	def constructor(chunk as IChunkBlockData, mesh as IChunkMeshData):
 		self.chunk = chunk
@@ -30,6 +31,9 @@ class ChunkInfo():
 
 	def setMesh(m as IChunkMeshData):
 		mesh = m
+
+	def ToString():
+		return "Chunk ($(coords.x), $(coords.y), $(coords.z))"
 	
 
 enum Message:
@@ -197,9 +201,9 @@ class ChunkBall (IChunkGenerator, IObservable):
 				chunk_mesh  = chunk_info.getMesh()
 				chunk_coords = chunk_blocks.getCoordinates()
 
-				if (current_chunk_coords.x - chunk_coords.x)/chunk_size > max_distance or \
-					(current_chunk_coords.y - chunk_coords.y)/chunk_size > max_distance or \
-					(current_chunk_coords.z - chunk_coords.z)/chunk_size > max_distance:
+				if Math.Abs(current_chunk_coords.x - chunk_coords.x)/chunk_size > max_distance or \
+					Math.Abs(current_chunk_coords.y - chunk_coords.y)/chunk_size > max_distance or \
+					Math.Abs(current_chunk_coords.z - chunk_coords.z)/chunk_size > max_distance:
 					removal_queue.Push(item.Key)
 
 		# remove all chunks that are too far away
