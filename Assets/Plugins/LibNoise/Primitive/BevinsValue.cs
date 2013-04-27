@@ -98,7 +98,7 @@ namespace LibNoise.Primitive {
 		/// <param name="z">The input coordinate on the z-axis.</param>
 		/// <returns>The resulting output value.</returns>
 		public float GetValue(float x, float y, float z) {
-			return ValueCoherentNoise3D(x, y, z, _seed, _quality);
+		  return ValueNoise3D((int)x, (int)y, (int)z, _seed); //, _quality);
 		}//end GetValue
 
 		#endregion
