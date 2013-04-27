@@ -71,7 +71,7 @@ class ChunkBall (IChunkGenerator, IObservable):
 	observers = []
 	outgoing_queue = []
 	thread_queue = []
-	chunks as Dictionary[of LongVector3, ChunkInfo]
+	chunks = Dictionary[of LongVector3, ChunkInfo]()
 	threshold = 10.0
 	mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
 
@@ -119,12 +119,13 @@ class ChunkBall (IChunkGenerator, IObservable):
 					x.updateObserver(y)
 			outgoing_queue = []
 
+
 	def constructor(max_distance, chunk_size):
 		#setMinChunkDistance(min_distance)
-		self.max_distance = max_distance
+		self.max_distance = Settings.MaxChunks
 		#setMaxChunkDistance(max_distance)
-		self.chunk_size = chunk_size
-		chunks = Dictionary[of LongVector3, ChunkInfo]()
+		self.chunk_size = Settings.ChunkSize
+		#chunks = Dictionary[of LongVector3, ChunkInfo]()
 		mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
 		origin = Vector3(10000, 10000, 10000)
 
@@ -192,6 +193,7 @@ class ChunkBall (IChunkGenerator, IObservable):
 
 		#############################################
 		# determine which chunks are now too far away
+		t1 = DateTime.Now
 		current_chunk_coords = Utils.whichChunk(origin)
 		removal_queue = []
 		lock locker:
@@ -202,28 +204,31 @@ class ChunkBall (IChunkGenerator, IObservable):
 				chunk_coords = chunk_blocks.getCoordinates()
 
 				if Math.Abs(current_chunk_coords.x - chunk_coords.x)/chunk_size > max_distance or \
-					Math.Abs(current_chunk_coords.y - chunk_coords.y)/chunk_size > max_distance or \
+					Math.Abs(current_chunk_coords.y - chunk_coords.y)/chunk_size > Settings.MaxChunksVertical or \
 					Math.Abs(current_chunk_coords.z - chunk_coords.z)/chunk_size > max_distance:
 					removal_queue.Push(item.Key)
 
 		# remove all chunks that are too far away
-		for key in removal_queue:
-			lock locker:
+		lock locker:					
+			for key in removal_queue:
 				outgoing_queue.Push(ChunkGeneratorMessage(Message.REMOVE, chunks[key]))
-			chunks.Remove(key)
+				chunks.Remove(key)
+		t2 = DateTime.Now
+		print "T1: $(t2-t1)"
 		
 		# watch.Stop()
-		# print "Elapsed1: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
+		# print "Elapsed1: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
 		# watch = System.Diagnostics.Stopwatch()
 		# watch.Start()
 		###########################################
 		# determine which chunks need to be added
+		t1 = DateTime.Now
 		creation_queue = []
 		for a in range(max_distance*2+1):
-			for b in range(max_distance*2+1):
+			for b in range(Settings.MaxChunksVertical*2+1):
 				for c in range(max_distance*2+1):
 					x_coord = (a - max_distance)*chunk_size + current_chunk_coords.x
-					y_coord = (b - max_distance)*chunk_size + current_chunk_coords.y
+					y_coord = (b - Settings.MaxChunksVertical)*chunk_size + current_chunk_coords.y
 					z_coord = (c - max_distance)*chunk_size + current_chunk_coords.z
 					if not chunks.ContainsKey(LongVector3(x_coord, y_coord, z_coord)):
 						creation_queue.Push(LongVector3(x_coord, y_coord, z_coord))
@@ -248,20 +253,22 @@ class ChunkBall (IChunkGenerator, IObservable):
 			chunk_info = ChunkInfo(chunk_blocks, chunk_mesh)
 			chunks.Add(item, chunk_info)
 			thread_queue.Push(chunk_info)
+		t2 = DateTime.Now
+		print "T2: $(t2-t1)"
 			
 		# watch.Stop()
 		# print "Elapsed3: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
 		# watch = System.Diagnostics.Stopwatch()
 		# watch.Start()
-			
 
+		t1 = DateTime.Now
 		# for all chunks, update neighbors
-		for item in chunks:
-			chunk_info = item.Value
+		for item as LongVector3 in creation_queue:
+			chunk_info = chunks[item]
 			chunk_blocks = chunk_info.getChunk()
 			chunk_mesh = chunk_info.getMesh()
 			chunk_coords = chunk_blocks.getCoordinates()
-
+			
 			west_coords = LongVector3(chunk_coords.x - Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
 			east_coords = LongVector3(chunk_coords.x + Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
 			south_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z - Settings.ChunkSize)
@@ -270,19 +277,50 @@ class ChunkBall (IChunkGenerator, IObservable):
 			up_coords = LongVector3(chunk_coords.x, chunk_coords.y + Settings.ChunkSize, chunk_coords.z)
 
 			if chunks.ContainsKey(west_coords):
-				chunk_mesh.setWestNeighbor(chunks[west_coords].getChunk())
+				chunks[west_coords].getMesh().setEastNeighbor(chunk_blocks)
 			if chunks.ContainsKey(east_coords):
-				chunk_mesh.setEastNeighbor(chunks[east_coords].getChunk())
+				chunks[east_coords].getMesh().setWestNeighbor(chunk_blocks)
 			if chunks.ContainsKey(south_coords):
-				chunk_mesh.setSouthNeighbor(chunks[south_coords].getChunk())
+				chunks[south_coords].getMesh().setNorthNeighbor(chunk_blocks)
 			if chunks.ContainsKey(north_coords):
-				chunk_mesh.setNorthNeighbor(chunks[north_coords].getChunk())
+				chunks[north_coords].getMesh().setSouthNeighbor(chunk_blocks)
 			if chunks.ContainsKey(down_coords):
-				chunk_mesh.setDownNeighbor(chunks[down_coords].getChunk())
+				chunks[down_coords].getMesh().setUpNeighbor(chunk_blocks)
 			if chunks.ContainsKey(up_coords):
-				chunk_mesh.setUpNeighbor(chunks[up_coords].getChunk())
+				chunks[up_coords].getMesh().setDownNeighbor(chunk_blocks)
+			
+		
+		# for item in chunks:
+		# 	chunk_info = item.Value
+		# 	chunk_blocks = chunk_info.getChunk()
+		# 	chunk_mesh = chunk_info.getMesh()
+		# 	chunk_coords = chunk_blocks.getCoordinates()
+
+		# 	west_coords = LongVector3(chunk_coords.x - Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
+		# 	east_coords = LongVector3(chunk_coords.x + Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
+		# 	south_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z - Settings.ChunkSize)
+		# 	north_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z + Settings.ChunkSize)
+		# 	down_coords = LongVector3(chunk_coords.x, chunk_coords.y - Settings.ChunkSize, chunk_coords.z)
+		# 	up_coords = LongVector3(chunk_coords.x, chunk_coords.y + Settings.ChunkSize, chunk_coords.z)
+
+		# 	if chunks.ContainsKey(west_coords):
+		# 		chunk_mesh.setWestNeighbor(chunks[west_coords].getChunk())
+		# 	if chunks.ContainsKey(east_coords):
+		# 		chunk_mesh.setEastNeighbor(chunks[east_coords].getChunk())
+		# 	if chunks.ContainsKey(south_coords):
+		# 		chunk_mesh.setSouthNeighbor(chunks[south_coords].getChunk())
+		# 	if chunks.ContainsKey(north_coords):
+		# 		chunk_mesh.setNorthNeighbor(chunks[north_coords].getChunk())
+		# 	if chunks.ContainsKey(down_coords):
+		# 		chunk_mesh.setDownNeighbor(chunks[down_coords].getChunk())
+		# 	if chunks.ContainsKey(up_coords):
+		# 		chunk_mesh.setUpNeighbor(chunks[up_coords].getChunk())
 		# watch.Stop()
 		# print "Elapsed4: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
+		t2 = DateTime.Now
+		print "T3: $(t2-t1)"		
+
+				
 
 	def setBlock(world as LongVector3):
 		size = Settings.ChunkSize

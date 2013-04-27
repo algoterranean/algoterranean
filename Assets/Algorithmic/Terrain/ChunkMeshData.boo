@@ -140,9 +140,10 @@ class ChunkMeshData (IChunkMeshData):
 		return mesh_calculated
 
 	def areNeighborsReady() as bool:
-		if (west_neighbor.isNull() and east_neighbor.isNull() and south_neighbor.isNull() and \
-		    north_neighbor.isNull() and down_neighbor.isNull() and up_neighbor.isNull()):
-			print "Chunk's Neighbors are all NULL!"
+		# if (west_neighbor.isNull() and east_neighbor.isNull() and south_neighbor.isNull() and \
+		#     north_neighbor.isNull() and down_neighbor.isNull() and up_neighbor.isNull()):
+		# 	print "Chunk's Neighbors are all NULL!"
+			
 		if (west_neighbor.isNull() or west_neighbor.areBlocksCalculated()) and \
 		    (east_neighbor.isNull() or east_neighbor.areBlocksCalculated()) and \
 		    (south_neighbor.isNull() or south_neighbor.areBlocksCalculated()) and \

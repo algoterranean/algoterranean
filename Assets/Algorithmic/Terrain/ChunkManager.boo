@@ -49,7 +49,6 @@ class ChunkManager (MonoBehaviour, IObserver):
 				refresh_mesh(chunk_info)
 
 	def Awake():
-		#chunk_ball = ChunkBall(Settings.ChunkWidth, Settings.ChunkDepth, Settings.ChunkSize)
 		chunk_ball = ChunkBall(Settings.MaxChunks, Settings.ChunkSize)
 		chunk_ball.registerObserver(self)
 		mesh_mat = Resources.Load("Materials/Measure") as Material
@@ -65,8 +64,9 @@ class ChunkManager (MonoBehaviour, IObserver):
 		#_registry.add(x, Gravity())
 
 	def Update():
-		chunk_info as ChunkInfo
+		#chunk_info as ChunkInfo
 		chunk_ball.Update()
+		
 		# check if all the needed chunks in initial load are completed
 		if len(wait_for_init_queue) == 0:
 			initialized = true
