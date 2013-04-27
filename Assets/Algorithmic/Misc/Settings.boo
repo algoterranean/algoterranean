@@ -18,7 +18,8 @@ struct Settings:
 
 
 	public static ChunkSize as int = 32
-	public static MaxChunks as int = 2
+	public static MaxChunks as int = 4
+	public static MaxChunksVertical as int = 2
 
 	public static PlayerRadius = Vector3(0.5, 1.0, 0.5)
 
@@ -28,7 +29,7 @@ struct Settings:
 	# public static ChunkDepth as int = 1
 	#public static ChunkHeight as int = 1
 	public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
-	public static TerrainDepth as single = (MaxChunks * 2 + 1) * ChunkSize
+	public static TerrainDepth as single = (MaxChunksVertical * 2 + 1) * ChunkSize
 	#(ChunkHeight * 2 + 1) * ChunkSize /2
 	
 	#public static SolidCutoff as single = 0.0
