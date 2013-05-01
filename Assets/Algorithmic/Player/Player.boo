@@ -12,7 +12,7 @@ class Player (MonoBehaviour):
 	movement_speed as single
 	player_particle as Algorithmic.Particle
 	player_camera as GameObject
-	terrain_collider as Algorithmic.Physics.TerrainCollider
+	terrain_collider as Algorithmic.Physics.ChunkCollider
 	world as Algorithmic.Physics.World
 	public jumping = false
 

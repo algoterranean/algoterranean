@@ -30,7 +30,7 @@ struct SweepContact:
 		return "Start: $start_time, End: $end_time, Block: ($(block_aabb.center.x), $(block_aabb.center.y), $(block_aabb.center.z)), Direction: ($(direction.x), $(direction.y), $(direction.z)), Normal: ($(contact_normal.x), $(contact_normal.y), $(contact_normal.z)), Offset: ($(offset_vector.x), $(offset_vector.y), $(offset_vector.z)), Surface Area: ($(surface_area.x), $(surface_area.y), $(surface_area.z))" 
 
 
-class TerrainCollider ():
+class ChunkCollider ():
 	chunk_ball as DataManager
 
 	def constructor(cb as DataManager):
