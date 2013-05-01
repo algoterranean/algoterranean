@@ -18,7 +18,7 @@ struct Settings:
 
 
 	public static ChunkSize as int = 32
-	public static MaxChunks as int = 4
+	public static MaxChunks as int = 3
 	public static MaxChunksVertical as int = 2
 
 	public static PlayerRadius = Vector3(0.5, 1.0, 0.5)

@@ -56,8 +56,8 @@ class ChunkBlockData (IChunkBlockData):
 
 	def CalculateBlocks() as void:
 		for p in range(size.x):
-			for q in range(size.y):
-				for r in range(size.z):
+			for r in range(size.z):
+				for q in range(size.y):					# rearrange to try out cache2D with voronoi
 					blocks[p, q, r] = noise_module.getBlock(p + coords.x, q + coords.y, r + coords.z)
 		blocks_calculated = true
 		
