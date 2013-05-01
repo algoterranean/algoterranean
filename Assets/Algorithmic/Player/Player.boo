@@ -21,10 +21,10 @@ class Player (MonoBehaviour):
 		movement_speed = 5
 		orientation = Vector3(0, 45, 0)
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
-		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager
+		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("ChunkManager") as ChunkManager
 		chunk_ball = chunk_manager.getChunkBall()
 		player_camera = gameObject.Find("Player/Camera")
-		world = gameObject.Find("Physics").GetComponent("World")
+		world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
 
 	def getOrientation():
 		return orientation

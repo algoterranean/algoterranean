@@ -29,14 +29,14 @@ class PlayerCamera (MonoBehaviour):
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
 		player_graphics = List[of GameObject]()
 		
-		player_graphics.Push(gameObject.Find("Player/Graphics"))
-		player_graphics.Push(gameObject.Find("Player/Graphics - Forward"))
+		player_graphics.Push(gameObject.Find("Player/Graphics - Body"))
+		player_graphics.Push(gameObject.Find("Player/Graphics - Forward Marker"))
 		player_graphics.Push(gameObject.Find("Player/Headlamp"))
 		mouse_look = gameObject.Find("Player").GetComponent("MouseLook")
-		fps_camera = gameObject.Find("Player/Camera")
+		fps_camera = gameObject.Find("Player/1st Person Camera")
 		mouse_look.enabled = false
 		fps_camera.SetActive(false)
-		third_person_camera = gameObject.Find("Player Camera")
+		third_person_camera = gameObject.Find("Player/3rd Person Camera")
 						   
 		
 
