@@ -4,7 +4,7 @@ namespace Algorithmic.Physics
 import UnityEngine
 import Algorithmic
 import Algorithmic.Player
-import Algorithmic.Terrain
+import Algorithmic.Chunks
 import Algorithmic.Misc
 
 struct AvailableForces:

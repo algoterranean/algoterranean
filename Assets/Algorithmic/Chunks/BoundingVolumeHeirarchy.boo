@@ -1,4 +1,4 @@
-namespace Algorithmic.Terrain
+namespace Algorithmic.Chunks
 import Algorithmic.Misc
 import System
 

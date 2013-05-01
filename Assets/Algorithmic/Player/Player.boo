@@ -1,7 +1,7 @@
 namespace Algorithmic.Player
 
 import UnityEngine
-import Algorithmic.Terrain
+import Algorithmic.Chunks
 
 
 class Player (MonoBehaviour):

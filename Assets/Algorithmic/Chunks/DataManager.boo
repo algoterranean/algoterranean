@@ -1,4 +1,4 @@
-namespace Algorithmic.Terrain
+namespace Algorithmic.Chunks
 
 import System.Collections.Generic
 import System.Threading

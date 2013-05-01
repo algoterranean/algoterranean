@@ -2,7 +2,7 @@ namespace Algorithmic.Physics
 
 import UnityEngine
 import Algorithmic
-import Algorithmic.Terrain
+import Algorithmic.Chunks
 import Algorithmic.Misc
 
 
