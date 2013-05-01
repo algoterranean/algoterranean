@@ -6,66 +6,10 @@ import Algorithmic
 import UnityEngine
 
 
-################################################################################
-# Utility and Message Passing Stuff
-class Chunk():
-	chunk as IChunkBlockData
-	mesh as IChunkMeshData
-	bounds as AABB
-	coords as LongVector3
-
-	def constructor(chunk as IChunkBlockData, mesh as IChunkMeshData):
-		self.chunk = chunk
-		self.mesh = mesh
-		coords = chunk.getCoordinates()
-		radius = Settings.ChunkSize/2
-		bounds = AABB(Vector3(coords.x + radius, coords.y + radius, coords.z + radius),
-					  Vector3(radius, radius, radius))
-
-	def getChunk() as IChunkBlockData:
-		return chunk
-
-	def getMesh() as IChunkMeshData:
-		return mesh
-
-	def setMesh(m as IChunkMeshData):
-		mesh = m
-
-	def ToString():
-		return "Chunk ($(coords.x), $(coords.y), $(coords.z))"
-	
-
-enum Message:
-	REMOVE
-	ADD
-	BLOCKS_READY
-	MESH_READY
-	REFRESH
-
-class ChunkGeneratorMessage():
-	message as Message
-	data as object
-
-	def constructor(message as Message, data as object):
-		self.message = message
-		self.data = data
-
-	def getMessage() as Message:
-		return message
-
-	def getData() as object:
-		return data
-
-
-	
-
-################################################################################
-# Main ChunkBall class
 class DataManager (MonoBehaviour, IChunkGenerator):
 
 	locker = object()
 	origin as Vector3
-	#min_distance as byte
 	max_distance as byte
 	chunk_size as byte
 	observers = []
@@ -80,8 +24,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		max_distance = Settings.MaxChunks
 		chunk_size = Settings.ChunkSize
 		mesh_waiting_queue = Dictionary[of LongVector3, Chunk]()
-		#origin = Vector3(10000, 10000, 10000)
-
 
 	def Update():
 		notifyObservers()
@@ -120,13 +62,11 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 	def notifyObservers() as void:
 		lock locker:
-			for y as ChunkGeneratorMessage in outgoing_queue:
-				m = y.getMessage()
-				if m == Message.REMOVE:
-					SendMessage("RemoveMesh", y.getData() as Chunk)
-				if m == Message.MESH_READY:
-					SendMessage("CreateMesh", y.getData() as Chunk)
-				#x.updateObserver(y)
+			for y in outgoing_queue:
+				if y[0] == "REMOVE":
+					SendMessage("RemoveMesh", y[1])
+				elif y[0] == "CREATE":
+					SendMessage("CreateMesh", y[1])
 			outgoing_queue = []
 
 
@@ -136,38 +76,26 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	def _remove_chunk():
 		pass
 
-	def _mesh_worker(chunk_info as Chunk) as WaitCallback:
+	def _mesh_worker(chunk as Chunk) as WaitCallback:
 		try:
-			mesh as MeshData = chunk_info.getMesh()
-			#chunk as BlockData = chunk_info.getChunk()
+			mesh as MeshData = chunk.getMesh()
 			mesh.CalculateMesh()
-			#print "Mesh Calculated: $(chunk.getCoordinates())"
 			lock locker:
-				#SendMessage("CreateMesh", chunk_info)
-				outgoing_queue.Push(ChunkGeneratorMessage(Message.MESH_READY, chunk_info))
+				outgoing_queue.Push(["CREATE", chunk])
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
 
-	def _noise_worker(chunk_info as Chunk) as WaitCallback:
+	def _noise_worker(chunk as Chunk) as WaitCallback:
 		try:
-			chunk as BlockData = chunk_info.getChunk()
-			chunk.CalculateBlocks()
+			blocks as BlockData = chunk.getBlocks()
+			blocks.CalculateBlocks()
 			lock locker:
-				mesh_waiting_queue[chunk.getCoordinates()] = chunk_info
+				mesh_waiting_queue[chunk.getCoords()] = chunk
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
 
-	# def getMaxHeight(location as Vector3) as int:
-	# 	chunk_coords = Utils.whichChunk(location) # LongVector3
-	# 	if chunk_coords in chunks:
-	# 		pass
-	# 	else:
-	# 		return 300  # TO DO: this should be able to return a failure state if the chunk doesn't exist
-
 
 	def SetOrigin(o as Vector3) as void:
-		# watch = System.Diagnostics.Stopwatch()
-		# watch.Start()
 		# only do something if the distance since the
 		# last update is greater than some threshold
 		if origin_initialized:
@@ -181,18 +109,15 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			origin_initialized = true
 			origin = o
 
-
-		#############################################
 		# determine which chunks are now too far away
-		t1 = DateTime.Now
 		current_chunk_coords = Utils.whichChunk(origin)
 		removal_queue = []
 		lock locker:
 			for item in chunks:
-				chunk_info = item.Value
-				chunk_blocks = chunk_info.getChunk()
-				chunk_mesh  = chunk_info.getMesh()
-				chunk_coords = chunk_blocks.getCoordinates()
+				chunk = item.Value
+				chunk_blocks = chunk.getBlocks()
+				chunk_mesh = chunk.getMesh()
+				chunk_coords = chunk.getCoords()
 
 				if Math.Abs(current_chunk_coords.x - chunk_coords.x)/chunk_size > max_distance or \
 					Math.Abs(current_chunk_coords.y - chunk_coords.y)/chunk_size > Settings.MaxChunksVertical or \
@@ -202,19 +127,10 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# remove all chunks that are too far away
 		lock locker:					
 			for key in removal_queue:
-				#SendMessage("RemoveMesh", chunks[key])
-				outgoing_queue.Push(ChunkGeneratorMessage(Message.REMOVE, chunks[key]))
+				outgoing_queue.Push(["REMOVE", chunks[key]])
 				chunks.Remove(key)
-		t2 = DateTime.Now
-		print "T1: $(t2-t1)"
 		
-		# watch.Stop()
-		# print "Elapsed1: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
-		# watch = System.Diagnostics.Stopwatch()
-		# watch.Start()
-		###########################################
 		# determine which chunks need to be added
-		t1 = DateTime.Now
 		creation_queue = []
 		for a in range(max_distance*2+1):
 			for b in range(Settings.MaxChunksVertical*2+1):
@@ -231,11 +147,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# sort so that they are from closest to farthest from origin
 		creation_queue.Sort() do (left as LongVector3, right as LongVector3):
 			return origin.Distance(origin, Vector3(right.x, right.y, right.z)) - origin.Distance(origin, Vector3(left.x, left.y, left.z))
-		# watch.Stop()
-		# print "Elapsed2: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
-		# watch = System.Diagnostics.Stopwatch()
-		# watch.Start()
-		
 
 		# add all new chunks
 		for item as LongVector3 in creation_queue:
@@ -245,19 +156,11 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			chunk_info = Chunk(chunk_blocks, chunk_mesh)
 			chunks.Add(item, chunk_info)
 			thread_queue.Push(chunk_info)
-		t2 = DateTime.Now
-		print "T2: $(t2-t1)"
 			
-		# watch.Stop()
-		# print "Elapsed3: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"			
-		# watch = System.Diagnostics.Stopwatch()
-		# watch.Start()
-
-		t1 = DateTime.Now
 		# for all chunks, update neighbors
 		for item as LongVector3 in creation_queue:
 			chunk_info = chunks[item]
-			chunk_blocks = chunk_info.getChunk()
+			chunk_blocks = chunk_info.getBlocks()
 			chunk_mesh = chunk_info.getMesh()
 			chunk_coords = chunk_blocks.getCoordinates()
 			
@@ -280,37 +183,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				chunks[down_coords].getMesh().setUpNeighbor(chunk_blocks)
 			if chunks.ContainsKey(up_coords):
 				chunks[up_coords].getMesh().setDownNeighbor(chunk_blocks)
-			
-		
-		# for item in chunks:
-		# 	chunk_info = item.Value
-		# 	chunk_blocks = chunk_info.getChunk()
-		# 	chunk_mesh = chunk_info.getMesh()
-		# 	chunk_coords = chunk_blocks.getCoordinates()
-
-		# 	west_coords = LongVector3(chunk_coords.x - Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
-		# 	east_coords = LongVector3(chunk_coords.x + Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
-		# 	south_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z - Settings.ChunkSize)
-		# 	north_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z + Settings.ChunkSize)
-		# 	down_coords = LongVector3(chunk_coords.x, chunk_coords.y - Settings.ChunkSize, chunk_coords.z)
-		# 	up_coords = LongVector3(chunk_coords.x, chunk_coords.y + Settings.ChunkSize, chunk_coords.z)
-
-		# 	if chunks.ContainsKey(west_coords):
-		# 		chunk_mesh.setWestNeighbor(chunks[west_coords].getChunk())
-		# 	if chunks.ContainsKey(east_coords):
-		# 		chunk_mesh.setEastNeighbor(chunks[east_coords].getChunk())
-		# 	if chunks.ContainsKey(south_coords):
-		# 		chunk_mesh.setSouthNeighbor(chunks[south_coords].getChunk())
-		# 	if chunks.ContainsKey(north_coords):
-		# 		chunk_mesh.setNorthNeighbor(chunks[north_coords].getChunk())
-		# 	if chunks.ContainsKey(down_coords):
-		# 		chunk_mesh.setDownNeighbor(chunks[down_coords].getChunk())
-		# 	if chunks.ContainsKey(up_coords):
-		# 		chunk_mesh.setUpNeighbor(chunks[up_coords].getChunk())
-		# watch.Stop()
-		# print "Elapsed4: $(watch.Elapsed.Seconds):$(watch.Elapsed.Milliseconds)"
-		t2 = DateTime.Now
-		print "T3: $(t2-t1)"		
 
 				
 
@@ -356,7 +228,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		if chunk_coords in chunks:
 			#print "Found Chunk"
 			i as Chunk = chunks[chunk_coords]
-			c as BlockData = i.getChunk()
+			c as BlockData = i.getBlocks()
 			c.setBlock(block_coords, 0)
 			m = MeshData(c)
 			m.CalculateMesh()
@@ -417,7 +289,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		if chunk_coords in chunks:
 			#print "Found Chunk"
 			i as Chunk = chunks[chunk_coords]
-			c as BlockData = i.getChunk()
+			c as BlockData = i.getBlocks()
 			b = c.getBlock(block_coords)
 			if b > 0:
 				pass

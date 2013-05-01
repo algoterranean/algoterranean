@@ -1,99 +1,91 @@
+"""Maintains a list of all the existing chunks and manages drawing them to the
+screen. Receives updates via SendMessage (CreateMesh, RefreshMesh, and RemoveMesh)
+and reacts appropriately. """
 namespace Algorithmic.Chunks
 
 import UnityEngine
 
+
 class DisplayManager (MonoBehaviour):
+
 	add_mesh_queue = []
 	remove_mesh_queue = []
-
 	visible_meshes = {}
 	mesh_mat as Material
-
-	initialized as bool = false
-	wait_for_init_queue = []
 	draw_meshes_directly = true
 
-
-
-	def CreateMesh(ci as Chunk):
-		add_mesh_queue.Push(ci)
-
-	def RefreshMesh(ci as Chunk):
-		refresh_mesh(ci)		
-
-	def RemoveMesh(ci as Chunk):
-		remove_mesh_queue.Push(ci)
 
 	def Awake():
 		mesh_mat = Resources.Load("Materials/Measure") as Material
 		Screen.lockCursor = true
 
-	def Start():
-		# intialize world
-		# setOrigin(Vector3(0, 0, 0))
-		wait_for_init_queue.Push(LongVector3(0, 0, 0))
-
 	def Update():
-		# check if all the needed chunks in initial load are completed
-		if len(wait_for_init_queue) == 0:
-			initialized = true
-
+		# if there is a mesh to add, pop it off and add it
 		if len(add_mesh_queue) > 0:
-			chunk_info = add_mesh_queue.Pop()
-			chunk = chunk_info.getChunk()
-			coord = chunk.getCoordinates()
-			_create_mesh_object(chunk_info)
-			if coord in wait_for_init_queue:
-				wait_for_init_queue.Remove(coord)
+			_create_mesh_object(add_mesh_queue.Pop())
 
+		# if there is a mesh to remove, pop it off and remove it
 		if len(remove_mesh_queue) > 0:
-			chunk_info = remove_mesh_queue.Pop()
-			_remove_mesh_object(chunk_info)
+			_remove_mesh_object(remove_mesh_queue.Pop())
 
+		# draw all of the visible meshes every frame.
+		# this is much faster than creating and using traditional GameObjects
 		if draw_meshes_directly:
 			for x in visible_meshes:
 				coords = x.Value[0]
 				m = x.Value[1]
 				Graphics.DrawMesh(m, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)
-
 				
-			
+	#
+	# message functions for communicating chunk state changes. can be called
+	# via SendMessage (as a substitute for Observer/Observable) or directly.
+	#
+	# Add and Remove use queues so that it only updates one mesh per frame
+	# to keep frame rates consistent. Refresh will make changes directly as
+	# the update needs to occur immediately (due to digging/building taking
+	# presidence over new mesh creation/displaying).
+	#
+				
+	def CreateMesh(ci as Chunk):
+		add_mesh_queue.Push(ci)
 
-	def isInitialized() as bool:
-		return initialized
+	def RemoveMesh(ci as Chunk):
+		remove_mesh_queue.Push(ci)
 
-	def areInitialChunksComplete() as bool:
-		pass
+	def RefreshMesh(ci as Chunk):
+		_refresh_mesh_object(ci)		
 
-	def refresh_mesh(i as Chunk):
-		#chunk_blocks as BlockData = i.getChunk()
+
+	#
+	# helper functions for removing chunks, adding chunks, and refreshing chunks
+	#
+	
+	def _refresh_mesh_object(i as Chunk):
 		chunk_mesh as MeshData = i.getMesh()
-		#coords = chunk_blocks.getCoordinates()
-		
-		n = "$i"
-		
-		actual_mesh = visible_meshes[n][1]
+		actual_mesh = visible_meshes["$i"][1]
 		actual_mesh.vertices = chunk_mesh.getVertices()
 		actual_mesh.triangles = chunk_mesh.getTriangles()
 		actual_mesh.normals = chunk_mesh.getNormals()
 		actual_mesh.uv = chunk_mesh.getUVs()
-		visible_meshes[n][1] = actual_mesh
-
+		visible_meshes["$i"][1] = actual_mesh
 
 	def _remove_mesh_object(chunk_info as Chunk):
-		#chunk_blocks as BlockData = chunk_info.getChunk()
 		if draw_meshes_directly:
+			# what if the key doesn't exist yet?
+			#if "$chunk_info" in visible_meshes:
 			visible_meshes.Remove("$chunk_info")
+			# else:
+			# 	RemoveMesh(chunk_info)
 		else:
 			o = gameObject.Find("$chunk_info")
 			if o != null:
 				gameObject.Destroy(o)
-			# else: # TO DO: THIS IS REQUIRED WHEN NOT DRAWING MESHES DIRECTLY
-			        # for when some meshes are not instantiated before being removed
-			#  	updateObserver(ChunkGeneratorMessage(Message.REMOVE, chunk_info))
+			else:
+				# TO DO: add explanation
+				RemoveMesh(chunk_info)
 
 	def _create_mesh_object(chunk_info as Chunk):
-		chunk_blocks as BlockData = chunk_info.getChunk()
+		chunk_blocks as BlockData = chunk_info.getBlocks()
 		chunk_mesh as MeshData = chunk_info.getMesh()
 		coords = chunk_blocks.getCoordinates()
 		
