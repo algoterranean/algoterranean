@@ -40,8 +40,8 @@ class World (MonoBehaviour):
 		particles = []
 		registry = ForceParticleRegistry()
 		_resolver = ParticleContactResolver(50)
-		chunk_manager = gameObject.Find("ChunkManager").GetComponent("DisplayManager")
-		chunk_ball = chunk_manager.getChunkBall()
+		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
+		chunk_ball = gameObject.Find("Engine/ChunkManager").GetComponent("DataManager")
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
 		player = gameObject.Find("Player").GetComponent("Player")
 		registry.add(player_particle, forces.gravity)
@@ -59,15 +59,11 @@ class World (MonoBehaviour):
 		loop_count = 1
 		max_loops = 10 # for degenerate cases
 
-
-
 		#registry.updateForces(Time.deltaTime)
 		# for p as Algorithmic.Particle in particles:
 		# 	p.addForce(Vector3(0, -9.8*p.Mass, 0))
 		# 	p.integrate(Time.deltaTime)
 		# 	p.update_position()
-
-
 
 		
 		while current_time < end_time and loop_count < max_loops:
@@ -135,14 +131,6 @@ class World (MonoBehaviour):
 						plane_normals = [Vector3(-1, 0, 0), Vector3(1, 0, 0),
 										 Vector3(0, -1, 0), Vector3(0, 1, 0),
 										 Vector3(0, 0, -1), Vector3(0, 0, 1)]
-						surfaces = [(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
-									(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
-									
-									(Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
-									(Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x)) * (Min(c.block_aabb.max.z, current_aabb.max.z) - Max(c.block_aabb.min.z, current_aabb.min.z)),
-									
-									(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x)),
-									(Min(c.block_aabb.max.y, current_aabb.max.y) - Max(c.block_aabb.min.y, current_aabb.min.y)) * (Min(c.block_aabb.max.x, current_aabb.max.x) - Max(c.block_aabb.min.x, current_aabb.min.x))]
 									
 						min_dist = 999999999999999999.0
 						#max_surface_area = 0
@@ -151,7 +139,6 @@ class World (MonoBehaviour):
 							if System.Math.Abs(planes[i] cast single) < min_dist:
 								min_dist = System.Math.Abs(planes[i] cast single)
 								c_n = plane_normals[i]
-								#max_surface_area = surfaces[i]
 
 						c_n = c.contact_normal
 						#print "NEW CONTACT NORMAL: $c_n"

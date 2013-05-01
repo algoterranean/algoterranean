@@ -1,7 +1,6 @@
 namespace Algorithmic.Player
 
 import UnityEngine
-import Algorithmic.Chunks
 
 
 class PlayerCamera (MonoBehaviour):
@@ -53,8 +52,6 @@ class PlayerCamera (MonoBehaviour):
 		transform.position = desired_position
 		transform.LookAt(player.transform)
 
-
-		g = player_graphics[0] as GameObject
 		if zoom == 0:
 			player_graphics[0].renderer.enabled = false
 			player_graphics[1].renderer.enabled = false

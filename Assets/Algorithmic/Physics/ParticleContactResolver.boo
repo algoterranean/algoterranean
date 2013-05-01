@@ -34,10 +34,10 @@ class ParticleContactResolver:
 
 			for i in range(len(contacts)):
 				if contacts[i].getParticle1() == contacts[max_index].getParticle1():
-					a = contacts[i].getPenetration()
-					b = move_1
-					c = contacts[i].getContactNormal()
-					d = Vector3.Dot(move_1, contacts[i].getContactNormal())
+					# a = contacts[i].getPenetration()
+					# b = move_1
+					# c = contacts[i].getContactNormal()
+					# d = Vector3.Dot(move_1, contacts[i].getContactNormal())
 					
 					p = contacts[i].getPenetration() - Vector3.Dot(move_1, contacts[i].getContactNormal())
 					Log.Log("Setting Penetration: $p", LOG_MODULE.PHYSICS)

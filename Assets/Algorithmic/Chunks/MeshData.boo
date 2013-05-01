@@ -1,8 +1,7 @@
 namespace Algorithmic.Chunks
 
 import UnityEngine
-import Algorithmic
-import System.Math
+
 
 struct AABBSize:
 	x as single
@@ -93,7 +92,7 @@ class MeshData (IChunkMeshData):
 		down_neighbor = NullBlockData()
 		up_neighbor = NullBlockData()
 
-		c = chunk.getCoordinates()
+		# c = chunk.getCoordinates()
 		#bounding_volume_tree = BoundingVolumeTree(chunk)
 			#AABB(Vector3(c.x + Settings.ChunkSize/2, c.y + Settings.ChunkSize/2, c.z + Settings.ChunkSize/2),
 			#					Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2)))
@@ -270,7 +269,7 @@ class MeshData (IChunkMeshData):
 		triangle_count = 0
 		uv_count = 0
 		normal_count = 0
-		aabb_count = 0
+		#aabb_count = 0
 
 		def _add_uvs(x as single, y as single):
 			# give x, y coordinates in (0-9) by (0-9)

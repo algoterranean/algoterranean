@@ -1,9 +1,8 @@
 namespace Algorithmic.Physics
 
 import UnityEngine
-import Algorithmic
 import Algorithmic.Chunks
-import Algorithmic.Misc
+
 
 
 
@@ -172,7 +171,7 @@ class ChunkCollider ():
 			contact_normal = Vector3(0, 0, Mathf.Sign(v.z))
 
 
-		FP_ERROR = 0.0001
+		#FP_ERROR = 0.0001
 		if contact_normal == Vector3(0, 0, 0):
 			# generate contact normal for resting particles
 			if b.max.y <= a.min.y: #+ FP_ERROR: #and v.y <= 0:

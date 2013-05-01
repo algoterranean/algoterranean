@@ -11,8 +11,8 @@ class Gravity (IForceGenerator):
 	def updateForce(particle as IParticle, duration as single):
 		particle.addForce(_g * particle.Mass)
 
-	def getType() as FORCE_TYPE:
-		return FORCE_TYPE.GRAVITY
+	# def getType() as FORCE_TYPE:
+	# 	return FORCE_TYPE.GRAVITY
 
 	def getForce():
 		return _g
@@ -33,8 +33,8 @@ class Ground (IForceGenerator):
 		return "GROUND $force"
 	def getForce():
 		return force
-	def getType():
-		return FORCE_TYPE.GROUND_REACTION
+	# def getType():
+	# 	return FORCE_TYPE.GROUND_REACTION
 
 
 

@@ -10,7 +10,7 @@ static class Log:
 	def constructor():
 		pass
 
-	static def Log(s as string, module as LOG_MODULE):
+	def Log(s as string, module as LOG_MODULE):
 		if module == LOG_MODULE.PHYSICS:
 			m = "PHYSICS"
 		elif module == LOG_MODULE.CONTACTS:

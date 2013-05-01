@@ -4,12 +4,11 @@ import System.Collections.Generic
 import System.Threading
 import Algorithmic
 import UnityEngine
-import Algorithmic.Misc
 
 
 ################################################################################
 # Utility and Message Passing Stuff
-class ChunkInfo():
+class Chunk():
 	chunk as IChunkBlockData
 	mesh as IChunkMeshData
 	bounds as AABB
@@ -72,15 +71,15 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	observers = []
 	outgoing_queue = []
 	thread_queue = []
-	chunks = Dictionary[of LongVector3, ChunkInfo]()
+	chunks = Dictionary[of LongVector3, Chunk]()
 	threshold = 10.0
-	mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
+	mesh_waiting_queue as Dictionary[of LongVector3, Chunk]
 	origin_initialized = false
 
 	def Awake():
 		max_distance = Settings.MaxChunks
 		chunk_size = Settings.ChunkSize
-		mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
+		mesh_waiting_queue = Dictionary[of LongVector3, Chunk]()
 		#origin = Vector3(10000, 10000, 10000)
 
 
@@ -91,7 +90,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		ready_mesh_key as duck
 		lock locker:
 			for item in mesh_waiting_queue:
-				chunk_info as ChunkInfo = item.Value
+				chunk_info as Chunk = item.Value
 				chunk_mesh as MeshData = chunk_info.getMesh()
 				if chunk_mesh.areNeighborsReady():
 					ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
@@ -124,9 +123,9 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			for y as ChunkGeneratorMessage in outgoing_queue:
 				m = y.getMessage()
 				if m == Message.REMOVE:
-					SendMessage("RemoveMesh", y.getData() as ChunkInfo)
+					SendMessage("RemoveMesh", y.getData() as Chunk)
 				if m == Message.MESH_READY:
-					SendMessage("CreateMesh", y.getData() as ChunkInfo)
+					SendMessage("CreateMesh", y.getData() as Chunk)
 				#x.updateObserver(y)
 			outgoing_queue = []
 
@@ -137,10 +136,10 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	def _remove_chunk():
 		pass
 
-	def _mesh_worker(chunk_info as ChunkInfo) as WaitCallback:
+	def _mesh_worker(chunk_info as Chunk) as WaitCallback:
 		try:
 			mesh as MeshData = chunk_info.getMesh()
-			chunk as BlockData = chunk_info.getChunk()
+			#chunk as BlockData = chunk_info.getChunk()
 			mesh.CalculateMesh()
 			#print "Mesh Calculated: $(chunk.getCoordinates())"
 			lock locker:
@@ -149,7 +148,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
 
-	def _noise_worker(chunk_info as ChunkInfo) as WaitCallback:
+	def _noise_worker(chunk_info as Chunk) as WaitCallback:
 		try:
 			chunk as BlockData = chunk_info.getChunk()
 			chunk.CalculateBlocks()
@@ -243,7 +242,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			size = ByteVector3(chunk_size, chunk_size, chunk_size)
 			chunk_blocks = BlockData(item, size)
 			chunk_mesh = MeshData(chunk_blocks)
-			chunk_info = ChunkInfo(chunk_blocks, chunk_mesh)
+			chunk_info = Chunk(chunk_blocks, chunk_mesh)
 			chunks.Add(item, chunk_info)
 			thread_queue.Push(chunk_info)
 		t2 = DateTime.Now
@@ -327,7 +326,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			new_x = x
 		c_x = new_x / size - (1 if x < 0 else 0)
 		start_x = c_x * size
-		end_x = start_x + size - 1
+		#end_x = start_x + size - 1
 		b_x = x - start_x
 
 		if y < 0:
@@ -336,7 +335,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			new_y = y
 		c_y = new_y / size - (1 if y < 0 else 0)
 		start_y = c_y * size
-		end_y = start_y + size - 1
+		#end_y = start_y + size - 1
 		b_y = y - start_y
 
 		if z < 0:
@@ -345,7 +344,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			new_z = z
 		c_z = new_z / size - (1 if z < 0 else 0)
 		start_z = c_z * size
-		end_z = start_z + size - 1
+		#end_z = start_z + size - 1
 		b_z = z - start_z
 
 
@@ -356,7 +355,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	
 		if chunk_coords in chunks:
 			#print "Found Chunk"
-			i as ChunkInfo = chunks[chunk_coords]
+			i as Chunk = chunks[chunk_coords]
 			c as BlockData = i.getChunk()
 			c.setBlock(block_coords, 0)
 			m = MeshData(c)
@@ -388,7 +387,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			new_x = x
 		c_x = new_x / size - (1 if x < 0 else 0)
 		start_x = c_x * size
-		end_x = start_x + size - 1
+		#end_x = start_x + size - 1
 		b_x = x - start_x
 
 		if y < 0:
@@ -397,7 +396,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			new_y = y
 		c_y = new_y / size - (1 if y < 0 else 0)
 		start_y = c_y * size
-		end_y = start_y + size - 1
+		#end_y = start_y + size - 1
 		b_y = y - start_y
 
 		if z < 0:
@@ -406,7 +405,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			new_z = z
 		c_z = new_z / size - (1 if z < 0 else 0)
 		start_z = c_z * size
-		end_z = start_z + size - 1
+		#end_z = start_z + size - 1
 		b_z = z - start_z
 
 
@@ -417,7 +416,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	
 		if chunk_coords in chunks:
 			#print "Found Chunk"
-			i as ChunkInfo = chunks[chunk_coords]
+			i as Chunk = chunks[chunk_coords]
 			c as BlockData = i.getChunk()
 			b = c.getBlock(block_coords)
 			if b > 0:

@@ -1,7 +1,5 @@
 namespace Algorithmic.Chunks
 
-import UnityEngine
-
 
 class NullBlockData (IChunkBlockData):
 	def isNull():

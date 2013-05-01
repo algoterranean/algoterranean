@@ -22,8 +22,8 @@ class Player (MonoBehaviour):
 		orientation = Vector3(0, 45, 0)
 
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
-		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager") as DisplayManager
-		chunk_ball = chunk_manager.getChunkBall()
+		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
+		chunk_ball = gameObject.Find("Engine/ChunkManager").GetComponent("DataManager")
 		player_camera = gameObject.Find("Player/Camera")
 		world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
 
@@ -66,8 +66,8 @@ class Player (MonoBehaviour):
 		# 										ba.center.y - ba.radius.y,
 		# 										ba.center.z - ba.radius.z))
 		# 	#print "DIGGING: $c"
-			
-		chunk_manager.setOrigin(transform.position)
+		chunk_ball.SetOrigin(transform.position)
+
 
 	
 

@@ -14,7 +14,7 @@ interface IChunkMeshData ():
 		
 		
 
-	def isMeshCalcualted() as bool
+	def isMeshCalculated() as bool
 	def areNeighborsReady() as bool
 	def CalculateMesh() as void
 	def setBlockData(chunk as IChunkBlockData) as void

@@ -1,7 +1,5 @@
 namespace Algorithmic
 
-import Algorithmic.Misc
-
 class Particle (IParticle, MonoBehaviour):
 	# position as Vector3
 	# velocity as Vector3
