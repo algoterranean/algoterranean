@@ -1,4 +1,4 @@
-import Algorithmic
+import Algorithmic.Chunks
 import LibNoise
 import UnityEngine
 

@@ -1,5 +1,5 @@
 import LibNoise
-import Algorithmic
+import Algorithmic.Chunks
 
 class BiomeNoiseData (INoiseData):
 	total_select as Modifier.Select

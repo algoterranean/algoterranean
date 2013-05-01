@@ -1,5 +1,6 @@
 import System
 import LibNoise
+import Algorithmic.Chunks
 import Algorithmic
 
 class MineralNoiseData (INoiseData):

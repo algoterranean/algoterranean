@@ -1,4 +1,4 @@
-namespace Algorithmic
+namespace Algorithmic.Chunks
 
 enum BLOCK:
 	AIR = 0

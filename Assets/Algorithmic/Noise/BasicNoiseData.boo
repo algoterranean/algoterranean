@@ -1,6 +1,6 @@
 import System
 import LibNoise
-import Algorithmic
+import Algorithmic.Chunks
 
 
 class BasicNoiseData (INoiseData):
