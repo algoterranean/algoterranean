@@ -9,24 +9,23 @@ import Algorithmic.Misc
 #import Amib.Threading
 
 
-class ChunkManager (MonoBehaviour, IObserver):
+class DisplayManager (MonoBehaviour, IObserver):
 	origin as Vector3
-	chunk_ball as ChunkBall
+	data_manager as DataManager
 	add_mesh_queue = []
 	remove_mesh_queue = []
 
 	visible_meshes = {}
 	mesh_mat as Material
-	#mesh_cleanup_queue = []
 
 	initialized as bool = false
 	wait_for_init_queue = []
 	draw_meshes_directly = true
 
-	#_registry as ForceParticleRegistry
+
 
 	def getChunkBall():
-		return chunk_ball
+		return data_manager
 
 	def updateObserver(o as object):
 		if o isa ChunkGeneratorMessage:
@@ -49,8 +48,9 @@ class ChunkManager (MonoBehaviour, IObserver):
 				refresh_mesh(chunk_info)
 
 	def Awake():
-		chunk_ball = ChunkBall(Settings.MaxChunks, Settings.ChunkSize)
-		chunk_ball.registerObserver(self)
+		data_manager = GetComponent("DataManager")
+		#DataManager() #Settings.MaxChunks, Settings.ChunkSize)
+		data_manager.registerObserver(self)
 		mesh_mat = Resources.Load("Materials/Measure") as Material
 		Screen.lockCursor = true
 		#_registry = ForceParticleRegistry()
@@ -65,7 +65,7 @@ class ChunkManager (MonoBehaviour, IObserver):
 
 	def Update():
 		#chunk_info as ChunkInfo
-		chunk_ball.Update()
+		#data_manager.Update()
 		
 		# check if all the needed chunks in initial load are completed
 		if len(wait_for_init_queue) == 0:
@@ -95,7 +95,7 @@ class ChunkManager (MonoBehaviour, IObserver):
 		# 	_player = gameObject.Find("Player").GetComponent("Player") as Player
 		# 	_player_aabb = _player.getAABB()
 		# 	x = gameObject.Find("Player").GetComponent("Player") as Player
-			# if chunk_ball.CheckCollisions(_player_aabb):
+			# if data_manager.CheckCollisions(_player_aabb):
 			#     x.stopGravity()
 			# else:
 			#     x.startGravity()
@@ -115,7 +115,7 @@ class ChunkManager (MonoBehaviour, IObserver):
 		pass
 
 	def setOrigin(origin as Vector3) as void:
-		chunk_ball.SetOrigin(origin)
+		data_manager.SetOrigin(origin)
 		self.origin = origin
 
 	def refresh_mesh(i as ChunkInfo):

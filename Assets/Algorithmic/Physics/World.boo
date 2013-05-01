@@ -25,8 +25,8 @@ class World (MonoBehaviour):
 	_running = false
 	jumping = false
 	forces = AvailableForces(Gravity(), Ground(Vector3(0, 9.8, 0)), Jump())
-	chunk_manager as ChunkManager
-	chunk_ball as ChunkBall
+	chunk_manager as DisplayManager
+	chunk_ball as DataManager
 	player_particle as Algorithmic.Particle
 	player as Player
 	player_radius as Vector3
@@ -40,7 +40,7 @@ class World (MonoBehaviour):
 		particles = []
 		registry = ForceParticleRegistry()
 		_resolver = ParticleContactResolver(50)
-		chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager")
+		chunk_manager = gameObject.Find("ChunkManager").GetComponent("DisplayManager")
 		chunk_ball = chunk_manager.getChunkBall()
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
 		player = gameObject.Find("Player").GetComponent("Player")

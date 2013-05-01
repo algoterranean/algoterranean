@@ -31,9 +31,9 @@ struct SweepContact:
 
 
 class TerrainCollider ():
-	chunk_ball as ChunkBall
+	chunk_ball as DataManager
 
-	def constructor(cb as ChunkBall):
+	def constructor(cb as DataManager):
 		chunk_ball = cb
 		
 	def _generate_possible_collisions(obj as AABB, obj_prev as AABB):

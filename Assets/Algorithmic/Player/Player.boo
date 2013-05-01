@@ -5,8 +5,8 @@ import Algorithmic.Terrain
 
 
 class Player (MonoBehaviour):
-	chunk_manager as ChunkManager
-	chunk_ball as ChunkBall
+	chunk_manager as DisplayManager
+	chunk_ball as DataManager
 	orientation as Vector3
 	rotate_speed as single
 	movement_speed as single
@@ -20,8 +20,9 @@ class Player (MonoBehaviour):
 		rotate_speed = 3.5
 		movement_speed = 5
 		orientation = Vector3(0, 45, 0)
+
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
-		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("ChunkManager") as ChunkManager
+		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager") as DisplayManager
 		chunk_ball = chunk_manager.getChunkBall()
 		player_camera = gameObject.Find("Player/Camera")
 		world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")

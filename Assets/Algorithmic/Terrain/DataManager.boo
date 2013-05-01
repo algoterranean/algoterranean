@@ -62,7 +62,8 @@ class ChunkGeneratorMessage():
 
 ################################################################################
 # Main ChunkBall class
-class ChunkBall (IChunkGenerator, IObservable):
+class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
+
 	locker = object()
 	origin as Vector3
 	#min_distance as byte
@@ -74,7 +75,13 @@ class ChunkBall (IChunkGenerator, IObservable):
 	chunks = Dictionary[of LongVector3, ChunkInfo]()
 	threshold = 10.0
 	mesh_waiting_queue as Dictionary[of LongVector3, ChunkInfo]
+	origin_initialized = false
 
+	def Awake():
+		max_distance = Settings.MaxChunks
+		chunk_size = Settings.ChunkSize
+		mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
+		#origin = Vector3(10000, 10000, 10000)
 
 
 	def Update():
@@ -118,16 +125,6 @@ class ChunkBall (IChunkGenerator, IObservable):
 				for y in outgoing_queue:
 					x.updateObserver(y)
 			outgoing_queue = []
-
-
-	def constructor(max_distance, chunk_size):
-		#setMinChunkDistance(min_distance)
-		self.max_distance = Settings.MaxChunks
-		#setMaxChunkDistance(max_distance)
-		self.chunk_size = Settings.ChunkSize
-		#chunks = Dictionary[of LongVector3, ChunkInfo]()
-		mesh_waiting_queue = Dictionary[of LongVector3, ChunkInfo]()
-		origin = Vector3(10000, 10000, 10000)
 
 
 	# def setMinChunkDistance(m as byte) as void:
@@ -183,12 +180,16 @@ class ChunkBall (IChunkGenerator, IObservable):
 		# watch.Start()
 		# only do something if the distance since the
 		# last update is greater than some threshold
-		a = origin.x - o.x
-		b = origin.y - o.y
-		c = origin.z - o.z
-		if Math.Sqrt(a*a + b*b + c*c) < threshold:
-			return
-		origin = o
+		if origin_initialized:
+			a = origin.x - o.x
+			b = origin.y - o.y
+			c = origin.z - o.z
+			if Math.Sqrt(a*a + b*b + c*c) < threshold:
+				return
+			origin = o
+		else:
+			origin_initialized = true
+			origin = o
 
 
 		#############################################
