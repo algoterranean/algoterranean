@@ -9,7 +9,7 @@ import Algorithmic.Misc
 #import Amib.Threading
 
 
-class DisplayManager (MonoBehaviour, IObserver):
+class DisplayManager (MonoBehaviour):
 	origin as Vector3
 	data_manager as DataManager
 	add_mesh_queue = []
@@ -23,34 +23,24 @@ class DisplayManager (MonoBehaviour, IObserver):
 	draw_meshes_directly = true
 
 
-
 	def getChunkBall():
 		return data_manager
 
-	def updateObserver(o as object):
-		if o isa ChunkGeneratorMessage:
-			cm = o cast ChunkGeneratorMessage
-			message = cm.getMessage()
-			chunk_info as ChunkInfo = cm.getData()
-			chunk_blocks as IChunkBlockData = chunk_info.getChunk()
-			#chunk_mesh as IChunkMeshData = chunk_info.getMesh()
-			coords = chunk_blocks.getCoordinates()
 
-			#print "ChunkManager: Receiving ChunkBall Update: $message ($(coords.x), $(coords.y), $(coords.z))"
-			if message == Message.MESH_READY:
-				Log.Log("Add $chunk_info", LOG_MODULE.CHUNKS)
-				add_mesh_queue.Push(chunk_info)
-			elif message == Message.REMOVE:
-				Log.Log("Remove $chunk_info", LOG_MODULE.CHUNKS)
-				remove_mesh_queue.Push(chunk_info)
-			elif message = Message.REFRESH:
-				Log.Log("Refresh $chunk_info", LOG_MODULE.CHUNKS)
-				refresh_mesh(chunk_info)
+	def CreateMesh(ci as ChunkInfo):
+		add_mesh_queue.Push(ci)
+
+	def RefreshMesh(ci as ChunkInfo):
+		refresh_mesh(ci)		
+
+	def RemoveMesh(ci as ChunkInfo):
+		remove_mesh_queue.Push(ci)
+		
 
 	def Awake():
 		data_manager = GetComponent("DataManager")
 		#DataManager() #Settings.MaxChunks, Settings.ChunkSize)
-		data_manager.registerObserver(self)
+		#data_manager.registerObserver(self)
 		mesh_mat = Resources.Load("Materials/Measure") as Material
 		Screen.lockCursor = true
 		#_registry = ForceParticleRegistry()
@@ -119,8 +109,8 @@ class DisplayManager (MonoBehaviour, IObserver):
 		self.origin = origin
 
 	def refresh_mesh(i as ChunkInfo):
-		chunk_blocks as ChunkBlockData = i.getChunk()
-		chunk_mesh as ChunkMeshData = i.getMesh()
+		chunk_blocks as BlockData = i.getChunk()
+		chunk_mesh as MeshData = i.getMesh()
 		coords = chunk_blocks.getCoordinates()
 		
 		n = "$i"
@@ -135,7 +125,7 @@ class DisplayManager (MonoBehaviour, IObserver):
 		#visible_meshes[n] = [coords, m]
 
 	def _remove_mesh_object(chunk_info as ChunkInfo):
-		chunk_blocks as ChunkBlockData = chunk_info.getChunk()
+		chunk_blocks as BlockData = chunk_info.getChunk()
 		coords = chunk_blocks.getCoordinates()
 		if draw_meshes_directly:
 			visible_meshes.Remove("$chunk_info")
@@ -143,12 +133,12 @@ class DisplayManager (MonoBehaviour, IObserver):
 			o = gameObject.Find("$chunk_info")
 			if o != null:
 				gameObject.Destroy(o)
-			else:
-			 	updateObserver(ChunkGeneratorMessage(Message.REMOVE, chunk_info))
+			# else: # TO DO: THIS IS REQUIRED WHEN NOT DRAWING MESHES DIRECTLY for when some meshes are not instantiated before being removed
+			#  	updateObserver(ChunkGeneratorMessage(Message.REMOVE, chunk_info))
 
 	def _create_mesh_object(chunk_info as ChunkInfo):
-		chunk_blocks as ChunkBlockData = chunk_info.getChunk()
-		chunk_mesh as ChunkMeshData = chunk_info.getMesh()
+		chunk_blocks as BlockData = chunk_info.getChunk()
+		chunk_mesh as MeshData = chunk_info.getMesh()
 		coords = chunk_blocks.getCoordinates()
 		
 		mesh = Mesh()

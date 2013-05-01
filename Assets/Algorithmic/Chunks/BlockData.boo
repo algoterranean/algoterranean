@@ -10,7 +10,7 @@ class NullBlockData (IChunkBlockData):
 		return false
 
 
-class ChunkBlockData (IChunkBlockData):
+class BlockData (IChunkBlockData):
 	coords as LongVector3
 	size as ByteVector3
 	blocks as (byte, 3)

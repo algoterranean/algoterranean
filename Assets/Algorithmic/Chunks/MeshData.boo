@@ -62,7 +62,7 @@ struct AABB:
 	
 
 
-class ChunkMeshData (IChunkMeshData):
+class MeshData (IChunkMeshData):
 	chunk as IChunkBlockData
 	mesh_calculated as bool
 	vertices as (Vector3)

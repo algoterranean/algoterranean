@@ -62,7 +62,7 @@ class ChunkGeneratorMessage():
 
 ################################################################################
 # Main ChunkBall class
-class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
+class DataManager (MonoBehaviour, IChunkGenerator):
 
 	locker = object()
 	origin as Vector3
@@ -92,7 +92,7 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 		lock locker:
 			for item in mesh_waiting_queue:
 				chunk_info as ChunkInfo = item.Value
-				chunk_mesh as ChunkMeshData = chunk_info.getMesh()
+				chunk_mesh as MeshData = chunk_info.getMesh()
 				if chunk_mesh.areNeighborsReady():
 					ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
 					ready_mesh_key = item.Key
@@ -121,23 +121,15 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 
 	def notifyObservers() as void:
 		lock locker:
-			for x as IObserver in observers:
-				for y in outgoing_queue:
-					x.updateObserver(y)
+			for y as ChunkGeneratorMessage in outgoing_queue:
+				m = y.getMessage()
+				if m == Message.REMOVE:
+					SendMessage("RemoveMesh", y.getData() as ChunkInfo)
+				if m == Message.MESH_READY:
+					SendMessage("CreateMesh", y.getData() as ChunkInfo)
+				#x.updateObserver(y)
 			outgoing_queue = []
 
-
-	# def setMinChunkDistance(m as byte) as void:
-	# 	min_distance = m
-
-	# def getMinChunkDistance() as byte:
-	# 	return min_distance
-
-	# def setMaxChunkDistance(m as byte) as void:
-	# 	max_distance = m
-
-	# def getMaxChunkDistance() as byte:
-	# 	return max_distance
 
 	def _add_dchunk():
 		pass
@@ -147,18 +139,19 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 
 	def _mesh_worker(chunk_info as ChunkInfo) as WaitCallback:
 		try:
-			mesh as ChunkMeshData = chunk_info.getMesh()
-			chunk as ChunkBlockData = chunk_info.getChunk()
+			mesh as MeshData = chunk_info.getMesh()
+			chunk as BlockData = chunk_info.getChunk()
 			mesh.CalculateMesh()
 			#print "Mesh Calculated: $(chunk.getCoordinates())"
 			lock locker:
+				#SendMessage("CreateMesh", chunk_info)
 				outgoing_queue.Push(ChunkGeneratorMessage(Message.MESH_READY, chunk_info))
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
 
 	def _noise_worker(chunk_info as ChunkInfo) as WaitCallback:
 		try:
-			chunk as ChunkBlockData = chunk_info.getChunk()
+			chunk as BlockData = chunk_info.getChunk()
 			chunk.CalculateBlocks()
 			lock locker:
 				mesh_waiting_queue[chunk.getCoordinates()] = chunk_info
@@ -171,8 +164,6 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 	# 		pass
 	# 	else:
 	# 		return 300  # TO DO: this should be able to return a failure state if the chunk doesn't exist
-
-
 
 
 	def SetOrigin(o as Vector3) as void:
@@ -212,6 +203,7 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 		# remove all chunks that are too far away
 		lock locker:					
 			for key in removal_queue:
+				#SendMessage("RemoveMesh", chunks[key])
 				outgoing_queue.Push(ChunkGeneratorMessage(Message.REMOVE, chunks[key]))
 				chunks.Remove(key)
 		t2 = DateTime.Now
@@ -249,8 +241,8 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 		# add all new chunks
 		for item as LongVector3 in creation_queue:
 			size = ByteVector3(chunk_size, chunk_size, chunk_size)
-			chunk_blocks = ChunkBlockData(item, size)
-			chunk_mesh = ChunkMeshData(chunk_blocks)
+			chunk_blocks = BlockData(item, size)
+			chunk_mesh = MeshData(chunk_blocks)
 			chunk_info = ChunkInfo(chunk_blocks, chunk_mesh)
 			chunks.Add(item, chunk_info)
 			thread_queue.Push(chunk_info)
@@ -365,9 +357,9 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 		if chunk_coords in chunks:
 			#print "Found Chunk"
 			i as ChunkInfo = chunks[chunk_coords]
-			c as ChunkBlockData = i.getChunk()
+			c as BlockData = i.getChunk()
 			c.setBlock(block_coords, 0)
-			m = ChunkMeshData(c)
+			m = MeshData(c)
 			m.CalculateMesh()
 			i.setMesh(m)
 			# mesh = i.getMesh()
@@ -375,9 +367,8 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 			# mesh.CalculateMesh()
 			# i.setMesh(mesh)
 			lock locker:
-				for x as IObserver in observers:
-					x.updateObserver(ChunkGeneratorMessage(Message.REFRESH, i))
-			outgoing_queue = []
+				SendMessage("RefreshMesh", i)
+			#outgoing_queue = []
 			
 			return 0
 		else:
@@ -427,7 +418,7 @@ class DataManager (MonoBehaviour, IChunkGenerator, IObservable):
 		if chunk_coords in chunks:
 			#print "Found Chunk"
 			i as ChunkInfo = chunks[chunk_coords]
-			c as ChunkBlockData = i.getChunk()
+			c as BlockData = i.getChunk()
 			b = c.getBlock(block_coords)
 			if b > 0:
 				pass
