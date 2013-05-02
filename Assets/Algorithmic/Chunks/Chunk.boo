@@ -1,5 +1,7 @@
 namespace Algorithmic.Chunks
 
+import Algorithmic.Physics
+
 class Chunk ():
 	blocks as IChunkBlockData
 	mesh as IChunkMeshData
