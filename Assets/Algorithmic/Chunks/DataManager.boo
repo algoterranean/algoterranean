@@ -1,66 +1,43 @@
+"""Keeps track of an origin that defines the center of the visible world as well as
+a distance Metric that, combined, define which chunks to load and unload. Notifies
+other MonoBehavrious when these Chunks are loaded, unload, and refreshed. Since DataManager
+tracks all loaded Chunks, it also provides helper functions for getting and setting blocks
+in the world.
+
+DataManager is multi-threaded and is the main work-horse of the application."""
 namespace Algorithmic.Chunks
 
-import System.Collections.Generic
-import System.Threading
 import Algorithmic
 import UnityEngine
+import System.Collections.Generic
+import System.Threading
 
 
 class DataManager (MonoBehaviour, IChunkGenerator):
 
 	locker = object()
+	chunks = Dictionary[of LongVector3, Chunk]()
+	origin_initialized = false
+	# metric stuff
 	origin as Vector3
 	max_distance as byte
-	chunk_size as byte
-	observers = []
-	outgoing_queue = []
-	thread_queue = []
-	chunks = Dictionary[of LongVector3, Chunk]()
+	distance_metric as Metric
 	threshold = 10.0
-	mesh_waiting_queue as Dictionary[of LongVector3, Chunk]
-	origin_initialized = false
+	chunk_size as byte
+	# queues
+	outgoing_queue = [] 
+	noise_queue = []
+	mesh_queue as Dictionary[of LongVector3, Chunk]	
+
 
 	def Awake():
 		max_distance = Settings.MaxChunks
 		chunk_size = Settings.ChunkSize
-		mesh_waiting_queue = Dictionary[of LongVector3, Chunk]()
+		distance_metric = Metric(Settings.ChunkSize * Settings.MaxChunks)
+		mesh_queue = Dictionary[of LongVector3, Chunk]()
 
 	def Update():
-		notifyObservers()
-
-		# check if new meshes are ready
-		ready_mesh_key as duck
-		lock locker:
-			for item in mesh_waiting_queue:
-				chunk_info as Chunk = item.Value
-				chunk_mesh as MeshData = chunk_info.getMesh()
-				if chunk_mesh.areNeighborsReady():
-					ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
-					ready_mesh_key = item.Key
-					#print "FOUND MESH: $item.key. Length of remaining queue: $(len(mesh_waiting_queue))"
-					break
-
-			if ready_mesh_key != null:
-				mesh_waiting_queue.Remove(ready_mesh_key)
-
-			if len(thread_queue) > 0:
-				ci = thread_queue.Pop()
-				ThreadPool.QueueUserWorkItem(_noise_worker, ci)
-
-
-	def registerObserver(o as object) as void:
-		if observers.Contains(o):
-			pass
-		else:
-			lock locker:
-				observers.Push(o)
-
-	def removeObserver(o as object) as void:
-		if observers.Contains(o):
-			lock locker:
-				observers.Remove(o)
-
-	def notifyObservers() as void:
+		# send updates for any previously queued up items
 		lock locker:
 			for y in outgoing_queue:
 				if y[0] == "REMOVE":
@@ -68,19 +45,40 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				elif y[0] == "CREATE":
 					SendMessage("CreateMesh", y[1])
 			outgoing_queue = []
+			
+		# check if new meshes are ready
+		ready_mesh_key as duck
+		lock locker:
+			for item in mesh_queue:
+				chunk_info as Chunk = item.Value
+				chunk_mesh as MeshData = chunk_info.getMesh()
+				if chunk_mesh.areNeighborsReady():
+					ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
+					ready_mesh_key = item.Key
+					#print "FOUND MESH: $item.key. Length of remaining queue: $(len(mesh_queue))"
+					break
+
+			if ready_mesh_key != null:
+				mesh_queue.Remove(ready_mesh_key)
+
+			if len(noise_queue) > 0:
+				ci = noise_queue.Pop()
+				ThreadPool.QueueUserWorkItem(_noise_worker, ci)
 
 
-	def _add_dchunk():
-		pass
-
-	def _remove_chunk():
-		pass
+	#
+	# helper functions for calculating the block data and mesh data
+	# off in the ThreadPool
+	#
 
 	def _mesh_worker(chunk as Chunk) as WaitCallback:
 		try:
 			mesh as MeshData = chunk.getMesh()
 			mesh.CalculateMesh()
 			lock locker:
+				# TO DO: do not push this chunk out if it has already
+				# exceeded the distance metric! (in which case its
+				# already been removed in the Update call)
 				outgoing_queue.Push(["CREATE", chunk])
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
@@ -90,11 +88,16 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			blocks as BlockData = chunk.getBlocks()
 			blocks.CalculateBlocks()
 			lock locker:
-				mesh_waiting_queue[chunk.getCoords()] = chunk
+				mesh_queue[chunk.getCoords()] = chunk
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN NOISE: " + e
 
 
+	#
+	# uses the distance metric to determine whether to load or unload
+	# various chunks.
+	#
+			
 	def SetOrigin(o as Vector3) as void:
 		# only do something if the distance since the
 		# last update is greater than some threshold
@@ -110,18 +113,12 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			origin = o
 
 		# determine which chunks are now too far away
-		current_chunk_coords = Utils.whichChunk(origin)
+		origin_coords = Utils.whichChunk(origin)
 		removal_queue = []
 		lock locker:
 			for item in chunks:
-				chunk = item.Value
-				chunk_blocks = chunk.getBlocks()
-				chunk_mesh = chunk.getMesh()
-				chunk_coords = chunk.getCoords()
-
-				if Math.Abs(current_chunk_coords.x - chunk_coords.x)/chunk_size > max_distance or \
-					Math.Abs(current_chunk_coords.y - chunk_coords.y)/chunk_size > Settings.MaxChunksVertical or \
-					Math.Abs(current_chunk_coords.z - chunk_coords.z)/chunk_size > max_distance:
+				chunk_coords = item.Value.getCoords()
+				if distance_metric.tooFar(origin_coords, chunk_coords):
 					removal_queue.Push(item.Key)
 
 		# remove all chunks that are too far away
@@ -135,9 +132,9 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		for a in range(max_distance*2+1):
 			for b in range(Settings.MaxChunksVertical*2+1):
 				for c in range(max_distance*2+1):
-					x_coord = (a - max_distance)*chunk_size + current_chunk_coords.x
-					y_coord = (b - Settings.MaxChunksVertical)*chunk_size + current_chunk_coords.y
-					z_coord = (c - max_distance)*chunk_size + current_chunk_coords.z
+					x_coord = (a - max_distance)*chunk_size + origin_coords.x
+					y_coord = (b - Settings.MaxChunksVertical)*chunk_size + origin_coords.y
+					z_coord = (c - max_distance)*chunk_size + origin_coords.z
 					if not chunks.ContainsKey(LongVector3(x_coord, y_coord, z_coord)):
 						creation_queue.Push(LongVector3(x_coord, y_coord, z_coord))
 				c = 0
@@ -155,7 +152,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			chunk_mesh = MeshData(chunk_blocks)
 			chunk_info = Chunk(chunk_blocks, chunk_mesh)
 			chunks.Add(item, chunk_info)
-			thread_queue.Push(chunk_info)
+			noise_queue.Push(chunk_info)
 			
 		# for all chunks, update neighbors
 		for item as LongVector3 in creation_queue:
@@ -184,7 +181,13 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			if chunks.ContainsKey(up_coords):
 				chunks[up_coords].getMesh().setDownNeighbor(chunk_blocks)
 
-				
+
+	#
+	# functions to get and set blocks in _global coordinates_
+	#
+
+	def convertGlobalToLocal(world as LongVector3):
+		pass
 
 	def setBlock(world as LongVector3):
 		size = Settings.ChunkSize
@@ -219,8 +222,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#end_z = start_z + size - 1
 		b_z = z - start_z
 
-
-		
 		chunk_coords = LongVector3(c_x * size, c_y * size, c_z * size)
 		block_coords = ByteVector3(b_x, b_y, b_z)
 		#print "GetBlock: $world, $chunk_coords, $block_coords"

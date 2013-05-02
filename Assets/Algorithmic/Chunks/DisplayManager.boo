@@ -69,20 +69,20 @@ class DisplayManager (MonoBehaviour):
 		actual_mesh.uv = chunk_mesh.getUVs()
 		visible_meshes["$i"][1] = actual_mesh
 
+	# TO DO: fix this. if a chunk is removed before it is added
+	# (they are added when they are queued but removed when the distance
+	# metric fails, but, the chunk could still be generating in a
+	# thread somewhere in DataManager) it may hang around indefinitely
+	# because it will never be removed again.
 	def _remove_mesh_object(chunk_info as Chunk):
 		if draw_meshes_directly:
-			# what if the key doesn't exist yet?
-			#if "$chunk_info" in visible_meshes:
 			visible_meshes.Remove("$chunk_info")
-			# else:
-			# 	RemoveMesh(chunk_info)
 		else:
 			o = gameObject.Find("$chunk_info")
 			if o != null:
 				gameObject.Destroy(o)
 			else:
-				# TO DO: add explanation
-				RemoveMesh(chunk_info)
+				pass
 
 	def _create_mesh_object(chunk_info as Chunk):
 		chunk_blocks as BlockData = chunk_info.getBlocks()
