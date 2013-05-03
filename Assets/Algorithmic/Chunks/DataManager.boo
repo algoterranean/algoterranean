@@ -79,7 +79,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				# TO DO: do not push this chunk out if it has already
 				# exceeded the distance metric! (in which case its
 				# already been removed in the Update call)
-				outgoing_queue.Push(["CREATE", chunk])
+				if chunk.getCoords() in chunks:
+					outgoing_queue.Push(["CREATE", chunk])
 		except e:
 			print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
 
@@ -288,16 +289,10 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#print "GetBlock: $world, $chunk_coords, $block_coords"
 	
 		if chunk_coords in chunks:
-			#print "Found Chunk"
-			i as Chunk = chunks[chunk_coords]
-			c as BlockData = i.getBlocks()
-			b = c.getBlock(block_coords)
-			if b > 0:
-				pass
-				#Log.Log("GET BLOCK: WORLD: $world, CHUNK: $(chunk_coords), LOCAL: $block_coords", LOG_MODULE.CONTACTS)
-
+			b = chunks[chunk_coords].getBlocks().getBlock(block_coords)
+			# if b > 0:
+			#Log.Log("GET BLOCK: WORLD: $world, CHUNK: $(chunk_coords), LOCAL: $block_coords", LOG_MODULE.CONTACTS)
 			return b
-			#print "Found Block: $b"
 		else:
 			print "Could not find the chunk"			
 			return 0
