@@ -1,5 +1,18 @@
 namespace Algorithmic.Chunks
 
+struct Block:
+	id as int
+	uv_x as single
+	uv_y as single
+	name as string
+
+	def constructor(_id as int, _uv_x as single, _uv_y as single, _name as string):
+		id = _id
+		uv_x = _uv_x
+		uv_y = _uv_y
+		name = _name
+
+
 enum BLOCK:
 	AIR = 0
 	##################
@@ -15,20 +28,6 @@ enum BLOCK:
 	MAGMA = 202
 
 
-struct Block:
-	id as int
-	uv_x as single
-	uv_y as single
-	name as string
-
-	def constructor(_id as int, _uv_x as single, _uv_y as single, _name as string):
-		id = _id
-		uv_x = _uv_x
-		uv_y = _uv_y
-		name = _name
-
-
-####################################################################
 class Blocks:
 	#public static block_def as List[of Block]
 	public static block_def as (Block)
