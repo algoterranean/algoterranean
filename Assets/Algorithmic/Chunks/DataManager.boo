@@ -190,7 +190,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	def convertGlobalToLocal(world as LongVector3):
 		pass
 
-	def setBlock(world as LongVector3):
+	def setBlock(world as LongVector3, block as byte):
 		size = Settings.ChunkSize
 		x = world.x
 		y = world.y
@@ -231,7 +231,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			#print "Found Chunk"
 			i as Chunk = chunks[chunk_coords]
 			c as BlockData = i.getBlocks()
-			c.setBlock(block_coords, 0)
+			c.setBlock(block_coords, block)
 			m = MeshData(c)
 			m.CalculateMesh()
 			i.setMesh(m)

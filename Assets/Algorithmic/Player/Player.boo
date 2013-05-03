@@ -2,6 +2,7 @@ namespace Algorithmic.Player
 
 import UnityEngine
 import Algorithmic.Chunks
+import Algorithmic.Physics
 
 
 class Player (MonoBehaviour):
@@ -15,6 +16,8 @@ class Player (MonoBehaviour):
 	terrain_collider as Algorithmic.Physics.ChunkCollider
 	world as Algorithmic.Physics.World
 	public jumping = false
+
+	public reticle_tex as Texture2D
 
 	def Start ():
 		rotate_speed = 3.5
@@ -49,24 +52,37 @@ class Player (MonoBehaviour):
 		player_particle.Velocity.x = local_dir.x
 		player_particle.Velocity.z = local_dir.z
 
-		# if Input.GetButtonDown("Fire1"):
-		# 	player_camera = gameObject.Find("Player/Camera")			
-		# 	p1 = player_camera.transform.position
-		# 	dir = player_camera.transform.forward
-		# 	dir.Normalize()
-		# 	p2 = Vector3(dir.x * 5, dir.y * 5, dir.z * 5)
+		if Input.GetButtonDown("Fire1"):
+			# chunk_ball.setBlock(LongVector3(t, 60, 5), BLOCK.AIR)
+			# chunk_ball.setBlock(LongVector3(t, 61, 6), BLOCK.DIRT)
+			# t += 1
+			
+			player_camera = gameObject.Find("Player/1st Person Camera")
+			p1 = player_camera.transform.position
+			dir = player_camera.transform.forward * 5
+			p2 = p1 + dir
+			
+			print "DIGGING: camera: $(dir), p1: $(p1), p2: $(p2)"
 
-		# 	tc = world.getTerrainCollider()
-		# 	c = tc.CheckCollisionsSweep(AABB(p1, Vector3(0, 0, 0)),
-		# 								AABB(dir, Vector3(0, 0, 0)))
-		# 	if len(c) > 0:
-		# 		print "REMOVE BLOCK $(c[0])"
-		# 		ba = c[0].block_aabb
-		# 		chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x,
-		# 										ba.center.y - ba.radius.y,
-		# 										ba.center.z - ba.radius.z))
-		# 	#print "DIGGING: $c"
+			tc = world.getChunkCollider()
+			c = tc.CheckCollisionsSweep(AABB(p1, Vector3(0, 0, 0)),
+										AABB(p2, Vector3(0, 0, 0)))
+			print "DIGGING: $c"
+			
+			if len(c) > 0:
+				ba = c[len(c)-1].block_aabb
+				chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x,
+												ba.center.y - ba.radius.y,
+												ba.center.z - ba.radius.z), BLOCK.AIR)
+
 		chunk_ball.SetOrigin(transform.position)
+
+	def OnGUI():
+		reticle_size = 32
+		GUI.DrawTexture(Rect(Screen.width/2 - reticle_size/2,
+							 Screen.height/2 - reticle_size/2,
+							 reticle_size,
+							 reticle_size), reticle_tex)
 
 
 	

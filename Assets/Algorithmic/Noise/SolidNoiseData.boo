@@ -10,8 +10,7 @@ class SolidNoiseData (INoiseData):
 		select = Primitive.Constant(BLOCK.ROCK cast int)
 
 	def getBlock(x as long, y as long, z as long) as int:
-		return select.GetValue(x * coord_scale, y*coord_scale, z*coord_scale)
-		# if y == 60:
-			
-		# else:
-		# 	return 0
+		if y <= 60:
+			return 50
+		else:
+			return 0 #select.GetValue(x * coord_scale, y*coord_scale, z*coord_scale)
