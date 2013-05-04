@@ -63,6 +63,7 @@ class DisplayManager (MonoBehaviour):
 	def _refresh_mesh_object(i as Chunk):
 		chunk_mesh as MeshData = i.getMesh()
 		actual_mesh = visible_meshes["$i"][1]
+		actual_mesh.Clear()
 		actual_mesh.vertices = chunk_mesh.getVertices()
 		actual_mesh.triangles = chunk_mesh.getTriangles()
 		actual_mesh.normals = chunk_mesh.getNormals()

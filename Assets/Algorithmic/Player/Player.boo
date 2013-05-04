@@ -16,6 +16,7 @@ class Player (MonoBehaviour):
 	terrain_collider as Algorithmic.Physics.ChunkCollider
 	world as Algorithmic.Physics.World
 	public jumping = false
+	t = 0
 
 	public reticle_tex as Texture2D
 
@@ -53,8 +54,8 @@ class Player (MonoBehaviour):
 		player_particle.Velocity.z = local_dir.z
 
 		if Input.GetButtonDown("Fire1"):
-			# chunk_ball.setBlock(LongVector3(t, 60, 5), BLOCK.AIR)
-			# chunk_ball.setBlock(LongVector3(t, 61, 6), BLOCK.DIRT)
+			# chunk_ball.setBlock(LongVector3(t, 54, 5), BLOCK.AIR)
+			# chunk_ball.setBlock(LongVector3(t, 55, 6), BLOCK.DIRT)
 			# t += 1
 			
 			player_camera = gameObject.Find("Player/1st Person Camera")
@@ -67,10 +68,11 @@ class Player (MonoBehaviour):
 			tc = world.getChunkCollider()
 			c = tc.CheckCollisionsSweep(AABB(p1, Vector3(0, 0, 0)),
 										AABB(p2, Vector3(0, 0, 0)))
-			print "DIGGING: $c"
 			
 			if len(c) > 0:
-				ba = c[len(c)-1].block_aabb
+				ba = c[len(c)-1].block_aabb				
+				print "DIGGING: $c"
+				print "ACTUAL BLOCK: $ba"
 				chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x,
 												ba.center.y - ba.radius.y,
 												ba.center.z - ba.radius.z), BLOCK.AIR)

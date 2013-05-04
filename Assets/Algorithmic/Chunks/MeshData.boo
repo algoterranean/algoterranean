@@ -166,7 +166,7 @@ class MeshData (IChunkMeshData):
 						
 					
 					if block:
-						aabb_test = false						
+						aabb_test = false
 						if not block_west:
 							vertice_size += 4
 							uv_size += 4
@@ -242,7 +242,7 @@ class MeshData (IChunkMeshData):
 			for y as byte in range(size.y):
 				for z as byte in range(size.z):
 					block = chunk.getBlock(ByteVector3(x, y, z))
-					#print "BLOCK: $block"
+
 					if x == 0 and west_neighbor.isNull():
 						block_west = BLOCK.AIR
 					elif x == 0 and not west_neighbor.isNull():
@@ -355,5 +355,6 @@ class MeshData (IChunkMeshData):
 						## if aabb_test:
 						## 	_bounding_volumes[aabb_count] = AABB(Vector3(x + 0.5, y + 0.5, z + 0.5), Vector3(0.5, 0.5, 0.5))
 						## 	aabb_count += 1
+
 		mesh_calculated = true
 		#bounding_volume_tree = BoundingVolumeTree(chunk.getSize(), chunk.getCoordinates())
