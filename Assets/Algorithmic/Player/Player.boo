@@ -66,16 +66,39 @@ class Player (MonoBehaviour):
 			print "DIGGING: camera: $(dir), p1: $(p1), p2: $(p2)"
 
 			tc = world.getChunkCollider()
-			c = tc.CheckCollisionsSweep(AABB(p1, Vector3(0, 0, 0)),
-										AABB(p2, Vector3(0, 0, 0)))
+			c = tc.CheckCollisionsSweep(AABB(p2, Vector3(0, 0, 0)),
+										AABB(p1, Vector3(0, 0, 0)))
 			
 			if len(c) > 0:
-				ba = c[len(c)-1].block_aabb				
+				ba = c[0].block_aabb
 				print "DIGGING: $c"
 				print "ACTUAL BLOCK: $ba"
 				chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x,
 												ba.center.y - ba.radius.y,
 												ba.center.z - ba.radius.z), BLOCK.AIR)
+
+		if Input.GetButtonDown("Fire2"):
+			player_camera = gameObject.Find("Player/1st Person Camera")
+			p1 = player_camera.transform.position
+			dir = player_camera.transform.forward * 5
+			p2 = p1 + dir
+			
+			print "DIGGING: camera: $(dir), p1: $(p1), p2: $(p2)"
+
+			tc = world.getChunkCollider()
+			c = tc.CheckCollisionsSweep(AABB(p2, Vector3(0, 0, 0)),
+										AABB(p1, Vector3(0, 0, 0)))
+			
+			if len(c) > 0:
+				ba = c[0].block_aabb				
+				print "DIGGING: $c"
+				print "ACTUAL BLOCK: $ba"
+				n = c[0].contact_normal
+				print "NORMAL: $n"
+				chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x + n.x,
+												ba.center.y - ba.radius.y + n.y,
+												ba.center.z - ba.radius.z + n.z), BLOCK.DIRT)
+			
 
 		chunk_ball.SetOrigin(transform.position)
 
