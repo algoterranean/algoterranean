@@ -33,9 +33,11 @@ class PlayerCamera (MonoBehaviour):
 		player_graphics.Push(gameObject.Find("Player/Headlamp"))
 		mouse_look = gameObject.Find("Player").GetComponent("MouseLook")
 		fps_camera = gameObject.Find("Player/1st Person Camera")
+		third_person_camera = gameObject.Find("Player/3rd Person Camera")		
 		mouse_look.enabled = false
+		
 		fps_camera.SetActive(false)
-		third_person_camera = gameObject.Find("Player/3rd Person Camera")
+		#third_person_camera.SetActive(false)
 						   
 		
 

@@ -20,7 +20,7 @@ class BlockData (IChunkBlockData):
 		setSize(size)
 		blocks = matrix(byte, size.x, size.y, size.z)
 		blocks_calculated = false
-		noise_module = HeightNoiseData()
+		noise_module = BiomeNoiseData()
 		#noise_module = MineralNoiseData()
 		#noise_module = SolidNoiseData()
 		#noise_module = BasicNoiseData()
@@ -45,6 +45,9 @@ class BlockData (IChunkBlockData):
 		# 	print "ERROR: Invalid Block Coordinates: ($(coords.x), $(coords.y), $(coords.z))"
 		# 	return BLOCK.AIR
 		return blocks[coords.x, coords.y, coords.z]
+
+	def getBlock(x as byte, y as byte, z as byte) as byte:
+		return blocks[x, y, z]
 
 	def areBlocksCalculated() as bool:
 		return blocks_calculated

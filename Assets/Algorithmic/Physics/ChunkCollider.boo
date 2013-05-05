@@ -89,11 +89,11 @@ class ChunkCollider ():
 			b_back = b_back - 1
 
 		possible_collisions = []
-		#Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_front, $b_back", LOG_MODULE.PHYSICS)
+		Algorithmic.Misc.Log.Log("Checking collision range x: $b_left, $b_right, y: $b_top, $b_bottom, z: $b_front, $b_back", LOG_MODULE.PHYSICS)
 		for x in range(b_left, b_right+1):
 			for y in range(b_bottom, b_top+1):
 				for z in range(b_front, b_back+1):
-					b = chunk_ball.getBlock(LongVector3(x, y, z))
+					b = chunk_ball.getBlock(x, y, z)
 					if b > 0:
 						possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
 						# possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))

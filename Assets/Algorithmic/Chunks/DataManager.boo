@@ -249,11 +249,15 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			return 0
 
 
-	def getBlock(world as LongVector3):
+	# def getBlock(x as long, y as long, z as long):
+	# 	pass
+
+	#def getBlock(world as LongVector3):
+	def getBlock(x as long, y as long, z as long):
 		size = Settings.ChunkSize
-		x = world.x
-		y = world.y
-		z = world.z
+		# x = world.x
+		# y = world.y
+		# z = world.z
 		
 		if x < 0:
 			new_x = x + 1
@@ -262,7 +266,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		c_x = new_x / size - (1 if x < 0 else 0)
 		start_x = c_x * size
 		#end_x = start_x + size - 1
-		b_x = x - start_x
+		b_x as byte = x - start_x
 
 		if y < 0:
 			new_y = y + 1
@@ -271,7 +275,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		c_y = new_y / size - (1 if y < 0 else 0)
 		start_y = c_y * size
 		#end_y = start_y + size - 1
-		b_y = y - start_y
+		b_y as byte = y - start_y
 
 		if z < 0:
 			new_z = z + 1
@@ -280,16 +284,17 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		c_z = new_z / size - (1 if z < 0 else 0)
 		start_z = c_z * size
 		#end_z = start_z + size - 1
-		b_z = z - start_z
-
+		b_z as byte = z - start_z
 
 		
 		chunk_coords = LongVector3(c_x * size, c_y * size, c_z * size)
-		block_coords = ByteVector3(b_x, b_y, b_z)
+		#block_coords = ByteVector3(b_x, b_y, b_z)
 		#print "GetBlock: $world, $chunk_coords, $block_coords"
-	
-		if chunk_coords in chunks:
-			b = chunks[chunk_coords].getBlocks().getBlock(block_coords)
+
+		chunk = chunks[chunk_coords]
+		if chunk:
+		#if chunk_coords in chunks:
+			b = chunk.getBlocks().getBlock(b_x, b_y, b_z)
 			# if b > 0:
 			#Log.Log("GET BLOCK: WORLD: $world, CHUNK: $(chunk_coords), LOCAL: $block_coords", LOG_MODULE.CONTACTS)
 			return b

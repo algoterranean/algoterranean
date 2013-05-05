@@ -17,19 +17,20 @@ class Player (MonoBehaviour):
 	world as Algorithmic.Physics.World
 	public jumping = false
 	t = 0
-
 	public reticle_tex as Texture2D
 
 	def Start ():
 		rotate_speed = 3.5
-		movement_speed = 5
+		movement_speed = 5 * 3
 		orientation = Vector3(0, 45, 0)
 
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
 		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
 		chunk_ball = gameObject.Find("Engine/ChunkManager").GetComponent("DataManager")
-		player_camera = gameObject.Find("Player/Camera")
+		player_camera = gameObject.Find("Player/1st Person Camera")
 		world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
+
+		
 
 	def getOrientation():
 		return orientation
@@ -90,24 +91,27 @@ class Player (MonoBehaviour):
 										AABB(p1, Vector3(0, 0, 0)))
 			
 			if len(c) > 0:
-				ba = c[0].block_aabb				
-				print "DIGGING: $c"
-				print "ACTUAL BLOCK: $ba"
-				n = c[0].contact_normal
-				print "NORMAL: $n"
-				chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x + n.x,
-												ba.center.y - ba.radius.y + n.y,
-												ba.center.z - ba.radius.z + n.z), BLOCK.DIRT)
+				for x in c:
+					if x.contact_normal != Vector3(0, 0, 0):
+						ba = x.block_aabb				
+						print "DIGGING: $c"
+						print "ACTUAL BLOCK: $ba"
+						n = x.contact_normal
+						print "NORMAL: $n"
+						chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x + n.x,
+														ba.center.y - ba.radius.y + n.y,
+														ba.center.z - ba.radius.z + n.z), BLOCK.DIRT)
+						break
 			
 
 		chunk_ball.SetOrigin(transform.position)
 
 	def OnGUI():
-		reticle_size = 32
-		GUI.DrawTexture(Rect(Screen.width/2 - reticle_size/2,
-							 Screen.height/2 - reticle_size/2,
-							 reticle_size,
-							 reticle_size), reticle_tex)
+		pass
+		# GUI.DrawTexture(Rect(Screen.width/2 - reticle_size/2,
+		# 					 Screen.height/2 - reticle_size/2,
+		# 					 reticle_size,
+		# 					 reticle_size), reticle_tex)
 
 
 	

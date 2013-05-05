@@ -14,13 +14,12 @@ struct Settings:
 	# public static MinChunkDistance as byte = 2
 
 
-
-
 	public static ChunkSize as int = 32
-	public static MaxChunks as int = 3
+	public static MaxChunks as int = 5
 	public static MaxChunksVertical as int = 2
 
-	public static PlayerRadius = Vector3(0.5, 1.0, 0.5)
+	public static PlayerRadius = Vector3(1.5, 3.0, 1.5)
+	#public static PlayerRadius = Vector3(0.5, 1, 0.5)
 
 	# these are per side. i.e., 1 would mean 1 on each side
 	# plus the origin chunk = 3 total chunks
