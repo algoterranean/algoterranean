@@ -62,15 +62,15 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			# if ready_mesh_key != null:
 			# 	mesh_queue.Remove(ready_mesh_key)
 			for c in chunks:
-				if c.Value.flag_calculate_mesh:
+				if c.Value.getFlagMesh():
 					ThreadPool.QueueUserWorkItem(_mesh_create_worker, c.Value)
-					c.Value.flag_calculate_mesh = false
+					c.Value.setFlagMesh(false)
 					break
 				
 			for c in chunks:
-				if c.Value.flag_calculate_noise:
+				if c.Value.getFlagNoise():
 					ThreadPool.QueueUserWorkItem(_noise_worker, c.Value)
-					c.Value.flag_calculate_noise = false
+					c.Value.setFlagNoise(false)
 					break
 												 
 			# if len(mesh_queue) > 0:
@@ -122,7 +122,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			mesh.CalculateMesh()
 
 			lock locker:
-				chunk.flag_calculate_mesh = false
+				chunk.setFlagMesh(false)
 				# TO DO: do not push this chunk out if it has already
 				# exceeded the distance metric! (in which case its
 				# already been removed in the Update call)
@@ -144,27 +144,27 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			down_neighbor = LongVector3(coords.x, coords.y - Settings.ChunkSize, coords.z)
 			
 			lock locker:
-				chunk.flag_calculate_noise = false
-				chunk.flag_calculate_mesh = true
+				chunk.setFlagNoise(false)
+				chunk.setFlagMesh(true)
 				
 				# mesh_queue.Push(chunk)
 				if east_neighbor in chunks:
-					chunks[east_neighbor].flag_calculate_mesh = true
+					chunks[east_neighbor].setFlagMesh(true)
 					#mesh_queue.Push(chunks[east_neighbor])
 				if west_neighbor in chunks:
-					chunks[west_neighbor].flag_calculate_mesh = true					
+					chunks[west_neighbor].setFlagMesh(true)
 					#mesh_queue.Push(chunks[west_neighbor])
 				if north_neighbor in chunks:
-					chunks[north_neighbor].flag_calculate_mesh = true					
+					chunks[north_neighbor].setFlagMesh(true)
 					#mesh_queue.Push(chunks[north_neighbor])
 				if south_neighbor in chunks:
-					chunks[south_neighbor].flag_calculate_mesh = true
+					chunks[south_neighbor].setFlagMesh(true)
 					#mesh_queue.Push(chunks[south_neighbor])
 				if up_neighbor in chunks:
-					chunks[up_neighbor].flag_calculate_mesh = true					
+					chunks[up_neighbor].setFlagMesh(true)
 					#mesh_queue.Push(chunks[up_neighbor])
 				if down_neighbor in chunks:
-					chunks[down_neighbor].flag_calculate_mesh = true
+					chunks[down_neighbor].setFlagMesh(true)
 					#mesh_queue.Push(chunks[down_neighbor])
 
 				

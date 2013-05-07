@@ -7,6 +7,10 @@ class Chunk ():
 	mesh as IChunkMeshData
 	bounds as AABB
 	coords as LongVector3
+	locker = object()
+	flag_calculate_mesh = false
+	flag_calculate_noise = false
+
 
 	def constructor(blocks as IChunkBlockData, mesh as IChunkMeshData):
 		self.blocks = blocks
@@ -15,6 +19,8 @@ class Chunk ():
 		radius = Settings.ChunkSize/2
 		bounds = AABB(Vector3(coords.x + radius, coords.y + radius, coords.z + radius),
 					  Vector3(radius, radius, radius))
+		flag_calculate_noise = true
+		flag_calculate_mesh = true
 
 	def getCoords() as LongVector3:
 		return coords
@@ -30,3 +36,15 @@ class Chunk ():
 
 	def ToString():
 		return "Chunk ($(coords.x), $(coords.y), $(coords.z))"
+
+	def getFlagMesh() as bool:
+		return flag_calculate_mesh
+	def getFlagNoise() as bool:
+		return flag_calculate_noise
+	def setFlagMesh(f as bool):
+		lock locker:
+			flag_calculate_mesh = f
+	def setFlagNoise(f as bool):
+		lock locker:
+			flag_calculate_noise = f
+		
