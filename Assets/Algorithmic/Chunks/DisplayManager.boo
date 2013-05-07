@@ -47,7 +47,10 @@ class DisplayManager (MonoBehaviour):
 	#
 				
 	def CreateMesh(ci as Chunk):
-		add_mesh_queue.Push(ci)
+		if "$ci" in visible_meshes:
+			_refresh_mesh_object(ci)
+		else:
+			add_mesh_queue.Push(ci)
 
 	def RemoveMesh(ci as Chunk):
 		remove_mesh_queue.Push(ci)

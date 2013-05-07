@@ -44,7 +44,7 @@ class PlayerCamera (MonoBehaviour):
 	def LateUpdate ():
 		#if not fps_camera.activeSelf:
 		zoom -= Input.GetAxis("Mouse ScrollWheel")
-		zoom = Mathf.Clamp(zoom, 0, 5)
+		zoom = Mathf.Clamp(zoom, 0, 10)
 
 
 		vert = 0 #Input.GetAxis("Mouse Y") * rotate_speed

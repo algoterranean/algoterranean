@@ -50,17 +50,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# check if new meshes are ready
 		ready_mesh_key as duck
 		lock locker:
-			# for item in mesh_queue:
-			# 	chunk_info as Chunk = item.Value
-			# 	chunk_mesh as MeshData = chunk_info.getMesh()
-			# 	if chunk_mesh.areNeighborsReady():
-			# 		ThreadPool.QueueUserWorkItem(_mesh_worker, chunk_info)
-			# 		ready_mesh_key = item.Key
-			# 		#print "FOUND MESH: $item.key. Length of remaining queue: $(len(mesh_queue))"
-			# 		break
-
-			# if ready_mesh_key != null:
-			# 	mesh_queue.Remove(ready_mesh_key)
 			for c in chunks:
 				if c.Value.getFlagMesh():
 					ThreadPool.QueueUserWorkItem(_mesh_create_worker, c.Value)
@@ -72,15 +61,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 					ThreadPool.QueueUserWorkItem(_noise_worker, c.Value)
 					c.Value.setFlagNoise(false)
 					break
-												 
-			# if len(mesh_queue) > 0:
-			# 	ci = mesh_queue.Pop()
-			# 	ThreadPool.QueueUserWorkItem(_mesh_create_worker, ci)
-
-			# if len(noise_queue) > 0:
-			# 	ci = noise_queue.Pop()
-			# 	ThreadPool.QueueUserWorkItem(_noise_worker, ci)
-
 
 	#
 	# helper functions for calculating the block data and mesh data
@@ -234,34 +214,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			chunks.Add(LongVector3(item.x, item.y, item.z), chunk_info)
 			#noise_queue.Push(chunk_info)
 			
-		# # for all chunks, update neighbors
-		# for item as LongVector3 in creation_queue:
-		# 	chunk_info = chunks[item]
-		# 	chunk_blocks = chunk_info.getBlocks()
-		# 	chunk_mesh = chunk_info.getMesh()
-		# 	chunk_coords = chunk_blocks.getCoordinates()
-			
-		# 	west_coords = LongVector3(chunk_coords.x - Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
-		# 	east_coords = LongVector3(chunk_coords.x + Settings.ChunkSize, chunk_coords.y, chunk_coords.z)
-		# 	south_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z - Settings.ChunkSize)
-		# 	north_coords = LongVector3(chunk_coords.x, chunk_coords.y, chunk_coords.z + Settings.ChunkSize)
-		# 	down_coords = LongVector3(chunk_coords.x, chunk_coords.y - Settings.ChunkSize, chunk_coords.z)
-		# 	up_coords = LongVector3(chunk_coords.x, chunk_coords.y + Settings.ChunkSize, chunk_coords.z)
-
-		# 	if chunks.ContainsKey(west_coords):
-		# 		chunks[west_coords].getMesh().setEastNeighbor(chunk_blocks)
-		# 	if chunks.ContainsKey(east_coords):
-		# 		chunks[east_coords].getMesh().setWestNeighbor(chunk_blocks)
-		# 	if chunks.ContainsKey(south_coords):
-		# 		chunks[south_coords].getMesh().setNorthNeighbor(chunk_blocks)
-		# 	if chunks.ContainsKey(north_coords):
-		# 		chunks[north_coords].getMesh().setSouthNeighbor(chunk_blocks)
-		# 	if chunks.ContainsKey(down_coords):
-		# 		chunks[down_coords].getMesh().setUpNeighbor(chunk_blocks)
-		# 	if chunks.ContainsKey(up_coords):
-		# 		chunks[up_coords].getMesh().setDownNeighbor(chunk_blocks)
-
-
 	#
 	# functions to get and set blocks in _global coordinates_
 	#

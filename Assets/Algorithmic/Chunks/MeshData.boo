@@ -13,7 +13,6 @@ class MeshData (IChunkMeshData):
 	## _bounding_volumes as (AABB)
 	bounding_volume_tree as BoundingVolumeTree
 
-	
 	west_neighbor as IChunkBlockData
 	east_neighbor as IChunkBlockData
 	south_neighbor as IChunkBlockData
@@ -38,6 +37,7 @@ class MeshData (IChunkMeshData):
 		#bounding_volume_tree = BoundingVolumeTree(chunk)
 			#AABB(Vector3(c.x + Settings.ChunkSize/2, c.y + Settings.ChunkSize/2, c.z + Settings.ChunkSize/2),
 			#					Vector3(Settings.ChunkSize/2, Settings.ChunkSize/2, Settings.ChunkSize/2)))
+		
 
 	def setBlockData(chunk as IChunkBlockData):
 		self.chunk = chunk
@@ -51,6 +51,27 @@ class MeshData (IChunkMeshData):
 		north_neighbor = north
 		down_neighbor = down
 		up_neighbor = up
+
+	def getWestNeighbor():
+		lock west_neighbor:
+			return west_neighbor
+	def getEastNeighbor():
+		lock east_neighbor:
+			return east_neighbor
+	def getNorthNeighbor():
+		lock north_neighbor:
+			return north_neighbor
+	def getSouthNeighbor():
+		lock south_neighbor:
+			return south_neighbor
+	def getUpNeighbor():
+		lock up_neighbor:
+			return up_neighbor
+	def getDownNeighbor():
+		lock down_neighbor:
+			return down_neighbor		
+
+
 
 	def setWestNeighbor(chunk as IChunkBlockData):
 		lock west_neighbor:
