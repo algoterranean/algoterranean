@@ -8,8 +8,8 @@ import UnityEngine
 
 class DisplayManager (MonoBehaviour):
 
-	add_mesh_queue = []
-	remove_mesh_queue = []
+	add_mesh_queue = List[of Chunk]()
+	remove_mesh_queue = List[of Chunk]()
 	visible_meshes = {}
 	mesh_mat as Material
 	draw_meshes_directly = true

@@ -7,7 +7,7 @@ import Algorithmic.Physics
 
 class Player (MonoBehaviour):
 	chunk_manager as DisplayManager
-	chunk_ball as DataManager
+	chunk_ball as IChunkGenerator
 	orientation as Vector3
 	rotate_speed as single
 	movement_speed as single

@@ -30,9 +30,9 @@ struct SweepContact:
 
 
 class ChunkCollider ():
-	chunk_ball as DataManager
+	chunk_ball as IChunkGenerator
 
-	def constructor(cb as DataManager):
+	def constructor(cb as IChunkGenerator):
 		chunk_ball = cb
 		
 	def _generate_possible_collisions(obj as AABB, obj_prev as AABB):
@@ -93,7 +93,7 @@ class ChunkCollider ():
 		for x in range(b_left, b_right+1):
 			for y in range(b_bottom, b_top+1):
 				for z in range(b_front, b_back+1):
-					b = chunk_ball.getBlock(x, y, z)
+					b = chunk_ball.getBlock(LongVector3(x, y, z))
 					if b > 0:
 						possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))
 						# possible_collisions.Push(AABB(Vector3(x + r.x, y + r.y, z + r.z), r))

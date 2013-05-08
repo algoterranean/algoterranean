@@ -10,6 +10,7 @@ namespace Algorithmic.Chunks
 import Algorithmic
 import UnityEngine
 import System.Collections.Generic
+#import System.Collections.Concurrent
 import System.Threading
 
 
@@ -17,6 +18,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 	locker = object()
 	chunks = Dictionary[of LongVector3, Chunk]()
+	
 	origin_initialized = false
 	# metric stuff
 	origin as Vector3
@@ -67,11 +69,12 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# off in the ThreadPool
 	#
 
-	def _mesh_thread() as WaitCallback:
+
+	def _mesh_thread():
 		while true:
 			pass
 
-	def _noise_thread() as WaitCallback:
+	def _noise_thread():
 		while true:
 			pass
 
@@ -127,25 +130,25 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				chunk.setFlagNoise(false)
 				chunk.setFlagMesh(true)
 				
-				# mesh_queue.Push(chunk)
-				if east_neighbor in chunks:
-					chunks[east_neighbor].setFlagMesh(true)
-					#mesh_queue.Push(chunks[east_neighbor])
-				if west_neighbor in chunks:
-					chunks[west_neighbor].setFlagMesh(true)
-					#mesh_queue.Push(chunks[west_neighbor])
-				if north_neighbor in chunks:
-					chunks[north_neighbor].setFlagMesh(true)
-					#mesh_queue.Push(chunks[north_neighbor])
-				if south_neighbor in chunks:
-					chunks[south_neighbor].setFlagMesh(true)
-					#mesh_queue.Push(chunks[south_neighbor])
-				if up_neighbor in chunks:
-					chunks[up_neighbor].setFlagMesh(true)
-					#mesh_queue.Push(chunks[up_neighbor])
-				if down_neighbor in chunks:
-					chunks[down_neighbor].setFlagMesh(true)
-					#mesh_queue.Push(chunks[down_neighbor])
+				# # mesh_queue.Push(chunk)
+				# if east_neighbor in chunks:
+				# 	chunks[east_neighbor].setFlagMesh(true)
+				# 	#mesh_queue.Push(chunks[east_neighbor])
+				# if west_neighbor in chunks:
+				# 	chunks[west_neighbor].setFlagMesh(true)
+				# 	#mesh_queue.Push(chunks[west_neighbor])
+				# if north_neighbor in chunks:
+				# 	chunks[north_neighbor].setFlagMesh(true)
+				# 	#mesh_queue.Push(chunks[north_neighbor])
+				# if south_neighbor in chunks:
+				# 	chunks[south_neighbor].setFlagMesh(true)
+				# 	#mesh_queue.Push(chunks[south_neighbor])
+				# if up_neighbor in chunks:
+				# 	chunks[up_neighbor].setFlagMesh(true)
+				# 	#mesh_queue.Push(chunks[up_neighbor])
+				# if down_neighbor in chunks:
+				# 	chunks[down_neighbor].setFlagMesh(true)
+				# 	#mesh_queue.Push(chunks[down_neighbor])
 
 				
 		except e:
@@ -221,7 +224,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	def convertGlobalToLocal(world as LongVector3):
 		pass
 
-	def setBlock(world as LongVector3, block as byte):
+	def setBlock(world as LongVector3, block as byte) as void:
 		size = Settings.ChunkSize
 		x = world.x
 		y = world.y
@@ -275,21 +278,19 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				SendMessage("RefreshMesh", i)
 			#outgoing_queue = []
 			
-			return 0
 		else:
 			print "Could not find the chunk"			
-			return 0
 
 
 	# def getBlock(x as long, y as long, z as long):
 	# 	pass
 
-	#def getBlock(world as LongVector3):
-	def getBlock(x as long, y as long, z as long):
+	def getBlock(world as LongVector3):
+	#def getBlock(x as long, y as long, z as long):
 		size = Settings.ChunkSize
-		# x = world.x
-		# y = world.y
-		# z = world.z
+		x = world.x
+		y = world.y
+		z = world.z
 		
 		if x < 0:
 			new_x = x + 1

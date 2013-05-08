@@ -26,7 +26,7 @@ class World (MonoBehaviour):
 	jumping = false
 	forces = AvailableForces(Gravity(), Ground(Vector3(0, 9.8, 0)), Jump())
 	chunk_manager as DisplayManager
-	chunk_ball as DataManager
+	chunk_ball as IChunkGenerator
 	player_particle as Algorithmic.Particle
 	player as Player
 	player_radius as Vector3

@@ -14,8 +14,8 @@ struct LongVector3:
 	override def GetHashCode() as int:
 		return hash
 
-	override def Equals(o) as bool:
-		return o.x == x and o.y == y and o.z == z
+	# override def Equals(o) as bool:
+	# 	return o.x == x and o.y == y and o.z == z
 
 
 struct ByteVector3:
