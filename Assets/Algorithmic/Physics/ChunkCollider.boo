@@ -116,15 +116,16 @@ class ChunkCollider ():
 		
 		overlap_time = 0
 		overlap_axis = "none"
-		for y as duck in [[v.x, a.min.x, a.max.x, b.min.x, b.max.x, "x"],
+		for y as List in [[v.x, a.min.x, a.max.x, b.min.x, b.max.x, "x"],
 						  [v.y, a.min.y, a.max.y, b.min.y, b.max.y, "y"],
 						  [v.z, a.min.z, a.max.z, b.min.z, b.max.z, "z"]]:
-			velocity = y[0]
-			a_min = y[1]
-			a_max = y[2]
-			b_min = y[3]
-			b_max = y[4]
-
+			velocity as single = y[0]
+			a_min as single = y[1]
+			a_max as single = y[2]
+			b_min as single = y[3]
+			b_max as single = y[4]
+			overlap_axis_now as string = y[5]
+			
 			if velocity < 0:
 				if b_max < a_min:
 					return [t_first, t_last, false, contact_normal, movement_dir]
@@ -133,7 +134,7 @@ class ChunkCollider ():
 					t_first = Max(overlap, t_first)
 					if overlap > overlap_time:
 						overlap_time = overlap
-						overlap_axis = y[5]
+						overlap_axis = overlap_axis_now
 				if b_max > a_min:
 					overlap = (a_min - b_max)/velocity
 					t_last = Min(overlap, t_last)
@@ -147,7 +148,7 @@ class ChunkCollider ():
 					#print "OVERLAP CHECK: $overlap, $overlap_time, $(y[5])"
 					if overlap > overlap_time:
 						overlap_time = overlap
-						overlap_axis = y[5]
+						overlap_axis = overlap_axis_now
 						
 				if a_max > b_min:
 					#print 'hi2'

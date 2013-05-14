@@ -4,13 +4,14 @@ and reacts appropriately. """
 namespace Algorithmic.Chunks
 
 import UnityEngine
+import System.Collections.Generic
 
 
 class DisplayManager (MonoBehaviour):
 
-	add_mesh_queue = List[of Chunk]()
-	remove_mesh_queue = List[of Chunk]()
-	visible_meshes = {}
+	add_mesh_queue = [] #List[of Chunk]()
+	remove_mesh_queue = [] #List[of Chunk]()
+	visible_meshes = Dictionary[of LongVector3, Mesh]()
 	mesh_mat as Material
 	draw_meshes_directly = true
 
@@ -31,9 +32,8 @@ class DisplayManager (MonoBehaviour):
 		# draw all of the visible meshes every frame.
 		# this is much faster than creating and using traditional GameObjects
 		if draw_meshes_directly:
-			for x in visible_meshes:
-				coords = x.Value[0]
-				m = x.Value[1]
+			for coords as LongVector3 in visible_meshes.Keys:
+				m as Mesh = visible_meshes[coords]
 				Graphics.DrawMesh(m, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)
 				
 	#
@@ -46,51 +46,52 @@ class DisplayManager (MonoBehaviour):
 	# presidence over new mesh creation/displaying).
 	#
 				
-	def CreateMesh(ci as Chunk):
-		if "$ci" in visible_meshes:
-			_refresh_mesh_object(ci)
+	def CreateMesh(c as Chunk):
+		if c.getCoords() in visible_meshes:
+			_refresh_mesh_object(c)
 		else:
-			add_mesh_queue.Push(ci)
+			add_mesh_queue.Push(c)
 
-	def RemoveMesh(ci as Chunk):
-		remove_mesh_queue.Push(ci)
+	def RemoveMesh(c as Chunk):
+		remove_mesh_queue.Push(c)
 
-	def RefreshMesh(ci as Chunk):
-		_refresh_mesh_object(ci)		
+	def RefreshMesh(c as Chunk):
+		_refresh_mesh_object(c)		
 
 
 	#
 	# helper functions for removing chunks, adding chunks, and refreshing chunks
 	#
 	
-	def _refresh_mesh_object(i as Chunk):
-		chunk_mesh as MeshData = i.getMesh()
-		actual_mesh = visible_meshes["$i"][1]
+	def _refresh_mesh_object(c as Chunk):
+
+		chunk_mesh as MeshData = c.getMesh()
+		actual_mesh = visible_meshes[c.getCoords()]
 		actual_mesh.Clear()
 		actual_mesh.vertices = chunk_mesh.getVertices()
 		actual_mesh.triangles = chunk_mesh.getTriangles()
 		actual_mesh.normals = chunk_mesh.getNormals()
 		actual_mesh.uv = chunk_mesh.getUVs()
-		visible_meshes["$i"][1] = actual_mesh
+		visible_meshes[c.getCoords()] = actual_mesh
 
 	# TO DO: fix this. if a chunk is removed before it is added
 	# (they are added when they are queued but removed when the distance
 	# metric fails, but, the chunk could still be generating in a
 	# thread somewhere in DataManager) it may hang around indefinitely
 	# because it will never be removed again.
-	def _remove_mesh_object(chunk_info as Chunk):
+	def _remove_mesh_object(c as Chunk):
 		if draw_meshes_directly:
-			visible_meshes.Remove("$chunk_info")
+			visible_meshes.Remove(c.getCoords())
 		else:
-			o = gameObject.Find("$chunk_info")
+			o = gameObject.Find("$c")
 			if o != null:
 				gameObject.Destroy(o)
 			else:
 				pass
 
-	def _create_mesh_object(chunk_info as Chunk):
-		chunk_blocks as BlockData = chunk_info.getBlocks()
-		chunk_mesh as MeshData = chunk_info.getMesh()
+	def _create_mesh_object(c as Chunk):
+		chunk_blocks as BlockData = c.getBlocks()
+		chunk_mesh as MeshData = c.getMesh()
 		coords = chunk_blocks.getCoordinates()
 		
 		mesh = Mesh()
@@ -100,10 +101,10 @@ class DisplayManager (MonoBehaviour):
 		mesh.uv = chunk_mesh.getUVs()
 
 		if draw_meshes_directly:
-			visible_meshes["$chunk_info"] = [coords, mesh]
+			visible_meshes[c.getCoords()] = mesh
 		else:
 			o = GameObject()
-			o.name = "$chunk_info"
+			o.name = "$c"
 			o.AddComponent(MeshFilter)
 			o.AddComponent(MeshRenderer)
 			o.AddComponent(MeshCollider)
