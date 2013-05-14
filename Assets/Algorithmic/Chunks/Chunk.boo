@@ -38,13 +38,15 @@ class Chunk ():
 		return "Chunk ($(coords.x), $(coords.y), $(coords.z))"
 
 	def getFlagMesh() as bool:
-		return flag_calculate_mesh
+		lock flag_calculate_mesh:
+			return flag_calculate_mesh
 	def getFlagNoise() as bool:
-		return flag_calculate_noise
+		lock flag_calculate_noise:
+			return flag_calculate_noise
 	def setFlagMesh(f as bool):
-		lock locker:
+		lock flag_calculate_mesh:
 			flag_calculate_mesh = f
 	def setFlagNoise(f as bool):
-		lock locker:
+		lock flag_calculate_noise:
 			flag_calculate_noise = f
 		
