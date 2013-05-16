@@ -45,7 +45,11 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 	[volatile]
 	public run_threads = true
-	
+
+	def getChunk(coords as LongVector3) as Chunk:
+		lock chunks:
+			if coords in chunks:
+				return chunks[coords]
 
 	def Awake():
 		max_distance = Settings.MaxChunks
@@ -174,6 +178,29 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 						chunk.getBlocks().CalculateBlocks()
 						chunk.setFlagMesh(true)
 						chunks_generated += 1
+						en = LongVector3(coord.x + Settings.ChunkSize, coord.y, coord.z)
+						wn = LongVector3(coord.x - Settings.ChunkSize, coord.y, coord.z)
+						nn = LongVector3(coord.x, coord.y, coord.z + Settings.ChunkSize)
+						sn = LongVector3(coord.x, coord.y, coord.z - Settings.ChunkSize)
+						un = LongVector3(coord.x, coord.y + Settings.ChunkSize, coord.z)
+						dn = LongVector3(coord.x, coord.y - Settings.ChunkSize, coord.z)
+						lock chunks:
+							chunks[LongVector3(coord.x, coord.y, coord.z)].setFlagMesh(true)
+							# if en in chunks:
+							# 	chunks[en].setFlagMesh(true)
+							# if wn in chunks:
+							# 	chunks[wn].setFlagMesh(true)
+							# if nn in chunks:
+							# 	chunks[nn].setFlagMesh(true)
+							# if sn in chunks:
+							# 	chunks[sn].setFlagMesh(true)
+							# if un in chunks:
+							# 	chunks[un].setFlagMesh(true)
+							# if dn in chunks:
+							# 	chunks[dn].setFlagMesh(true)
+
+						
+						
 				# else:
 				# 	Thread.Sleep(0.1)
 		except e:
@@ -317,7 +344,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		for item as LongVector3 in creation_queue:
 			size = ByteVector3(chunk_size, chunk_size, chunk_size)
 			chunk_blocks = BlockData(item, size)
-			chunk_mesh = MeshData(chunk_blocks)
+			chunk_mesh = MeshData(chunk_blocks, self)
 			chunk_info = Chunk(chunk_blocks, chunk_mesh)
 			chunk_info.setFlagNoise(true)
 			chunk_info.setFlagMesh(false)
@@ -376,7 +403,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				i as Chunk = chunks[chunk_coords]
 				c as BlockData = i.getBlocks()
 				c.setBlock(block_coords, block)
-				m = MeshData(c)
+				m = MeshData(c, self)
 				m.CalculateMesh()
 				i.setMesh(m)
 				SendMessage("RefreshMesh", i)

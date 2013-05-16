@@ -4,6 +4,7 @@ import UnityEngine
 
 
 class MeshData (IChunkMeshData):
+	data_manager as IChunkGenerator
 	chunk as IChunkBlockData
 	mesh_calculated as bool
 	vertices as (Vector3)
@@ -23,8 +24,9 @@ class MeshData (IChunkMeshData):
 	def getTree() as BoundingVolumeTree:
 		return bounding_volume_tree
 
-	def constructor(chunk as IChunkBlockData):
+	def constructor(chunk as IChunkBlockData, dm as IChunkGenerator):
 		self.chunk = chunk
+		data_manager = dm
 		mesh_calculated = false
 		west_neighbor = NullBlockData()
 		east_neighbor = NullBlockData()
@@ -136,6 +138,27 @@ class MeshData (IChunkMeshData):
 		triangle_size = 0
 		uv_size = 0
 		aabb_size = 0
+
+		coords = chunk.getCoordinates()
+		en = data_manager.getChunk(LongVector3(coords.x + Settings.ChunkSize, coords.y, coords.z))
+		wn = data_manager.getChunk(LongVector3(coords.x - Settings.ChunkSize, coords.y, coords.z))
+		nn = data_manager.getChunk(LongVector3(coords.x, coords.y, coords.z + Settings.ChunkSize))
+		sn = data_manager.getChunk(LongVector3(coords.x, coords.y, coords.z - Settings.ChunkSize))
+		un = data_manager.getChunk(LongVector3(coords.x, coords.y + Settings.ChunkSize, coords.z))
+		dn = data_manager.getChunk(LongVector3(coords.x, coords.y - Settings.ChunkSize, coords.z))
+		if en != null:
+			east_neighbor = en.getBlocks()
+		if wn != null:
+			west_neighbor = wn.getBlocks()
+		if nn != null:
+			north_neighbor = nn.getBlocks()
+		if sn != null:
+			south_neighbor = sn.getBlocks()
+		if un != null:
+			up_neighbor = un.getBlocks()
+		if dn != null:
+			down_neighbor = dn.getBlocks()
+			
 
 		for x as byte in range(size.x):
 			for y as byte in range(size.y):

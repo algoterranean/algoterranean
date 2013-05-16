@@ -12,6 +12,7 @@ class Chunk ():
 	flag_calculate_noise = false
 
 
+
 	def constructor(blocks as IChunkBlockData, mesh as IChunkMeshData):
 		self.blocks = blocks
 		self.mesh = mesh
