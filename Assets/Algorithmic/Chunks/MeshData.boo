@@ -140,12 +140,12 @@ class MeshData (IChunkMeshData):
 		aabb_size = 0
 
 		coords = chunk.getCoordinates()
-		en = data_manager.getChunk(LongVector3(coords.x + Settings.ChunkSize, coords.y, coords.z))
-		wn = data_manager.getChunk(LongVector3(coords.x - Settings.ChunkSize, coords.y, coords.z))
-		nn = data_manager.getChunk(LongVector3(coords.x, coords.y, coords.z + Settings.ChunkSize))
-		sn = data_manager.getChunk(LongVector3(coords.x, coords.y, coords.z - Settings.ChunkSize))
-		un = data_manager.getChunk(LongVector3(coords.x, coords.y + Settings.ChunkSize, coords.z))
-		dn = data_manager.getChunk(LongVector3(coords.x, coords.y - Settings.ChunkSize, coords.z))
+		en = data_manager.getChunk(WorldBlockCoordinate(coords.x + Settings.ChunkSize, coords.y, coords.z))
+		wn = data_manager.getChunk(WorldBlockCoordinate(coords.x - Settings.ChunkSize, coords.y, coords.z))
+		nn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z + Settings.ChunkSize))
+		sn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z - Settings.ChunkSize))
+		un = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y + Settings.ChunkSize, coords.z))
+		dn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y - Settings.ChunkSize, coords.z))
 		if en != null:
 			east_neighbor = en.getBlocks()
 		if wn != null:

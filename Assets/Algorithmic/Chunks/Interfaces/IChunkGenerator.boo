@@ -6,8 +6,8 @@ interface IChunkGenerator ():
 	# def setMaxChunkDistance(max_distance as byte) as void
 	# def getMaxChunkDistance() as byte
 	def SetOrigin(origin as Vector3) as void
-	def setBlock(world as LongVector3, block as byte) as void
-	def getBlock(world as LongVector3) as byte
-	def getChunk(coords as LongVector3) as Chunk
+	def setBlock(world as WorldBlockCoordinate, block as byte) as void
+	def getBlock(world as WorldBlockCoordinate) as byte
+	def getChunk(coords as WorldBlockCoordinate) as Chunk
 	# def getMaxHeight(location as Vector3) as int
             

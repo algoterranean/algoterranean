@@ -11,7 +11,7 @@ class DisplayManager (MonoBehaviour):
 
 	add_mesh_queue = [] #List[of Chunk]()
 	remove_mesh_queue = [] #List[of Chunk]()
-	visible_meshes = Dictionary[of LongVector3, Mesh]()
+	visible_meshes = Dictionary[of WorldBlockCoordinate, Mesh]()
 	mesh_mat as Material
 	draw_meshes_directly = true
 
@@ -32,7 +32,7 @@ class DisplayManager (MonoBehaviour):
 		# draw all of the visible meshes every frame.
 		# this is much faster than creating and using traditional GameObjects
 		if draw_meshes_directly:
-			for coords as LongVector3 in visible_meshes.Keys:
+			for coords as WorldBlockCoordinate in visible_meshes.Keys:
 				m as Mesh = visible_meshes[coords]
 				Graphics.DrawMesh(m, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)
 				

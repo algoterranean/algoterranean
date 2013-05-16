@@ -6,7 +6,7 @@ class Chunk ():
 	blocks as IChunkBlockData
 	mesh as IChunkMeshData
 	bounds as AABB
-	coords as LongVector3
+	coords as WorldBlockCoordinate
 	locker = object()
 	flag_calculate_mesh = false
 	flag_calculate_noise = false
@@ -23,7 +23,7 @@ class Chunk ():
 		flag_calculate_noise = true
 		flag_calculate_mesh = true
 
-	def getCoords() as LongVector3:
+	def getCoords() as WorldBlockCoordinate:
 		return coords
 
 	def getBlocks() as IChunkBlockData:

@@ -9,13 +9,13 @@ class NullBlockData (IChunkBlockData):
 
 
 class BlockData (IChunkBlockData):
-	coords as LongVector3
+	coords as WorldBlockCoordinate
 	size as ByteVector3
 	blocks as (byte, 3)
 	blocks_calculated as bool
 	noise_module as INoiseData
 
-	def constructor(coords as LongVector3, size as ByteVector3):
+	def constructor(coords as WorldBlockCoordinate, size as ByteVector3):
 		setCoordinates(coords)
 		setSize(size)
 		blocks = matrix(byte, size.x, size.y, size.z)
@@ -25,10 +25,10 @@ class BlockData (IChunkBlockData):
 		#noise_module = SolidNoiseData()
 		#noise_module = BasicNoiseData()
 		
-	def setCoordinates(coords as LongVector3) as void:
+	def setCoordinates(coords as WorldBlockCoordinate) as void:
 		self.coords = coords
 
-	def getCoordinates() as LongVector3:
+	def getCoordinates() as WorldBlockCoordinate:
 		return coords
 
 	def setSize(size as ByteVector3) as void:

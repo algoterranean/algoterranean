@@ -1,22 +1,25 @@
 
-struct LongVector3:
+struct WorldBlockCoordinate:
 	x as long
 	z as long
 	y as long
 	hash as int
 	
-	def constructor(x as long, y as long, z as long):
-		self.x = x
-		self.y = y
-		self.z = z
+	def constructor(_x as long, _y as long, _z as long):
+		x = _x
+		y = _y
+		z = _z
 		hash = (x * 397) ^ (y * 647) ^ z
 
 	override def GetHashCode() as int:
 		return hash
 
 	override def Equals(o) as bool:
-		l = o cast LongVector3
+		l = o cast WorldBlockCoordinate
 		return l.x == x and l.y == y and l.z == z
+
+	override def ToString() as string:
+		return "($x, $y, $z)"
 
 
 struct ByteVector3:

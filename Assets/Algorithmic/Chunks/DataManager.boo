@@ -23,9 +23,9 @@ struct DMMessage:
 
 class DataManager (MonoBehaviour, IChunkGenerator):
 	chunk_size as byte
-	chunks as Dictionary[of LongVector3, Chunk]
-	mesh_queue as Queue[of LongVector3]
-	noise_queue as Queue[of LongVector3]
+	chunks as Dictionary[of WorldBlockCoordinate, Chunk]
+	mesh_queue as Queue[of WorldBlockCoordinate]
+	noise_queue as Queue[of WorldBlockCoordinate]
 	outgoing_queue as Queue[of DMMessage]
 	# store the references to the threads so that when this class goes out of scope
 	# (e.g., the class is destroyed) the threads are automatically closed out
@@ -46,7 +46,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	[volatile]
 	public run_threads = true
 
-	def getChunk(coords as LongVector3) as Chunk:
+	def getChunk(coords as WorldBlockCoordinate) as Chunk:
 		lock chunks:
 			if coords in chunks:
 				return chunks[coords]
@@ -55,9 +55,9 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		max_distance = Settings.MaxChunks
 		chunk_size = Settings.ChunkSize
 		distance_metric = Metric(Settings.ChunkSize * Settings.MaxChunks)
-		chunks = Dictionary[of LongVector3, Chunk]()
-		mesh_queue = Queue[of LongVector3]()
-		noise_queue = Queue[of LongVector3]()
+		chunks = Dictionary[of WorldBlockCoordinate, Chunk]()
+		mesh_queue = Queue[of WorldBlockCoordinate]()
+		noise_queue = Queue[of WorldBlockCoordinate]()
 		outgoing_queue = Queue[of DMMessage]()
 		# ThreadPool.QueueUserWorkItem(_noise_thread)
 		# ThreadPool.QueueUserWorkItem(_mesh_thread)
@@ -65,7 +65,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		t2 = Thread(ThreadStart(_mesh_thread))
 		t1.Start()		
 		t2.Start()
-		#mesh_queue = Dictionary[of LongVector3, Chunk]()
+		#mesh_queue = Dictionary[of WorldBlockCoordinate, Chunk]()
 
 	def OnDisable():
 		run_threads = false
@@ -178,14 +178,14 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 						chunk.getBlocks().CalculateBlocks()
 						chunk.setFlagMesh(true)
 						chunks_generated += 1
-						en = LongVector3(coord.x + Settings.ChunkSize, coord.y, coord.z)
-						wn = LongVector3(coord.x - Settings.ChunkSize, coord.y, coord.z)
-						nn = LongVector3(coord.x, coord.y, coord.z + Settings.ChunkSize)
-						sn = LongVector3(coord.x, coord.y, coord.z - Settings.ChunkSize)
-						un = LongVector3(coord.x, coord.y + Settings.ChunkSize, coord.z)
-						dn = LongVector3(coord.x, coord.y - Settings.ChunkSize, coord.z)
+						en = WorldBlockCoordinate(coord.x + Settings.ChunkSize, coord.y, coord.z)
+						wn = WorldBlockCoordinate(coord.x - Settings.ChunkSize, coord.y, coord.z)
+						nn = WorldBlockCoordinate(coord.x, coord.y, coord.z + Settings.ChunkSize)
+						sn = WorldBlockCoordinate(coord.x, coord.y, coord.z - Settings.ChunkSize)
+						un = WorldBlockCoordinate(coord.x, coord.y + Settings.ChunkSize, coord.z)
+						dn = WorldBlockCoordinate(coord.x, coord.y - Settings.ChunkSize, coord.z)
 						lock chunks:
-							chunks[LongVector3(coord.x, coord.y, coord.z)].setFlagMesh(true)
+							chunks[WorldBlockCoordinate(coord.x, coord.y, coord.z)].setFlagMesh(true)
 							# if en in chunks:
 							# 	chunks[en].setFlagMesh(true)
 							# if wn in chunks:
@@ -212,12 +212,12 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# 		coords = chunk.getCoords()
 	# 		mesh as MeshData = chunk.getMesh()
 
-	# 		east_neighbor = LongVector3(coords.x + Settings.ChunkSize, coords.y, coords.z)
-	# 		west_neighbor = LongVector3(coords.x - Settings.ChunkSize, coords.y, coords.z)
-	# 		north_neighbor = LongVector3(coords.x, coords.y, coords.z + Settings.ChunkSize)
-	# 		south_neighbor = LongVector3(coords.x, coords.y, coords.z - Settings.ChunkSize)
-	# 		up_neighbor = LongVector3(coords.x, coords.y + Settings.ChunkSize, coords.z)
-	# 		down_neighbor = LongVector3(coords.x, coords.y - Settings.ChunkSize, coords.z)
+	# 		east_neighbor = WorldBlockCoordinate(coords.x + Settings.ChunkSize, coords.y, coords.z)
+	# 		west_neighbor = WorldBlockCoordinate(coords.x - Settings.ChunkSize, coords.y, coords.z)
+	# 		north_neighbor = WorldBlockCoordinate(coords.x, coords.y, coords.z + Settings.ChunkSize)
+	# 		south_neighbor = WorldBlockCoordinate(coords.x, coords.y, coords.z - Settings.ChunkSize)
+	# 		up_neighbor = WorldBlockCoordinate(coords.x, coords.y + Settings.ChunkSize, coords.z)
+	# 		down_neighbor = WorldBlockCoordinate(coords.x, coords.y - Settings.ChunkSize, coords.z)
 	# 		if chunks.ContainsKey(east_neighbor):
 	# 			mesh.setEastNeighbor(chunks[east_neighbor].getBlocks())
 	# 		if chunks.ContainsKey(west_neighbor):
@@ -237,7 +237,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# 			# TO DO: do not push this chunk out if it has already
 	# 			# exceeded the distance metric! (in which case its
 	# 			# already been removed in the Update call)
-	# 			if LongVector3(coords.x, coords.y, coords.z) in chunks:
+	# 			if WorldBlockCoordinate(coords.x, coords.y, coords.z) in chunks:
 	# 				outgoing_queue.Push(["CREATE", chunk])
 	# 	except e:
 	# 		print "WHOOPS WE HAVE AN ERROR IN MESH: " + e
@@ -247,12 +247,12 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# 		blocks as BlockData = chunk.getBlocks()
 	# 		blocks.CalculateBlocks()
 	# 		coords = chunk.getCoords()
-	# 		east_neighbor = LongVector3(coords.x + Settings.ChunkSize, coords.y, coords.z)
-	# 		west_neighbor = LongVector3(coords.x - Settings.ChunkSize, coords.y, coords.z)
-	# 		north_neighbor = LongVector3(coords.x, coords.y, coords.z + Settings.ChunkSize)
-	# 		south_neighbor = LongVector3(coords.x, coords.y, coords.z - Settings.ChunkSize)
-	# 		up_neighbor = LongVector3(coords.x, coords.y + Settings.ChunkSize, coords.z)
-	# 		down_neighbor = LongVector3(coords.x, coords.y - Settings.ChunkSize, coords.z)
+	# 		east_neighbor = WorldBlockCoordinate(coords.x + Settings.ChunkSize, coords.y, coords.z)
+	# 		west_neighbor = WorldBlockCoordinate(coords.x - Settings.ChunkSize, coords.y, coords.z)
+	# 		north_neighbor = WorldBlockCoordinate(coords.x, coords.y, coords.z + Settings.ChunkSize)
+	# 		south_neighbor = WorldBlockCoordinate(coords.x, coords.y, coords.z - Settings.ChunkSize)
+	# 		up_neighbor = WorldBlockCoordinate(coords.x, coords.y + Settings.ChunkSize, coords.z)
+	# 		down_neighbor = WorldBlockCoordinate(coords.x, coords.y - Settings.ChunkSize, coords.z)
 			
 	# 		lock locker:
 	# 			chunk.setFlagNoise(false)
@@ -326,22 +326,22 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 					y_coord = (b - Settings.MaxChunksVertical)*chunk_size
 					#y_coord = (b - Settings.MaxChunksVertical)*chunk_size + origin_coords.y
 					z_coord = (c - max_distance)*chunk_size + origin_coords.z
-					sc = LongVector3(x_coord, y_coord, z_coord)
+					sc = WorldBlockCoordinate(x_coord, y_coord, z_coord)
 					lock chunks:
 						if not chunks.ContainsKey(sc):
 							#print 'Adding Chunk'
-							creation_queue.Push(LongVector3(x_coord, y_coord, z_coord))
+							creation_queue.Push(WorldBlockCoordinate(x_coord, y_coord, z_coord))
 				c = 0
 			c = 0
 			b = 0
 			
 
 		# sort so that they are from closest to farthest from origin
-		creation_queue.Sort() do (left as LongVector3, right as LongVector3):
+		creation_queue.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
 			return origin.Distance(origin, Vector3(left.x, left.y, left.z)) - origin.Distance(origin, Vector3(right.x, right.y, right.z))
 
 		# add all new chunks
-		for item as LongVector3 in creation_queue:
+		for item as WorldBlockCoordinate in creation_queue:
 			size = ByteVector3(chunk_size, chunk_size, chunk_size)
 			chunk_blocks = BlockData(item, size)
 			chunk_mesh = MeshData(chunk_blocks, self)
@@ -350,17 +350,17 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			chunk_info.setFlagMesh(false)
 			#print 'Adding Chunk2'
 			lock chunks:
-				chunks.Add(LongVector3(item.x, item.y, item.z), chunk_info)
+				chunks.Add(WorldBlockCoordinate(item.x, item.y, item.z), chunk_info)
 			#noise_queue.Push(chunk_info)
 			
 	#
 	# functions to get and set blocks in _global coordinates_
 	#
 
-	def convertGlobalToLocal(world as LongVector3):
+	def convertGlobalToLocal(world as WorldBlockCoordinate):
 		pass
 
-	def setBlock(world as LongVector3, block as byte) as void:
+	def setBlock(world as WorldBlockCoordinate, block as byte) as void:
 		size = Settings.ChunkSize
 		x = world.x
 		y = world.y
@@ -393,7 +393,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#end_z = start_z + size - 1
 		b_z = z - start_z
 
-		chunk_coords = LongVector3(c_x * size, c_y * size, c_z * size)
+		chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
 		#chunk_coords = "$(c_x*size),$(c_y*size),$(c_z*size)"
 		block_coords = ByteVector3(b_x, b_y, b_z)
 		#print "GetBlock: $world, $chunk_coords, $block_coords"
@@ -414,7 +414,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# def getBlock(x as long, y as long, z as long):
 	# 	pass
 
-	def getBlock(world as LongVector3):
+	def getBlock(world as WorldBlockCoordinate):
 	#def getBlock(x as long, y as long, z as long):
 		size = Settings.ChunkSize
 		x = world.x
@@ -448,7 +448,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#end_z = start_z + size - 1
 		b_z as byte = z - start_z
 
-		chunk_coords = LongVector3(c_x * size, c_y * size, c_z * size)
+		chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
 		chunk as Chunk
 		lock chunks:
 			if chunks.TryGetValue(chunk_coords, chunk):

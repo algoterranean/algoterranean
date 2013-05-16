@@ -12,7 +12,7 @@ class Metric ():
 	def constructor(max_distance as single):
 		self.max_distance = max_distance
 
-	def tooFar(origin_coords as LongVector3, chunk_coords as LongVector3):
+	def tooFar(origin_coords as WorldBlockCoordinate, chunk_coords as WorldBlockCoordinate):
 		#Math.Abs(origin_coords.y - chunk_coords.y) > max_distance or \		
 		if Math.Abs(origin_coords.x - chunk_coords.x) > max_distance or \
 			Math.Abs(origin_coords.y - chunk_coords.y) > (Settings.ChunkSize * Settings.MaxChunksVertical) or \
@@ -20,6 +20,6 @@ class Metric ():
 			return true
 		return false
 
-	# def closeEnough(origin_coords as LongVector3, chunk_coords as LongVector3):
+	# def closeEnough(origin_coords as WorldBlockCoordinate, chunk_coords as WorldBlockCoordinate):
 		
 		

@@ -1,8 +1,8 @@
 import UnityEngine
 
 interface IChunkBlockData ():
-	def setCoordinates(coords as LongVector3) as void
-	def getCoordinates() as LongVector3
+	def setCoordinates(coords as WorldBlockCoordinate) as void
+	def getCoordinates() as WorldBlockCoordinate
 	def setSize(sizes as ByteVector3) as void
 	def getSize() as ByteVector3
 	def setBlock(coords as ByteVector3, block as byte) as void

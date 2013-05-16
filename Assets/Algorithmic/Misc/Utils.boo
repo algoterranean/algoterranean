@@ -7,10 +7,10 @@ class Utils ():
                 for z in range(z):
                     yield x, y, z
 
-    static def whichChunk(coords as Vector3) as LongVector3:
+    static def whichChunk(coords as Vector3) as WorldBlockCoordinate:
         x_pos = System.Math.Floor(coords.x / Settings.ChunkSize)
         y_pos = System.Math.Floor(coords.y / Settings.ChunkSize)
         z_pos = System.Math.Floor(coords.z / Settings.ChunkSize)
-        return LongVector3(x_pos * Settings.ChunkSize, y_pos * Settings.ChunkSize,  z_pos * Settings.ChunkSize)
+        return WorldBlockCoordinate(x_pos * Settings.ChunkSize, y_pos * Settings.ChunkSize,  z_pos * Settings.ChunkSize)
 
 

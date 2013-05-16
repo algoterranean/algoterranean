@@ -74,7 +74,7 @@ class Player (MonoBehaviour):
 				ba = c[0].block_aabb
 				print "DIGGING: $c"
 				print "ACTUAL BLOCK: $ba"
-				chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x,
+				chunk_ball.setBlock(WorldBlockCoordinate(ba.center.x - ba.radius.x,
 												ba.center.y - ba.radius.y,
 												ba.center.z - ba.radius.z), BLOCK.AIR)
 
@@ -98,7 +98,7 @@ class Player (MonoBehaviour):
 						print "ACTUAL BLOCK: $ba"
 						n = x.contact_normal
 						print "NORMAL: $n"
-						chunk_ball.setBlock(LongVector3(ba.center.x - ba.radius.x + n.x,
+						chunk_ball.setBlock(WorldBlockCoordinate(ba.center.x - ba.radius.x + n.x,
 														ba.center.y - ba.radius.y + n.y,
 														ba.center.z - ba.radius.z + n.z), BLOCK.DIRT)
 						break

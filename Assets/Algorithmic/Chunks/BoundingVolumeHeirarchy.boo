@@ -189,7 +189,7 @@ class BoundingVolumeTree:
 
 
 
-	def constructor(chunk_size as ByteVector3, chunk_coordinates as LongVector3):
+	def constructor(chunk_size as ByteVector3, chunk_coordinates as WorldBlockCoordinate):
 		#_chunk = chunk
 		size = chunk_size
 		coords = chunk_coordinates
