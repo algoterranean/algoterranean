@@ -15,8 +15,8 @@ struct WorldBlockCoordinate:
 		return hash
 
 	override def Equals(o) as bool:
-		l = o cast WorldBlockCoordinate
-		return l.x == x and l.y == y and l.z == z
+		v = o cast WorldBlockCoordinate
+		return v.x == x and v.y == y and v.z == z
 
 	override def ToString() as string:
 		return "($x, $y, $z)"

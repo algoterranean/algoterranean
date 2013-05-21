@@ -46,7 +46,7 @@ class MineralNoiseData (INoiseData):
 		
 		
 
-	def getBlock(x as long, y as long, z as long) as int:
+	def getBlock(x as long, y as long, z as long) as byte:
 		return total_select.GetValue(x * coord_scale, y*coord_scale, z*coord_scale)
 		#return Modifier.Select(Model.Plane(Filter.Voronoi()), Rock, Dirt, -1.0, 0.0, 0.0).
 	

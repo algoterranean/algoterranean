@@ -53,7 +53,7 @@ class BiomeNoiseData (INoiseData):
 		
 
 
-	def getBlock(x as long, y as long, z as long) as int:
+	def getBlock(x as long, y as long, z as long) as byte:
 		# if biome_select.GetValue(x * coord_scale, 0, z * coord_scale) >= 0.8:
 		# 	return highlands_turb.GetValue(x * coord_scale, y * coord_scale, z * coord_scale)
 		# else:

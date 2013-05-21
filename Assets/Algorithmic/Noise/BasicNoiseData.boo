@@ -89,7 +89,7 @@ class BasicNoiseData (INoiseData):
 
 		
 
-	def getBlock (x as long, y as long, z as long) as int:
+	def getBlock (x as long, y as long, z as long) as byte:
 		# 1 = solid, 0 = air
 		block = perlin_select.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)
 		#block = magma_combine.GetValue(x*coord_scale, y*coord_scale, z*coord_scale)

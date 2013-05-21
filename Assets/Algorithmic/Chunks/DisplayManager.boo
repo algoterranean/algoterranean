@@ -32,9 +32,10 @@ class DisplayManager (MonoBehaviour):
 		# draw all of the visible meshes every frame.
 		# this is much faster than creating and using traditional GameObjects
 		if draw_meshes_directly:
-			for coords as WorldBlockCoordinate in visible_meshes.Keys:
-				m as Mesh = visible_meshes[coords]
-				Graphics.DrawMesh(m, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)
+			for item in visible_meshes:
+				coords = item.Key
+				mesh = item.Value
+				Graphics.DrawMesh(mesh, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)				
 				
 	#
 	# message functions for communicating chunk state changes. can be called
@@ -47,10 +48,12 @@ class DisplayManager (MonoBehaviour):
 	#
 				
 	def CreateMesh(c as Chunk):
-		if c.getCoords() in visible_meshes:
-			_refresh_mesh_object(c)
-		else:
-			add_mesh_queue.Push(c)
+		add_mesh_queue.Push(c)
+		#pass
+		# if c.getCoords() in visible_meshes:
+		# 	_refresh_mesh_object(c)
+		# else:
+		# 	add_mesh_queue.Push(c)
 
 	def RemoveMesh(c as Chunk):
 		remove_mesh_queue.Push(c)
@@ -64,15 +67,15 @@ class DisplayManager (MonoBehaviour):
 	#
 	
 	def _refresh_mesh_object(c as Chunk):
-
-		chunk_mesh as MeshData = c.getMesh()
-		actual_mesh = visible_meshes[c.getCoords()]
-		actual_mesh.Clear()
-		actual_mesh.vertices = chunk_mesh.getVertices()
-		actual_mesh.triangles = chunk_mesh.getTriangles()
-		actual_mesh.normals = chunk_mesh.getNormals()
-		actual_mesh.uv = chunk_mesh.getUVs()
-		visible_meshes[c.getCoords()] = actual_mesh
+		pass
+		# chunk_mesh as MeshData = c.getMesh()
+		# actual_mesh = visible_meshes[c.getCoords()]
+		# actual_mesh.Clear()
+		# actual_mesh.vertices = chunk_mesh.getVertices()
+		# actual_mesh.triangles = chunk_mesh.getTriangles()
+		# actual_mesh.normals = chunk_mesh.getNormals()
+		# actual_mesh.uv = chunk_mesh.getUVs()
+		# visible_meshes[c.getCoords()] = actual_mesh
 
 	# TO DO: fix this. if a chunk is removed before it is added
 	# (they are added when they are queued but removed when the distance
@@ -80,38 +83,47 @@ class DisplayManager (MonoBehaviour):
 	# thread somewhere in DataManager) it may hang around indefinitely
 	# because it will never be removed again.
 	def _remove_mesh_object(c as Chunk):
-		if draw_meshes_directly:
-			visible_meshes.Remove(c.getCoords())
-		else:
-			o = gameObject.Find("$c")
-			if o != null:
-				gameObject.Destroy(o)
-			else:
-				pass
+		pass
+		# if draw_meshes_directly:
+		# 	visible_meshes.Remove(c.getCoords())
+		# else:
+		# 	o = gameObject.Find("$c")
+		# 	if o != null:
+		# 		gameObject.Destroy(o)
+		# 	else:
+		# 		pass
 
 	def _create_mesh_object(c as Chunk):
-		chunk_blocks as BlockData = c.getBlocks()
-		chunk_mesh as MeshData = c.getMesh()
-		coords = chunk_blocks.getCoordinates()
-		
+		m = c.getMeshData()
 		mesh = Mesh()
-		mesh.vertices = chunk_mesh.getVertices()
-		mesh.triangles = chunk_mesh.getTriangles()
-		mesh.normals = chunk_mesh.getNormals()
-		mesh.uv = chunk_mesh.getUVs()
+		mesh.vertices = m.vertices
+		mesh.triangles = m.triangles
+		mesh.normals = m.normals
+		mesh.uv = m.uvs
+		visible_meshes[c.getCoords()] = mesh
+		
+		# chunk_blocks as BlockData = c.getBlocks()
+		# chunk_mesh as MeshData = c.getMesh()
+		# coords = chunk_blocks.getCoordinates()
+		
+		# mesh = Mesh()
+		# mesh.vertices = chunk_mesh.getVertices()
+		# mesh.triangles = chunk_mesh.getTriangles()
+		# mesh.normals = chunk_mesh.getNormals()
+		# mesh.uv = chunk_mesh.getUVs()
 
-		if draw_meshes_directly:
-			visible_meshes[c.getCoords()] = mesh
-		else:
-			o = GameObject()
-			o.name = "$c"
-			o.AddComponent(MeshFilter)
-			o.AddComponent(MeshRenderer)
-			o.AddComponent(MeshCollider)
-			o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
-			o.GetComponent(MeshFilter).sharedMesh = mesh
-			o.GetComponent(MeshCollider).sharedMesh = mesh
+		# if draw_meshes_directly:
+		# 	visible_meshes[c.getCoords()] = mesh
+		# else:
+		# 	o = GameObject()
+		# 	o.name = "$c"
+		# 	o.AddComponent(MeshFilter)
+		# 	o.AddComponent(MeshRenderer)
+		# 	o.AddComponent(MeshCollider)
+		# 	o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
+		# 	o.GetComponent(MeshFilter).sharedMesh = mesh
+		# 	o.GetComponent(MeshCollider).sharedMesh = mesh
 
-			# t = gameObject.Find("Terrain").transform
-			# o.transform.parent = t
-			o.transform.position = Vector3(coords.x, coords.y, coords.z)
+		# 	# t = gameObject.Find("Terrain").transform
+		# 	# o.transform.parent = t
+		# 	o.transform.position = Vector3(coords.x, coords.y, coords.z)

@@ -9,7 +9,7 @@ class SolidNoiseData (INoiseData):
 	def constructor():
 		select = Primitive.Constant(BLOCK.ROCK cast int)
 
-	def getBlock(x as long, y as long, z as long) as int:
+	def getBlock(x as long, y as long, z as long) as byte:
 		if y <= 54:
 			return 50
 		else:

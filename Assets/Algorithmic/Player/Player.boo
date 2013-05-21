@@ -18,11 +18,13 @@ class Player (MonoBehaviour):
 	public jumping = false
 	t = 0
 	public reticle_tex as Texture2D
+	first as bool
 
 	def Start ():
 		rotate_speed = 3.5
 		movement_speed = 5 * 3
 		orientation = Vector3(0, 45, 0)
+		first = true
 
 		player_particle = gameObject.Find("Player").GetComponent("Particle")
 		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
@@ -103,8 +105,10 @@ class Player (MonoBehaviour):
 														ba.center.z - ba.radius.z + n.z), BLOCK.DIRT)
 						break
 			
-
-		chunk_ball.SetOrigin(transform.position)
+		if first:
+			#chunk_ball.setOrigin(transform.position)
+			chunk_ball.setOrigin(Vector3(0, 0, 0))
+			first = false
 
 	def OnGUI():
 		pass

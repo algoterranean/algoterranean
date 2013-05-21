@@ -140,24 +140,24 @@ class MeshData (IChunkMeshData):
 		aabb_size = 0
 
 		coords = chunk.getCoordinates()
-		en = data_manager.getChunk(WorldBlockCoordinate(coords.x + Settings.ChunkSize, coords.y, coords.z))
-		wn = data_manager.getChunk(WorldBlockCoordinate(coords.x - Settings.ChunkSize, coords.y, coords.z))
-		nn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z + Settings.ChunkSize))
-		sn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z - Settings.ChunkSize))
-		un = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y + Settings.ChunkSize, coords.z))
-		dn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y - Settings.ChunkSize, coords.z))
-		if en != null:
-			east_neighbor = en.getBlocks()
-		if wn != null:
-			west_neighbor = wn.getBlocks()
-		if nn != null:
-			north_neighbor = nn.getBlocks()
-		if sn != null:
-			south_neighbor = sn.getBlocks()
-		if un != null:
-			up_neighbor = un.getBlocks()
-		if dn != null:
-			down_neighbor = dn.getBlocks()
+		# en = data_manager.getChunk(WorldBlockCoordinate(coords.x + Settings.ChunkSize, coords.y, coords.z))
+		# wn = data_manager.getChunk(WorldBlockCoordinate(coords.x - Settings.ChunkSize, coords.y, coords.z))
+		# nn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z + Settings.ChunkSize))
+		# sn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z - Settings.ChunkSize))
+		# un = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y + Settings.ChunkSize, coords.z))
+		# dn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y - Settings.ChunkSize, coords.z))
+		# if en != null:
+		# 	east_neighbor = en.getBlocks()
+		# if wn != null:
+		# 	west_neighbor = wn.getBlocks()
+		# if nn != null:
+		# 	north_neighbor = nn.getBlocks()
+		# if sn != null:
+		# 	south_neighbor = sn.getBlocks()
+		# if un != null:
+		# 	up_neighbor = un.getBlocks()
+		# if dn != null:
+		# 	down_neighbor = dn.getBlocks()
 			
 
 		for x as byte in range(size.x):
