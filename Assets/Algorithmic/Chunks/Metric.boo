@@ -3,6 +3,8 @@ will determine whether they are "close enough" or "too far". This is used
 for the loading and unloading of chunks by the DataManager."""
 namespace Algorithmic.Chunks
 
+import System.Collections.Generic
+
 
 class Metric ():
 	
@@ -48,6 +50,17 @@ class ChunkMetric:
 					c as long = (origin.z + z * size)/size
 					l.Add(WorldBlockCoordinate(a * size, b * size, c * size))
 		return l
+
+	def getOrderedChunksInRange() as List[of WorldBlockCoordinate]:
+		l = List[of WorldBlockCoordinate]()
+		for x in range(-max_x, max_x+1):
+			for y in range(-max_y, max_y+1):
+				for z in range(-max_z, max_z+1):
+					c = WorldBlockCoordinate(x,  y, z)
+					l.Add(c)
+		l.Sort()
+		return l
+		
 
 	def isChunkTooFar(c as WorldBlockCoordinate) as bool:
 		if Math.Abs(c.x - origin.x)/size > max_x or \

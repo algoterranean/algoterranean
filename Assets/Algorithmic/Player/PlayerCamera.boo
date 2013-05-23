@@ -19,7 +19,7 @@ class PlayerCamera (MonoBehaviour):
 
 	def Start ():
 		#chunk_manager = gameObject.Find("ChunkManager").GetComponent("ChunkManager") as ChunkManager		
-		zoom = 1
+		zoom = 10
 		rotate_speed = 5
 		orientation = Vector3(0, 45, 0)
 		offset = Vector3(-10, 10, -3)

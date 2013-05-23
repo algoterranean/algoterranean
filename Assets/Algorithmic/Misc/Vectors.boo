@@ -1,5 +1,6 @@
+import System.Math
 
-struct WorldBlockCoordinate:
+struct WorldBlockCoordinate (IComparable):
 	x as long
 	z as long
 	y as long
@@ -20,6 +21,17 @@ struct WorldBlockCoordinate:
 
 	override def ToString() as string:
 		return "($x, $y, $z)"
+
+	def CompareTo(o as object) as int:
+		c = o cast WorldBlockCoordinate
+		a = Abs(x) + Abs(y) + Abs(z)
+		b = Abs(c.x) + Abs(c.y) + Abs(c.z)
+		if a < b:
+			return -1
+		elif a > b:
+			return 1
+		else:
+			return 0
 
 
 struct ByteVector3:

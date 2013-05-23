@@ -44,42 +44,70 @@ def b1 (x as long, y as long, z as long) as byte:
 # 	return MeshData2(0)
 
 class DataManager (MonoBehaviour, IChunkGenerator):
+	origin as Vector3
+	origin_lock as object
 	chunks as Dictionary[of WorldBlockCoordinate, Chunk]
-	noise_thread as Thread
-	mesh_thread as Thread
 	outgoing_queue as Queue[of DMMessage]
 	metric as ChunkMetric
 	chunk_size as byte
 	block_generator as BlockGenerator
 	mesh_generator as MeshGenerator
+	worker_thread as Thread
+	# worker_thread2 as Thread
+	# worker_thread3 as Thread	
+	ordered_chunk_list as List[of WorldBlockCoordinate]
 
 	def Awake():
-		#def constructor(s as byte, b as BlockGenerator):
-		#ThreadPool.SetMaxThreads(5, 5)
 		chunk_size = Settings.ChunkSize
 		x = BiomeNoiseData()
 		#x = SolidNoiseData()
 		block_generator = x.getBlock
 		mesh_generator = generateMesh
 		
-		
+		ordered_chunk_list = List[of WorldBlockCoordinate]()
 		chunks = Dictionary[of WorldBlockCoordinate, Chunk]()
-		#noise_thread = Thread(ThreadStart(_noise_worker))
-		#mesh_thread = Thread(ThreadStart(_mesh_worker))
 		outgoing_queue = Queue[of DMMessage]()
-		#noise_thread.Start()
-		metric = ChunkMetric(Vector3(0, 0, 0),
+		origin_lock = object()
+		origin = Vector3(0, 0, 0)
+		metric = ChunkMetric(origin,
 							 Settings.ChunkSize,
 							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
+		ordered_chunk_list = metric.getOrderedChunksInRange()
+		worker_thread = Thread(ThreadStart(_worker_thread))
+		worker_thread2 = Thread(ThreadStart(_worker_thread))
+		worker_thread3 = Thread(ThreadStart(_worker_thread))		
+		worker_thread.Start()
+		# worker_thread2.Start()
+		# worker_thread3.Start()		
 		
-		#mesh_thread.Start()
 
-	# def destructor():
-	# 	noise_thread.Abort()
-	# 	noise_thread.Join()
-	# 	# mesh_thread.Abort()
-	# 	# mesh_thread.Join()
 
+	def _worker_thread():
+		:start
+		try:
+			while true:
+				for c in ordered_chunk_list:
+					found = false					
+					lock origin_lock:
+						converted = WorldBlockCoordinate(origin.x/chunk_size + (c.x * chunk_size),
+														  origin.y/chunk_size + (c.y * chunk_size),
+														  origin.z/chunk_size + (c.z * chunk_size))
+					lock chunks:
+						if converted in chunks and chunks[converted].FlagGenBlocks:
+							chunk = chunks[converted]
+							chunk.FlagGenBlocks = false
+							found = true
+					if found:
+						chunk.generateBlocks()
+						chunk.generateMesh()
+						lock outgoing_queue:
+							outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
+
+		except e as ThreadAbortException:
+			if e.ExceptionState == "reset":
+				Thread.ResetAbort()
+				goto start
+		
 	def getChunk(coord as WorldBlockCoordinate) as Chunk:
 		lock chunks:
 			if chunks.ContainsKey(coord):
@@ -87,7 +115,9 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		return null
 
 	def setOrigin(o as Vector3):
-		metric.Origin = o
+		lock origin_lock:
+			origin = o
+		metric.Origin = origin
 		in_range = metric.getChunksInRange()
 
 		lock chunks:
@@ -99,10 +129,9 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				if not chunks.ContainsKey(coord):
 					c = Chunk(coord, chunk_size, block_generator, mesh_generator)
 					chunks.Add(coord, c)
-					ThreadPool.QueueUserWorkItem(_chunk_worker, c)
-					
-		# for x in chunks:
-		# 	print x.Key
+			worker_thread.Abort("reset")
+			# worker_thread2.Abort("reset")
+			# worker_thread3.Abort("reset")
 
 	def Update():
 		lock outgoing_queue:
@@ -110,17 +139,6 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				m = outgoing_queue.Dequeue()
 				SendMessage(m.function, m.chunk)
 
-	def _chunk_worker(o as object) as WaitCallback:
-		c = o cast Chunk
-		t1 = DateTime.Now
-		c.generateBlocks()
-		t2 = DateTime.Now
-		c.generateMesh()
-		t3 = DateTime.Now
-		lock outgoing_queue:
-			outgoing_queue.Enqueue(DMMessage("CreateMesh", c))
-			print "completed chunk $c, noise in $(t2-t1), mesh in $(t3-t2)"
-		
 
 	# def setBlock(world as WorldBlockCoordinate, block as byte) as void:
 	# 	size = Settings.ChunkSize
@@ -210,20 +228,21 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#end_z = start_z + size - 1
 		b_z as byte = z - start_z
 
+
+
 		chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
+		
+		#return 0
+	
 		chunk as Chunk
-		lock chunks:
-			if chunks.TryGetValue(chunk_coords, chunk):
+		if chunks.TryGetValue(chunk_coords, chunk):
+			if not chunk.FlagGenBlocks:
 				return chunk.getBlock(b_x, b_y, b_z)
-				# blocks as BlockData = chunk.getBlocks()
-				# b = blocks.getBlock(b_x, b_y, b_z)
-				# return b
-			else:
-				return 0
-		# 	# if b > 0:
-		# 	#Log.Log("GET BLOCK: WORLD: $world, CHUNK: $(chunk_coords), LOCAL: $block_coords", LOG_MODULE.CONTACTS)
-		# 	return b
-		# else:
-		# 	print "Could not find the chunk"			
-		# 	return 0
+		return 0
+		# lock chunks:
+		# 	if chunk_coords in chunks and not chunks[chunk_coords].FlagGenBlocks:
+			#if chunks.TryGetValue(chunk_coords, chunk):
+			# return chunks[chunk_coords].getBlock(b_x, b_y, b_z)
+			# else:
+			# 	return 0
 		

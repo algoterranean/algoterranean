@@ -35,7 +35,7 @@ class DisplayManager (MonoBehaviour):
 			for item in visible_meshes:
 				coords = item.Key
 				mesh = item.Value
-				Graphics.DrawMesh(mesh, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)				
+				Graphics.DrawMesh(mesh, Vector3(coords.x, coords.y, coords.z), Quaternion.identity, mesh_mat, 0)
 				
 	#
 	# message functions for communicating chunk state changes. can be called

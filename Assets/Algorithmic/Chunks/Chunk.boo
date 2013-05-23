@@ -17,6 +17,7 @@ class Chunk:
 		block_generator = b_func
 		mesh_generator = m_func
 		blocks = matrix(byte, size, size, size)
+		flag_gen_noise = true
 		#flag_gen_noise = true
 
 
@@ -26,6 +27,8 @@ class Chunk:
 	FlagGenBlocks as bool:
 		get:
 			return flag_gen_noise
+		set:
+			flag_gen_noise = value
 
 	def getBlock(x as byte, y as byte, z as byte) as byte:
 		lock blocks:
