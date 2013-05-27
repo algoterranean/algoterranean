@@ -105,11 +105,12 @@ class Player (MonoBehaviour):
 														ba.center.z - ba.radius.z + n.z), BLOCK.DIRT)
 						break
 			
-		if first:
-			#chunk_ball.setOrigin(transform.position)
-			chunk_ball.setOrigin(Vector3(0, 0, 0))
-			first = false
-
+		# if first:
+		# 	chunk_ball.setOrigin(Vector3(0, 0, 0))
+		# 	first = false
+		# else:
+		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)		
+			
 	def OnGUI():
 		pass
 		# GUI.DrawTexture(Rect(Screen.width/2 - reticle_size/2,

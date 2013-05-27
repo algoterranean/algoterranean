@@ -46,6 +46,8 @@ def b1 (x as long, y as long, z as long) as byte:
 class DataManager (MonoBehaviour, IChunkGenerator):
 	origin as Vector3
 	origin_lock as object
+	origin_init as bool
+	chunk_cached as Chunk = null
 	chunks as Dictionary[of WorldBlockCoordinate, Chunk]
 	outgoing_queue as Queue[of DMMessage]
 	metric as ChunkMetric
@@ -56,6 +58,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# worker_thread2 as Thread
 	# worker_thread3 as Thread	
 	ordered_chunk_list as List[of WorldBlockCoordinate]
+	
 
 	def Awake():
 		chunk_size = Settings.ChunkSize
@@ -69,6 +72,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		outgoing_queue = Queue[of DMMessage]()
 		origin_lock = object()
 		origin = Vector3(0, 0, 0)
+		origin_init = false
 		metric = ChunkMetric(origin,
 							 Settings.ChunkSize,
 							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
@@ -89,9 +93,11 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				for c in ordered_chunk_list:
 					found = false					
 					lock origin_lock:
-						converted = WorldBlockCoordinate(origin.x/chunk_size + (c.x * chunk_size),
-														  origin.y/chunk_size + (c.y * chunk_size),
-														  origin.z/chunk_size + (c.z * chunk_size))
+						a as long = (origin.x + c.x * chunk_size)/chunk_size
+						b as long = (origin.y + c.y * chunk_size)/chunk_size
+						c2 as long = (origin.z + c.z * chunk_size)/chunk_size
+						converted = WorldBlockCoordinate(a * chunk_size, b * chunk_size, c2 * chunk_size)
+
 					lock chunks:
 						if converted in chunks and chunks[converted].FlagGenBlocks:
 							chunk = chunks[converted]
@@ -115,10 +121,20 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		return null
 
 	def setOrigin(o as Vector3):
+		if origin_init:
+			lock origin_lock:
+				x1 = Math.Abs(o.x - origin.x)
+				y1 = Math.Abs(o.y - origin.y)
+				z1 = Math.Abs(o.z - origin.z)
+				if not Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) >= 10:
+					return
+		origin_init = true
 		lock origin_lock:
 			origin = o
-		metric.Origin = origin
+			metric.Origin = origin
 		in_range = metric.getChunksInRange()
+		#ordered_chunk_list = metric.getOrderedChunksInRange()
+		
 
 		lock chunks:
 			to_remove = [coord for coord in chunks.Keys if metric.isChunkTooFar(coord)]
@@ -129,7 +145,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				if not chunks.ContainsKey(coord):
 					c = Chunk(coord, chunk_size, block_generator, mesh_generator)
 					chunks.Add(coord, c)
-			worker_thread.Abort("reset")
+		worker_thread.Abort("reset")
 			# worker_thread2.Abort("reset")
 			# worker_thread3.Abort("reset")
 
@@ -194,6 +210,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# # def getBlock(x as long, y as long, z as long):
 	# # 	pass
 
+
 	def getBlock(world as WorldBlockCoordinate):
 	#def getBlock(x as long, y as long, z as long):
 		size = Settings.ChunkSize
@@ -228,21 +245,11 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#end_z = start_z + size - 1
 		b_z as byte = z - start_z
 
-
-
 		chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
-		
-		#return 0
-	
-		chunk as Chunk
-		if chunks.TryGetValue(chunk_coords, chunk):
-			if not chunk.FlagGenBlocks:
-				return chunk.getBlock(b_x, b_y, b_z)
-		return 0
-		# lock chunks:
-		# 	if chunk_coords in chunks and not chunks[chunk_coords].FlagGenBlocks:
-			#if chunks.TryGetValue(chunk_coords, chunk):
-			# return chunks[chunk_coords].getBlock(b_x, b_y, b_z)
-			# else:
-			# 	return 0
-		
+		if chunk_cached is not null and chunk_cached.getCoords() == chunk_coords:
+			return chunk_cached.getBlock(b_x, b_y, b_z)
+		else:
+			if chunks.TryGetValue(chunk_coords, chunk_cached):
+				return chunk_cached.getBlock(b_x, b_y, b_z)
+			else:
+				return 0
