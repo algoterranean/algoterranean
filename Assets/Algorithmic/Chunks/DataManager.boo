@@ -10,7 +10,6 @@ namespace Algorithmic.Chunks
 import Algorithmic
 import UnityEngine
 import System.Collections.Generic
-#import System.Collections.Concurrent
 import System.Threading
 
 
@@ -34,14 +33,9 @@ struct MeshData2:
 		normals = n
 		triangles = t
 		
-
 callable BlockGenerator(world_x as long, world_y as long, world_z as long) as byte
 callable MeshGenerator(blocks as (byte, 3)) as MeshData2
 
-def b1 (x as long, y as long, z as long) as byte:
-	return 1
-# def m1 (blocks as (byte, 3)) as MeshData2:
-# 	return MeshData2(0)
 
 class DataManager (MonoBehaviour, IChunkGenerator):
 	origin as Vector3
@@ -55,9 +49,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	block_generator as BlockGenerator
 	mesh_generator as MeshGenerator
 	worker_thread as Thread
-	# worker_thread2 as Thread
-	# worker_thread3 as Thread	
-	ordered_chunk_list as List[of WorldBlockCoordinate]
+	work_queue as Queue[of Chunk]
 	
 
 	def Awake():
@@ -65,89 +57,89 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		x = BiomeNoiseData()
 		#x = SolidNoiseData()
 		block_generator = x.getBlock
-		mesh_generator = generateMeshGreedy
-		
-		ordered_chunk_list = List[of WorldBlockCoordinate]()
+		mesh_generator = generateMesh
 		chunks = Dictionary[of WorldBlockCoordinate, Chunk]()
 		outgoing_queue = Queue[of DMMessage]()
-		origin_lock = object()
+		work_queue = Queue[of Chunk]()		
 		origin = Vector3(0, 0, 0)
 		origin_init = false
 		metric = ChunkMetric(origin,
 							 Settings.ChunkSize,
 							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
-		ordered_chunk_list = metric.getOrderedChunksInRange()
 		worker_thread = Thread(ThreadStart(_worker_thread))
-		worker_thread2 = Thread(ThreadStart(_worker_thread))
-		worker_thread3 = Thread(ThreadStart(_worker_thread))		
 		worker_thread.Start()
-		# worker_thread2.Start()
-		# worker_thread3.Start()		
 		
 
-
+		
 	def _worker_thread():
-		:start
+		chunk as Chunk
 		try:
 			while true:
-				for c in ordered_chunk_list:
-					found = false					
-					lock origin_lock:
-						a as long = (origin.x + c.x * chunk_size)/chunk_size
-						b as long = (origin.y + c.y * chunk_size)/chunk_size
-						c2 as long = (origin.z + c.z * chunk_size)/chunk_size
-						converted = WorldBlockCoordinate(a * chunk_size, b * chunk_size, c2 * chunk_size)
+				found = false
+				lock work_queue:
+					if work_queue.Count > 0:
+						chunk = work_queue.Dequeue()
+						found = true
+					else:
+						found = false
 
-					lock chunks:
-						if converted in chunks and chunks[converted].FlagGenBlocks:
-							chunk = chunks[converted]
-							chunk.FlagGenBlocks = false
-							found = true
-					if found:
-						chunk.generateBlocks()
-						chunk.generateMesh()
-						lock outgoing_queue:
-							outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
+				if found:
+					lock chunk:
+						if chunk.NeedsWork:
+							chunk.generateBlocks()
+							chunk.generateMesh()
+							chunk.NeedsWork = false
+							
+					lock outgoing_queue:
+						outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
+		except e:
+			print "THREAD ERROR $e"
 
-		except e as ThreadAbortException:
-			if e.ExceptionState == "reset":
-				Thread.ResetAbort()
-				goto start
+	def OnApplicationQuit():
+		worker_thread.Abort()
 		
-	def getChunk(coord as WorldBlockCoordinate) as Chunk:
-		lock chunks:
-			if chunks.ContainsKey(coord):
-				return chunks[coord]
-		return null
 
 	def setOrigin(o as Vector3):
 		if origin_init:
-			lock origin_lock:
-				x1 = Math.Abs(o.x - origin.x)
-				y1 = Math.Abs(o.y - origin.y)
-				z1 = Math.Abs(o.z - origin.z)
-				if not Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) >= 10:
-					return
-		origin_init = true
-		lock origin_lock:
-			origin = o
-			metric.Origin = origin
-		in_range = metric.getChunksInRange()
-		#ordered_chunk_list = metric.getOrderedChunksInRange()
-		
+			x1 = Math.Abs(o.x - origin.x)
+			y1 = Math.Abs(o.y - origin.y)
+			z1 = Math.Abs(o.z - origin.z)
+			if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10:
+				return
 
+		origin_init = true
+		origin = o
+		metric.Origin = origin
+		in_range = metric.getChunksInRange()
+		
+		
 		lock chunks:
 			to_remove = [coord for coord in chunks.Keys if metric.isChunkTooFar(coord)]
 			to_add = [coord for coord in in_range if not chunks.ContainsKey(coord)]
-			for coord in to_remove:
-				chunks.Remove(coord)
+			lock outgoing_queue:			
+				for coord in to_remove:
+					outgoing_queue.Enqueue(DMMessage("RemoveMesh", chunks[coord]))
+					chunks.Remove(coord)
+
+			tmp_queue = Queue[of Chunk]()
 			for coord in to_add:
 				if not chunks.ContainsKey(coord):
 					c = Chunk(coord, chunk_size, block_generator, mesh_generator)
 					chunks.Add(coord, c)
-		worker_thread.Abort("reset")
-			# worker_thread2.Abort("reset")
-			# worker_thread3.Abort("reset")
+
+			l = []
+			for coord in chunks.Keys:
+				if chunks[coord].NeedsWork:
+					l.Push(coord)
+			l = l.Sort()#  do (left as Chunk, right as Chunk):
+			# def p:
+			# 	if left.coords
+			for coord in l:
+				tmp_queue.Enqueue(chunks[coord])
+
+		lock work_queue:
+			work_queue = tmp_queue
+					
 
 	def Update():
 		lock outgoing_queue:

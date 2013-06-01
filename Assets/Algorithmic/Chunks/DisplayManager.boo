@@ -13,7 +13,7 @@ class DisplayManager (MonoBehaviour):
 	remove_mesh_queue = [] #List[of Chunk]()
 	visible_meshes = Dictionary[of WorldBlockCoordinate, Mesh]()
 	mesh_mat as Material
-	draw_meshes_directly = true
+	draw_meshes_directly = false
 
 
 	def Awake():
@@ -83,15 +83,14 @@ class DisplayManager (MonoBehaviour):
 	# thread somewhere in DataManager) it may hang around indefinitely
 	# because it will never be removed again.
 	def _remove_mesh_object(c as Chunk):
-		pass
-		# if draw_meshes_directly:
-		# 	visible_meshes.Remove(c.getCoords())
-		# else:
-		# 	o = gameObject.Find("$c")
-		# 	if o != null:
-		# 		gameObject.Destroy(o)
-		# 	else:
-		# 		pass
+		if draw_meshes_directly:
+			visible_meshes.Remove(c.getCoords())
+		else:
+			o = gameObject.Find("$c")
+			if o != null:
+				gameObject.Destroy(o)
+			else:
+				pass
 
 	def _create_mesh_object(c as Chunk):
 		m = c.getMeshData()
@@ -100,30 +99,19 @@ class DisplayManager (MonoBehaviour):
 		mesh.triangles = m.triangles
 		mesh.normals = m.normals
 		mesh.uv = m.uvs
-		visible_meshes[c.getCoords()] = mesh
-		
-		# chunk_blocks as BlockData = c.getBlocks()
-		# chunk_mesh as MeshData = c.getMesh()
-		# coords = chunk_blocks.getCoordinates()
-		
-		# mesh = Mesh()
-		# mesh.vertices = chunk_mesh.getVertices()
-		# mesh.triangles = chunk_mesh.getTriangles()
-		# mesh.normals = chunk_mesh.getNormals()
-		# mesh.uv = chunk_mesh.getUVs()
-
-		# if draw_meshes_directly:
-		# 	visible_meshes[c.getCoords()] = mesh
-		# else:
-		# 	o = GameObject()
-		# 	o.name = "$c"
-		# 	o.AddComponent(MeshFilter)
-		# 	o.AddComponent(MeshRenderer)
-		# 	o.AddComponent(MeshCollider)
-		# 	o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
-		# 	o.GetComponent(MeshFilter).sharedMesh = mesh
-		# 	o.GetComponent(MeshCollider).sharedMesh = mesh
-
+		print "TRIANGLE COUNT: $(len(m.triangles)/3)"
+		if draw_meshes_directly:
+			visible_meshes[c.getCoords()] = mesh
+		else:
+			o = GameObject()
+			o.name = "$c"
+			o.AddComponent(MeshFilter)
+			o.AddComponent(MeshRenderer)
+			o.AddComponent(MeshCollider)
+			o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
+			o.GetComponent(MeshFilter).sharedMesh = mesh
+			o.GetComponent(MeshCollider).sharedMesh = mesh
+			coords = c.getCoords()
 		# 	# t = gameObject.Find("Terrain").transform
 		# 	# o.transform.parent = t
-		# 	o.transform.position = Vector3(coords.x, coords.y, coords.z)
+			o.transform.position = Vector3(coords.x, coords.y, coords.z)

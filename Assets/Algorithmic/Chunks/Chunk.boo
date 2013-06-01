@@ -10,6 +10,7 @@ class Chunk:
 	block_generator as BlockGenerator
 	mesh_generator as MeshGenerator
 	flag_gen_noise as bool
+	needs_work as bool
 
 	def constructor(c as WorldBlockCoordinate, s as byte, b_func as BlockGenerator, m_func as MeshGenerator):
 		coords = c
@@ -17,6 +18,7 @@ class Chunk:
 		block_generator = b_func
 		mesh_generator = m_func
 		blocks = matrix(byte, size, size, size)
+		needs_work = true
 		flag_gen_noise = true
 		#flag_gen_noise = true
 
@@ -29,6 +31,13 @@ class Chunk:
 			return flag_gen_noise
 		set:
 			flag_gen_noise = value
+
+	NeedsWork as bool:
+		get:
+			return needs_work
+		set:
+			lock needs_work:
+				needs_work = value
 
 	def getBlock(x as byte, y as byte, z as byte) as byte:
 		lock blocks:

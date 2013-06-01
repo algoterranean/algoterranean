@@ -1,7 +1,7 @@
 namespace Algorithmic.Chunks
 
 
-def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
+def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 	chunk_size = Settings.ChunkSize
 	vertices = List[of Vector3]()
 	uvs = List[of Vector2]()
@@ -14,7 +14,6 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 		uvs.Push(Vector2(x + 0.01, 1.0 - y - 0.01))
 		uvs.Push(Vector2(x - 0.01 + 0.1, 1.0 - y - 0.01))
 		uvs.Push(Vector2(x - 0.01 + 0.1, 1.0 - y - 0.1 + 0.01))
-
 
 	# do the west and east pass
 	vertice_count = 0
@@ -42,69 +41,37 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 				else:
 					east_mask[y, z] = false
 
-					
 		for y as byte in range(chunk_size):
-		# 	building = false
-		# 	for z as byte in range(chunk_size):
-		# 		if west_mask[y, z] and not building:
-		# 			building = true
-		# 			i = x
-		# 		if (not west_mask[y, z] and building) or (z == chunk_size-1 and building):
-		# 			if (not west_mask[y, z] and building):
-		# 				j = x - 1
-		# 			else:
-		# 				j = x
-		# 			building = false
-		# 			done = false
-		# 			h = 1
-		# 			for y2 in range(y+1, chunk_size):
-		# 				for z2 in range(i, j):
-		# 					if not west_mask[y2, z2]:
-		# 						done = true
-		# 						break
-		# 				if done:
-		# 					break
-		# 				h += 1
-		# 			vertices.Push(Vector3(j, y, i))
-		# 			vertices.Push(Vector3(j+1, y, i))
-		# 			vertices.Push(Vector3(j+1, y+1, i))
-		# 			vertices.Push(Vector3(j, y+1, i))
-		# 			vertice_count += 4
-		# 			triangles.Push(vertice_count-4)
-		# 			triangles.Push(vertice_count-3)
-		# 			triangles.Push(vertice_count-2)
-		# 			triangles.Push(vertice_count-2)
-		# 			triangles.Push(vertice_count-1)
-		# 			triangles.Push(vertice_count-4)
-		# 			normals.Push(Vector3(1, 0, 0))
-		# 			normals.Push(Vector3(1, 0, 0))
-		# 			normals.Push(Vector3(1, 0, 0))
-		# 			normals.Push(Vector3(1, 0, 0))
-		# 			_add_uvs(0.6, 0)
-
-
-		# 			for y3 in range(y, h+y):
-		# 				for z3 in range(i, j+1):
-		# 					west_mask[y3, z3] = false
-
 			building = false
 			for z as byte in range(chunk_size):
-				block = blocks[x, y, z]
 				if west_mask[y, z] and not building:
-					# start new block					
-					vertices.Push(Vector3(x, y+1, z))
-					vertices.Push(Vector3(x, y, z))
-					vertice_count += 2
 					building = true
-				if (not west_mask[y, z] and building) or (z == chunk_size - 1 and building):
-					# finish old block
-					if z == chunk_size - 1 and west_mask[y, z]:
-						vertices.Push(Vector3(x, y, z+1))						
-						vertices.Push(Vector3(x, y+1, z+1))
+					i = z
+				if (not west_mask[y, z] and building) or (z == chunk_size-1 and building):
+					if (not west_mask[y, z] and building):
+						j = z - 1
 					else:
-						vertices.Push(Vector3(x, y, z))
-						vertices.Push(Vector3(x, y+1, z))
-					vertice_count += 2
+						j = z
+					building = false
+					done = false
+					h = 1
+					for y2 in range(y+1, chunk_size):
+						for z2 in range(i, j+1):
+							if not west_mask[y2, z2]:
+								done = true
+								break
+						if done:
+							break
+						h += 1
+					# y = starting height
+					# y + h = ending hight
+					# i = starting width
+					# j = ending width
+					vertices.Push(Vector3(x, y+h, i))					
+					vertices.Push(Vector3(x, y, i))
+					vertices.Push(Vector3(x, y, j+1))
+					vertices.Push(Vector3(x, y+h, j+1))					
+					vertice_count += 4
 					triangles.Push(vertice_count-4)
 					triangles.Push(vertice_count-3)
 					triangles.Push(vertice_count-2)
@@ -116,27 +83,46 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 					normals.Push(Vector3(1, 0, 0))
 					normals.Push(Vector3(1, 0, 0))
 					_add_uvs(0.6, 0)
-					#_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-					building = false
 
+
+					for y3 in range(y, h+y):
+						for z3 in range(i, j+1):
+							west_mask[y3, z3] = false
+
+							
+		for y as byte in range(chunk_size):
 			building = false
 			for z as byte in range(chunk_size):
-				block = blocks[x, y, z]
 				if east_mask[y, z] and not building:
-					# start new block
-					vertices.Push(Vector3(x+1, y, z))
-					vertices.Push(Vector3(x+1, y+1, z))					
-					vertice_count += 2
 					building = true
-				if (not east_mask[y, z] and building) or (z == chunk_size - 1 and building):
-					# finish old block
-					if z == chunk_size - 1 and east_mask[y, z]:
-						vertices.Push(Vector3(x+1, y+1, z+1))
-						vertices.Push(Vector3(x+1, y, z+1))						
+					i = z
+				if (not east_mask[y, z] and building) or (z == chunk_size-1 and building):
+					if (not east_mask[y, z] and building):
+						j = z - 1
 					else:
-						vertices.Push(Vector3(x+1, y+1, z))
-						vertices.Push(Vector3(x+1, y, z))
-					vertice_count += 2
+						j = z
+					building = false
+					done = false
+					h = 1
+					for y2 in range(y+1, chunk_size):
+						for z2 in range(i, j+1):
+							if not east_mask[y2, z2]:
+								done = true
+								break
+						if done:
+							break
+						h += 1
+					# y = starting height
+					# y + h = ending hight
+					# i = starting width
+					# j = ending width
+					vertices.Push(Vector3(x+1, y+h, j+1))
+					vertices.Push(Vector3(x+1, y, j+1))					
+					vertices.Push(Vector3(x+1, y, i))
+					vertices.Push(Vector3(x+1, y+h, i))										
+
+
+					vertice_count += 4
 					triangles.Push(vertice_count-4)
 					triangles.Push(vertice_count-3)
 					triangles.Push(vertice_count-2)
@@ -147,10 +133,12 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 					normals.Push(Vector3(-1, 0, 0))
 					normals.Push(Vector3(-1, 0, 0))
 					normals.Push(Vector3(-1, 0, 0))
-					_add_uvs(0.6, 0)					
-					#_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-					building = false
+					_add_uvs(0.6, 0)
 
+
+					for y3 in range(y, h+y):
+						for z3 in range(i, j+1):
+							east_mask[y3, z3] = false
 
 	# do the north and south pass
 	#vertice_count = 0
@@ -178,27 +166,39 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 					south_mask[y, x] = true
 				else:
 					south_mask[y, x] = false
-
 					
 		for y as byte in range(chunk_size):
 			building = false
 			for x as byte in range(chunk_size):
-				block = blocks[x, y, z]
 				if south_mask[y, x] and not building:
-					# start new block
-					vertices.Push(Vector3(x, y, z))
-					vertices.Push(Vector3(x, y+1, z))
-					vertice_count += 2
 					building = true
-				if (not south_mask[y, x] and building) or (x == chunk_size - 1 and building):
-					# finish old block
-					if x == chunk_size - 1 and south_mask[y, x]:
-						vertices.Push(Vector3(x+1, y+1, z))
-						vertices.Push(Vector3(x+1, y, z))
+					i = x
+				if (not south_mask[y, x] and building) or (x == chunk_size-1 and building):
+					if (not south_mask[y, x] and building):
+						j = x - 1
 					else:
-						vertices.Push(Vector3(x, y+1, z))
-						vertices.Push(Vector3(x, y, z))
-					vertice_count += 2
+						j = x
+					building = false
+					done = false
+					h = 1
+					for y2 in range(y+1, chunk_size):
+						for x2 in range(i, j+1):
+							if not south_mask[y2, x2]:
+								done = true
+								break
+						if done:
+							break
+						h += 1
+					# y = starting height
+					# y + h = ending hight
+					# i = starting width
+					# j = ending width
+					vertices.Push(Vector3(j+1, y+h, z))
+					vertices.Push(Vector3(j+1, y, z))					
+					vertices.Push(Vector3(i, y, z))
+					vertices.Push(Vector3(i, y+h, z))
+
+					vertice_count += 4
 					triangles.Push(vertice_count-4)
 					triangles.Push(vertice_count-3)
 					triangles.Push(vertice_count-2)
@@ -210,27 +210,45 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 					normals.Push(Vector3(0, 0, -1))
 					normals.Push(Vector3(0, 0, -1))
 					_add_uvs(0.6, 0)
-					#_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-					building = false
 
+
+					for y3 in range(y, h+y):
+						for x3 in range(i, j+1):
+							south_mask[y3, x3] = false
+
+		for y as byte in range(chunk_size):
 			building = false
 			for x as byte in range(chunk_size):
-				block = blocks[x, y, z]
 				if north_mask[y, x] and not building:
-					# start new block
-					vertices.Push(Vector3(x, y+1, z+1))
-					vertices.Push(Vector3(x, y, z+1))				
-					vertice_count += 2
 					building = true
-				if (not north_mask[y, x] and building) or (x == chunk_size - 1 and building):
-					# finish old block
-					if x == chunk_size - 1 and north_mask[y, x]:
-						vertices.Push(Vector3(x+1, y, z+1))						
-						vertices.Push(Vector3(x+1, y+1, z+1))
+					i = x
+				if (not north_mask[y, x] and building) or (x == chunk_size-1 and building):
+					if (not north_mask[y, x] and building):
+						j = x - 1
 					else:
-						vertices.Push(Vector3(x, y, z+1))
-						vertices.Push(Vector3(x, y+1, z+1))
-					vertice_count += 2
+						j = x
+					building = false
+					done = false
+					h = 1
+					for y2 in range(y+1, chunk_size):
+						for x2 in range(i, j+1):
+							if not north_mask[y2, x2]:
+								done = true
+								break
+						if done:
+							break
+						h += 1
+					# y = starting height
+					# y + h = ending hight
+					# i = starting width
+					# j = ending width
+
+					vertices.Push(Vector3(j+1, y, z+1))
+					vertices.Push(Vector3(j+1, y+h, z+1))					
+					vertices.Push(Vector3(i, y+h, z+1))
+					vertices.Push(Vector3(i, y, z+1))					
+
+					vertice_count += 4
 					triangles.Push(vertice_count-4)
 					triangles.Push(vertice_count-3)
 					triangles.Push(vertice_count-2)
@@ -241,12 +259,13 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 					normals.Push(Vector3(0, 0, 1))
 					normals.Push(Vector3(0, 0, 1))
 					normals.Push(Vector3(0, 0, 1))
-					_add_uvs(0.6, 0)					
-					#_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-					building = false					
+					_add_uvs(0.6, 0)
 
 
-
+					for y3 in range(y, h+y):
+						for x3 in range(i, j+1):
+							north_mask[y3, x3] = false
+							
 	# do the up and down pass
 	#vertice_count = 0
 	for y as byte in range(chunk_size):
@@ -274,26 +293,38 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 				else:
 					down_mask[x, z] = false
 
-					
 		for x as byte in range(chunk_size):
 			building = false
 			for z as byte in range(chunk_size):
-				block = blocks[x, y, z]
 				if down_mask[x, z] and not building:
-					# start new block
-					vertices.Push(Vector3(x+1, y+1, z))
-					vertices.Push(Vector3(x, y+1, z))					
-					vertice_count += 2
 					building = true
-				if (not down_mask[x, z] and building) or (z == chunk_size - 1 and building):
-					# finish old block
-					if z == chunk_size - 1 and down_mask[x, z]:
-						vertices.Push(Vector3(x, y+1, z+1))
-						vertices.Push(Vector3(x+1, y+1, z+1))
+					i = z
+				if (not down_mask[x, z] and building) or (z == chunk_size-1 and building):
+					if (not down_mask[x, z] and building):
+						j = z - 1
 					else:
-						vertices.Push(Vector3(x, y+1, z))
-						vertices.Push(Vector3(x+1, y+1, z))
-					vertice_count += 2
+						j = z
+					building = false
+					done = false
+					h = 1
+					for x2 in range(x+1, chunk_size):
+						for z2 in range(i, j+1):
+							if not down_mask[x2, z2]:
+								done = true
+								break
+						if done:
+							break
+						h += 1
+					# y = starting height
+					# y + h = ending hight
+					# i = starting width
+					# j = ending width
+					vertices.Push(Vector3(x+h, y+1, i))
+					vertices.Push(Vector3(x, y+1, i))
+					vertices.Push(Vector3(x, y+1, j+1))
+					vertices.Push(Vector3(x+h, y+1, j+1))
+
+					vertice_count += 4
 					triangles.Push(vertice_count-4)
 					triangles.Push(vertice_count-3)
 					triangles.Push(vertice_count-2)
@@ -304,31 +335,44 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 					normals.Push(Vector3(0, 1, 0))
 					normals.Push(Vector3(0, 1, 0))
 					normals.Push(Vector3(0, 1, 0))
-					_add_uvs(0.6, 0)					
-					#_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-					building = false
+					_add_uvs(0.6, 0)
+
+					for x3 in range(x, x+h):
+						for z3 in range(i, j+1):
+							down_mask[x3, z3] = false
 
 		for x as byte in range(chunk_size):
 			building = false
 			for z as byte in range(chunk_size):
-				block = blocks[x, y, z]
 				if up_mask[x, z] and not building:
-					# start new block
-					vertices.Push(Vector3(x, y, z))
-					vertices.Push(Vector3(x+1, y, z))					
-					vertice_count += 2
 					building = true
-				if (not up_mask[x, z] and building) or (z == chunk_size - 1 and building):
-					# finish old block
-					if z == chunk_size - 1 and up_mask[x, z]:
-						vertices.Push(Vector3(x+1, y, z+1))
-						vertices.Push(Vector3(x, y, z+1))
+					i = z
+				if (not up_mask[x, z] and building) or (z == chunk_size-1 and building):
+					if (not up_mask[x, z] and building):
+						j = z - 1
 					else:
-						vertices.Push(Vector3(x+1, y, z))
-						vertices.Push(Vector3(x, y, z))					
-						
+						j = z
+					building = false
+					done = false
+					h = 1
+					for x2 in range(x+1, chunk_size):
+						for z2 in range(i, j+1):
+							if not up_mask[x2, z2]:
+								done = true
+								break
+						if done:
+							break
+						h += 1
+					# y = starting height
+					# y + h = ending hight
+					# i = starting width
+					# j = ending width
+					vertices.Push(Vector3(x+h, y, j+1))						
+					vertices.Push(Vector3(x, y, j+1))
+					vertices.Push(Vector3(x, y, i))
+					vertices.Push(Vector3(x+h, y, i))
 
-					vertice_count += 2
+					vertice_count += 4
 					triangles.Push(vertice_count-4)
 					triangles.Push(vertice_count-3)
 					triangles.Push(vertice_count-2)
@@ -339,22 +383,21 @@ def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
 					normals.Push(Vector3(0, -1, 0))
 					normals.Push(Vector3(0, -1, 0))
 					normals.Push(Vector3(0, -1, 0))
-					_add_uvs(0.6, 0)					
-					#_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-					building = false
-					
+					_add_uvs(0.6, 0)
 
+					for x3 in range(x, x+h):
+						for z3 in range(i, j+1):
+							up_mask[x3, z3] = false
+							
+					
+							
+							
 
-					
-					
-				
-	# print "Vert LEN: $(len(vertices))"
-	# print "Uvs LEN: $(len(uvs))"
-	# print "Normals LEN: $(len(normals))"		
+			
 	m = MeshData2(uvs.ToArray(),
 				  vertices.ToArray(),
 				  normals.ToArray(),
 				  triangles.ToArray())
 	return m
-					
-				
+
+	
