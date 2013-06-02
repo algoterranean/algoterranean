@@ -15,7 +15,7 @@ struct Settings:
 	public static PlayerRadius = Vector3(1.5, 3.0, 1.5)
 	#public static PlayerRadius = Vector3(0.5, 1, 0.5)
 
-	public static Seed as int = 16 #System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
+	public static Seed as int = 2 #System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
 	public static TerrainDepth as single = (MaxChunksVertical * 2 + 1) * ChunkSize
 	
 

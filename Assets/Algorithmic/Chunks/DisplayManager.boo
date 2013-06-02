@@ -112,6 +112,6 @@ class DisplayManager (MonoBehaviour):
 			o.GetComponent(MeshFilter).sharedMesh = mesh
 			o.GetComponent(MeshCollider).sharedMesh = mesh
 			coords = c.getCoords()
-		# 	# t = gameObject.Find("Terrain").transform
-		# 	# o.transform.parent = t
+			t = gameObject.Find("Terrain").transform
+			o.transform.parent = t
 			o.transform.position = Vector3(coords.x, coords.y, coords.z)

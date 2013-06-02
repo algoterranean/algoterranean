@@ -57,7 +57,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		x = BiomeNoiseData()
 		#x = SolidNoiseData()
 		block_generator = x.getBlock
-		mesh_generator = generateMesh
+		mesh_generator = generateMeshGreedy3
 		chunks = Dictionary[of WorldBlockCoordinate, Chunk]()
 		outgoing_queue = Queue[of DMMessage]()
 		work_queue = Queue[of Chunk]()		
