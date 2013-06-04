@@ -53,6 +53,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	block_thread2 as Thread
 	block_thread3 as Thread		
 	mesh_thread as Thread
+	mesh_thread2 as Thread	
 	block_queue as Queue[of Chunk]
 	mesh_queue as Queue[of Chunk]
 	
@@ -77,10 +78,13 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		block_thread.Start()
 		# block_thread2 = Thread(ThreadStart(_block_thread))
 		# block_thread2.Start()
-		# block_thread3 = Thread(ThreadStart(_mesh_thread))
+		# block_thread3 = Thread(ThreadStart(_block_thread))
 		# block_thread3.Start()		
 		mesh_thread = Thread(ThreadStart(_mesh_thread))
 		mesh_thread.Start()
+		# mesh_thread2 = Thread(ThreadStart(_mesh_thread))
+		# mesh_thread2.Start()		
+
 
 
 	def areNeighborsReady(chunk as Chunk) as bool:
@@ -116,8 +120,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 			if found:
 				if chunk.GenerateBlocks:
+					chunk.GenerateBlocks = false					
 					chunk.generateBlocks()
-					chunk.GenerateBlocks = false
 					chunk.GenerateMesh = true
 					lock mesh_queue:
 						mesh_queue.Enqueue(chunk)
@@ -135,8 +139,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 					else:
 						mesh_queue.Enqueue(chunk)
 			if found:
+				chunk.GenerateMesh = false				
 				chunk.generateMesh()
-				chunk.GenerateMesh = false
 				lock outgoing_queue:
 					outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
 
@@ -146,6 +150,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# block_thread2.Abort()
 		# block_thread3.Abort()
 		mesh_thread.Abort()
+		# mesh_thread2.Abort()		
 		
 
 	def setOrigin(o as Vector3):
@@ -174,7 +179,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			tmp_queue2 = Queue[of Chunk]()
 			for coord in to_add:
 				if not chunks.ContainsKey(coord):
-					c = Chunk(coord, chunk_size, block_generator, mesh_generator)
+					c = Chunk(coord, chunk_size, BiomeNoiseData().getBlock, mesh_generator)
 					chunks.Add(coord, c)
 
 			l = []
@@ -184,8 +189,25 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 					l.Push(coord)
 				if chunks[coord].GenerateMesh:
 					l2.Push(coord)
-			l = l.Sort()
-			l2 = l2.Sort()
+			l = l.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
+				d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
+				d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
+				if d1 < d2:
+					return -1
+				elif d1 > d2:
+					return 1
+				else:
+					return 0
+				
+			l2 = l2.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
+				d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
+				d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
+				if d1 < d2:
+					return -1
+				elif d1 > d2:
+					return 1
+				else:
+					return 0
 
 			for coord in l:
 				tmp_queue.Enqueue(chunks[coord])
