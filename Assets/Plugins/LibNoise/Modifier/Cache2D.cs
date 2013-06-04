@@ -117,11 +117,11 @@ namespace LibNoise.Modifier {
 
 			//original code
 			//if(!(_isCached && x == _xCache && y == _yCache && z == _zCache)){ // Original condition
-			if(!_isCached || x != _xCache || z != _zCache){
+		  if(!(_isCached && x == _xCache && z == _zCache)) {
 
-				_cachedValue = ((IModule3D)_sourceModule).GetValue(x, y, z);
+				_cachedValue = ((IModule3D)_sourceModule).GetValue(x, 0, z);
 				_xCache = x;
-				_yCache = y;
+				_yCache = 0;
 				_zCache = z;
 
 				_isCached = true;
