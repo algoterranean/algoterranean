@@ -48,8 +48,13 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	chunk_size as byte
 	block_generator as BlockGenerator
 	mesh_generator as MeshGenerator
-	worker_thread as Thread
-	work_queue as Queue[of Chunk]
+
+	block_thread as Thread
+	block_thread2 as Thread
+	block_thread3 as Thread		
+	mesh_thread as Thread
+	block_queue as Queue[of Chunk]
+	mesh_queue as Queue[of Chunk]
 	
 
 	def Awake():
@@ -60,43 +65,87 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		mesh_generator = generateMeshGreedy3
 		chunks = Dictionary[of WorldBlockCoordinate, Chunk]()
 		outgoing_queue = Queue[of DMMessage]()
-		work_queue = Queue[of Chunk]()		
+		block_queue = Queue[of Chunk]()
+		mesh_queue = Queue[of Chunk]()
 		origin = Vector3(0, 0, 0)
 		origin_init = false
 		metric = ChunkMetric(origin,
 							 Settings.ChunkSize,
 							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
-		worker_thread = Thread(ThreadStart(_worker_thread))
-		worker_thread.Start()
-		
+
+		block_thread = Thread(ThreadStart(_block_thread))
+		block_thread.Start()
+		# block_thread2 = Thread(ThreadStart(_block_thread))
+		# block_thread2.Start()
+		# block_thread3 = Thread(ThreadStart(_mesh_thread))
+		# block_thread3.Start()		
+		mesh_thread = Thread(ThreadStart(_mesh_thread))
+		mesh_thread.Start()
+
+
+	def areNeighborsReady(chunk as Chunk) as bool:
+		c = chunk.getCoords()
+		size = Settings.ChunkSize
+		e = WorldBlockCoordinate(c.x + size, c.y, c.z)
+		w = WorldBlockCoordinate(c.x - size, c.y, c.z)
+		n = WorldBlockCoordinate(c.x, c.y, c.z + size)
+		s = WorldBlockCoordinate(c.x, c.y, c.z - size)
+		u = WorldBlockCoordinate(c.x, c.y + size, c.z)
+		d = WorldBlockCoordinate(c.x, c.y - size, c.z)
+		lock chunks:
+			if e in chunks and not chunks[e].GenerateBlocks and \
+				w in chunks and not chunks[w].GenerateBlocks and \
+				n in chunks and not chunks[n].GenerateBlocks and \
+				s in chunks and not chunks[s].GenerateBlocks and \
+				u in chunks and not chunks[u].GenerateBlocks and \
+				d in chunks and not chunks[d].GenerateBlocks:
+				return true
+			return false
 
 		
-	def _worker_thread():
+	def _block_thread():
 		chunk as Chunk
-		try:
-			while true:
-				found = false
-				lock work_queue:
-					if work_queue.Count > 0:
-						chunk = work_queue.Dequeue()
+		while true:
+			found = false
+			lock block_queue:
+				if block_queue.Count > 0:
+					chunk = block_queue.Dequeue()
+					found = true
+				else:
+					found = false
+
+			if found:
+				if chunk.GenerateBlocks:
+					chunk.generateBlocks()
+					chunk.GenerateBlocks = false
+					chunk.GenerateMesh = true
+					lock mesh_queue:
+						mesh_queue.Enqueue(chunk)
+
+
+	def _mesh_thread():
+		chunk as Chunk
+		while true:
+			found = false
+			lock mesh_queue:
+				if mesh_queue.Count > 0:
+					chunk = mesh_queue.Dequeue()
+					if chunk.GenerateMesh: #and areNeighborsReady(chunk):
 						found = true
 					else:
-						found = false
+						mesh_queue.Enqueue(chunk)
+			if found:
+				chunk.generateMesh()
+				chunk.GenerateMesh = false
+				lock outgoing_queue:
+					outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
 
-				if found:
-					lock chunk:
-						if chunk.NeedsWork:
-							chunk.generateBlocks()
-							chunk.generateMesh()
-							chunk.NeedsWork = false
-							
-					lock outgoing_queue:
-						outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
-		except e:
-			print "THREAD ERROR $e"
 
 	def OnApplicationQuit():
-		worker_thread.Abort()
+		block_thread.Abort()
+		# block_thread2.Abort()
+		# block_thread3.Abort()
+		mesh_thread.Abort()
 		
 
 	def setOrigin(o as Vector3):
@@ -122,23 +171,32 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 					chunks.Remove(coord)
 
 			tmp_queue = Queue[of Chunk]()
+			tmp_queue2 = Queue[of Chunk]()
 			for coord in to_add:
 				if not chunks.ContainsKey(coord):
 					c = Chunk(coord, chunk_size, block_generator, mesh_generator)
 					chunks.Add(coord, c)
 
 			l = []
+			l2 = []
 			for coord in chunks.Keys:
-				if chunks[coord].NeedsWork:
+				if chunks[coord].GenerateBlocks:
 					l.Push(coord)
-			l = l.Sort()#  do (left as Chunk, right as Chunk):
-			# def p:
-			# 	if left.coords
+				if chunks[coord].GenerateMesh:
+					l2.Push(coord)
+			l = l.Sort()
+			l2 = l2.Sort()
+
 			for coord in l:
 				tmp_queue.Enqueue(chunks[coord])
+			for coord in l2:
+				tmp_queue2.Enqueue(chunks[coord])
 
-		lock work_queue:
-			work_queue = tmp_queue
+		# lock mesh_queue:
+		# 	mesh_queue = tmp_queue2
+		lock block_queue:
+			block_queue = tmp_queue
+
 					
 
 	def Update():

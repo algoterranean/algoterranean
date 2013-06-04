@@ -11,6 +11,9 @@ class Chunk:
 	mesh_generator as MeshGenerator
 	flag_gen_noise as bool
 	needs_work as bool
+	_generate_blocks as bool
+	_generate_mesh as bool
+	
 
 	def constructor(c as WorldBlockCoordinate, s as byte, b_func as BlockGenerator, m_func as MeshGenerator):
 		coords = c
@@ -21,6 +24,8 @@ class Chunk:
 		needs_work = true
 		flag_gen_noise = true
 		#flag_gen_noise = true
+		_generate_blocks = true
+		_generate_mesh = true
 
 
 	override def ToString() as string:
@@ -38,6 +43,19 @@ class Chunk:
 		set:
 			lock needs_work:
 				needs_work = value
+
+	GenerateBlocks as bool:
+		get:
+			return _generate_blocks
+		set:
+			_generate_blocks = value
+
+	GenerateMesh as bool:
+		get:
+			return _generate_mesh
+		set:
+			_generate_mesh = value
+			
 
 	def getBlock(x as byte, y as byte, z as byte) as byte:
 		lock blocks:
