@@ -45,9 +45,17 @@ class ChunkMetric:
 		for x in range(-max_x, max_x+1):
 			for y in range(-max_y, max_y+1):
 				for z in range(-max_z, max_z+1):
-					a as long = (origin.x + x * size)/size
-					b as long = (origin.y + y * size)/size
-					c as long = (origin.z + z * size)/size
+					o_x = System.Math.Floor(origin.x / size)
+					o_y = System.Math.Floor(origin.y / size)
+					o_z = System.Math.Floor(origin.z / size)
+					a = (o_x + x)
+					b = (o_y + y)
+					c = (o_z + z)
+
+					
+					# a as long = (origin.x + x * size)/size
+					# b as long = (origin.y + y * size)/size
+					# c as long = (origin.z + z * size)/size
 					l.Add(WorldBlockCoordinate(a * size, b * size, c * size))
 		return l
 
