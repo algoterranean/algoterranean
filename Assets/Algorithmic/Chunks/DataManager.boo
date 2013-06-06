@@ -15,11 +15,12 @@ import System.Threading
 
 struct DMMessage:
 	function as string
-	chunk as Chunk
+	argument as duck
 
-	def constructor(f as string, c as Chunk):
+	def constructor(f as string, a as duck):
 		function = f
-		chunk = c
+		argument = a
+		
 
 struct MeshData2:
 	uvs as (Vector2)
@@ -60,7 +61,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 	def Awake():
 		chunk_size = Settings.ChunkSize
-		x = BiomeNoiseData()
+		x = BiomeNoiseData2()
 		#x = SolidNoiseData()
 		block_generator = x.getBlock
 		mesh_generator = generateMeshGreedy3
@@ -83,7 +84,10 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		mesh_thread = Thread(ThreadStart(_mesh_thread))
 		mesh_thread.Start()
 		# mesh_thread2 = Thread(ThreadStart(_mesh_thread))
-		# mesh_thread2.Start()		
+		# mesh_thread2.Start()
+
+		SendMessage("PerfMaxChunks", Math.Pow(Settings.MaxChunks * 2 + 1, 2) * (Settings.MaxChunksVertical * 2 + 1))
+		
 
 
 
@@ -120,11 +124,15 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 			if found:
 				if chunk.GenerateBlocks:
-					chunk.GenerateBlocks = false					
+					chunk.GenerateBlocks = false
+					t1 = System.DateTime.Now
 					chunk.generateBlocks()
+					t2 = System.DateTime.Now
 					chunk.GenerateMesh = true
 					lock mesh_queue:
 						mesh_queue.Enqueue(chunk)
+					lock outgoing_queue:
+						outgoing_queue.Enqueue(DMMessage("PerfBlockCreation", (t2 - t1).TotalMilliseconds))
 
 
 	def _mesh_thread():
@@ -139,10 +147,14 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 					else:
 						mesh_queue.Enqueue(chunk)
 			if found:
-				chunk.GenerateMesh = false				
+				chunk.GenerateMesh = false
+				t1 = System.DateTime.Now
 				chunk.generateMesh()
+				t2 = System.DateTime.Now
 				lock outgoing_queue:
 					outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
+					outgoing_queue.Enqueue(DMMessage("PerfMeshCreation", (t2 - t1).TotalMilliseconds))
+
 
 
 	def OnApplicationQuit():
@@ -170,6 +182,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		lock chunks:
 			to_remove = [coord for coord in chunks.Keys if metric.isChunkTooFar(coord)]
 			to_add = [coord for coord in in_range if not chunks.ContainsKey(coord)]
+
 			lock outgoing_queue:			
 				for coord in to_remove:
 					outgoing_queue.Enqueue(DMMessage("RemoveMesh", chunks[coord]))
@@ -178,8 +191,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			tmp_queue = Queue[of Chunk]()
 			tmp_queue2 = Queue[of Chunk]()
 			for coord in to_add:
-				if not chunks.ContainsKey(coord):
-					c = Chunk(coord, chunk_size, BiomeNoiseData().getBlock, mesh_generator)
+				if coord not in chunks:
+					c = Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator)
 					chunks.Add(coord, c)
 
 			l = []
@@ -225,8 +238,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		lock outgoing_queue:
 			for i in range(len(outgoing_queue)):
 				m = outgoing_queue.Dequeue()
-				SendMessage(m.function, m.chunk)
-
+				SendMessage(m.function, m.argument)
 
 	# def setBlock(world as WorldBlockCoordinate, block as byte) as void:
 	# 	size = Settings.ChunkSize
