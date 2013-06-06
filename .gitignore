@@ -8,8 +8,8 @@
 *.TIFF
 *.pdf
 *.PDF
-*.ttf
-*.TTF
+#*.ttf
+#*.TTF
 *.ZIP
 *.zip
 *.rtf
