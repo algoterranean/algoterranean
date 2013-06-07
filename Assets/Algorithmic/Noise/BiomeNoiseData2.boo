@@ -25,7 +25,7 @@ class BiomeNoiseData2 (INoiseData):
 		
 		voronoi_select = Filter.Voronoi()
 		# voronoi_select.Displacement = 0.5
-		# voronoi_select.Frequency = 0.1
+		voronoi_select.Frequency = 0.3#0.1
 		voronoi_select.Primitive3D = Primitive.BevinsValue(seed + 11111, NoiseQuality.Standard)
 		c = Modifier.Cache2D(voronoi_select)
 		
@@ -49,26 +49,42 @@ class BiomeNoiseData2 (INoiseData):
 											  0.5)
 
 
-
 		
 		# # frequency, lacunarity, exponent, octaves
 		lowlands = Filter.SumFractal(0.3, 0.8, 1.0, 1.0)
 		lowlands.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
-		lowlands_turb = Transformer.Displace(Modifier.Select(gradient, b1, Air, -1, 0, 0),
+		lowlands_turb = Transformer.Displace(Modifier.Select(gradient, b4, Air, -1, 0, 0),
 											Primitive.Constant(1),
 											Modifier.ScaleBias(lowlands, 0.2, 0.0),
 											Primitive.Constant(1))
 
-		s1 = Modifier.Select(c, lowlands_turb, Modifier.Select(gradient, b2, Air, -1, 0, 0), 0, 0.14, 0)
-		s2 = Modifier.Select(c, s1, Modifier.Select(gradient, b3, Air, -1, 0, 0), 0, 0.28, 0)
-		s3 = Modifier.Select(c, s2, Modifier.Select(gradient, b4, Air, -1, 0, 0), 0, 0.42, 0)
-		s4 = Modifier.Select(c, s3, Modifier.Select(gradient, b5, Air, -1, 0, 0), 0, 0.57, 0)
-		s5 = Modifier.Select(c, s4, Modifier.Select(gradient, b6, Air, -1, 0, 0), 0, 0.71, 0)
-		s6 = Modifier.Select(c, s5, Modifier.Select(gradient, b7, Air, -1, 0, 0), 0, 0.86, 0)
+		highlands = Filter.SumFractal(0.5, 3.0, 1.0, 3.0)
+		highlands.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
+		highlands_turb = Transformer.Displace(Modifier.Select(gradient, b2, Air, -1, 0, 0),
+											Primitive.Constant(1),
+											Modifier.ScaleBias(highlands, 0.5, 0.0),
+											Primitive.Constant(1))
+
+		midlands = Filter.SumFractal(0.3, 2.0, 1.0, 2.0)
+		midlands.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
+		midlands_turb = Transformer.Displace(Modifier.Select(gradient, b8, Air, -1, 0, 0),
+											Primitive.Constant(1),
+											Modifier.ScaleBias(midlands, 0.3, 0.0),
+											Primitive.Constant(1))
+		
+		
+		inc = 1.0/3
+		s1 = Modifier.Select(c, lowlands_turb, highlands_turb, 0, inc, 0)
+		s2 = Modifier.Select(c, s1, midlands_turb, 0, inc*2, 0)
+		
+		s3 = Modifier.Select(c, s2, Modifier.Select(gradient, b4, Air, -1, 0, 0), 0, inc*3, 0)
+		s4 = Modifier.Select(c, s3, Modifier.Select(gradient, b5, Air, -1, 0, 0), 0, inc*4, 0)
+		s5 = Modifier.Select(c, s4, Modifier.Select(gradient, b6, Air, -1, 0, 0), 0, inc*5, 0)
+		s6 = Modifier.Select(c, s5, Modifier.Select(gradient, b7, Air, -1, 0, 0), 0, inc*6, 0)
 		#s7 = Modifier.Select(c, s6, Modifier.Select(gradient, b8, Air, -1, 0, 0), 0, 0.7, 0)
 		
 		# biome_select = Modifier.Select(gradient, s1, Air, -1.0, 0.0, 0.0)
-		total_select = Transformer.Turbulence(s6,
+		total_select = Transformer.Turbulence(s2,
 											  c2,
 											  Primitive.Constant(1),
 											  c3,
@@ -76,16 +92,6 @@ class BiomeNoiseData2 (INoiseData):
 
 		
 		
-
-
-
-
-											  
-
-
-															   
-											  
-
 
 		# gradient = Primitive.MyGradient(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 		# basic_land = Modifier.Select(gradient, Lowland_Block, Air, -1.0, 0.0, 0.0)

@@ -9,8 +9,8 @@ struct Settings:
 
 
 	public static ChunkSize as int = 32
-	public static MaxChunks as int = 0
-	public static MaxChunksVertical as int = 0
+	public static MaxChunks as int = 4 # minecraft farthest by default is 8 (256 blocks in each direction)
+	public static MaxChunksVertical as int = 2 # minecraft farthest by default is 4 (256 blocks total up/down)
 	
 	public static PlayerRadius = Vector3(1.5, 3.0, 1.5)
 	#public static PlayerRadius = Vector3(0.5, 1, 0.5)

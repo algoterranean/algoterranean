@@ -108,7 +108,9 @@ class Player (MonoBehaviour):
 	# 	# 	chunk_ball.setOrigin(Vector3(0, 0, 0))
 	# 	# 	first = false
 	# 	# else:
-		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)		
+		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)
+
+
 			
 	def OnGUI():
 		pass
