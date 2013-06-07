@@ -4,8 +4,8 @@ import Algorithmic.Chunks
 class BiomeNoiseData (INoiseData):
 	total_select as Modifier.Select
 	biome_select as Filter.Billow
-	lowlands_turb as Tranformer.Displace
-	highlands_turb as Tranformer.Displace
+	lowlands_turb as Transformer.Displace
+	highlands_turb as Transformer.Displace
 
 	voronoi_select as Filter.Voronoi
 	seed = Settings.Seed
