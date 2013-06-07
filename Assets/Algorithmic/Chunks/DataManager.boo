@@ -165,6 +165,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# mesh_thread2.Abort()		
 		
 
+
+	# this is way too slow. maybe this should be done in another thread?
 	def setOrigin(o as Vector3):
 		if origin_init:
 			x1 = Math.Abs(o.x - origin.x)
@@ -180,11 +182,18 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		
 		
 		lock chunks:
-			to_remove = [coord for coord in chunks.Keys if coord not in in_range]
-						 # metric.isChunkTooFar(coord)]
-			to_add = [coord for coord in in_range if not chunks.ContainsKey(coord)]
+			# to_remove as List[of WorldBlockCoordinate] = [coord for coord in chunks.Keys if coord not in in_range]
+			# to_add as List[of WorldBlockCoordinate] = [coord for coord in in_range if not chunks.ContainsKey(coord)]
+			to_remove = List[of WorldBlockCoordinate]()
+			to_add = List[of WorldBlockCoordinate]()
+			for coord in in_range:
+				if coord not in chunks:
+					to_add.Add(coord)
+			for coord in chunks.Keys:
+				if coord not in in_range:
+					to_remove.Add(coord)
 
-			lock outgoing_queue:			
+			lock outgoing_queue:
 				for coord in to_remove:
 					outgoing_queue.Enqueue(DMMessage("RemoveMesh", chunks[coord]))
 					chunks.Remove(coord)
@@ -197,14 +206,14 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 					c = Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator)
 					chunks.Add(coord, c)
 
-			l = []
-			l2 = []
+			l = List[of WorldBlockCoordinate]()
+			l2 = List[of WorldBlockCoordinate]()
 			for coord in chunks.Keys:
 				if chunks[coord].GenerateBlocks:
-					l.Push(coord)
+					l.Add(coord)
 				if chunks[coord].GenerateMesh:
-					l2.Push(coord)
-			l = l.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
+					l2.Add(coord)
+			l.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
 				d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
 				d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
 				if d1 < d2:
@@ -214,7 +223,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				else:
 					return 0
 				
-			l2 = l2.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
+			l2.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
 				d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
 				d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
 				if d1 < d2:
