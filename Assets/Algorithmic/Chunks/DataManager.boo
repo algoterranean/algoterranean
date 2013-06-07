@@ -180,7 +180,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		
 		
 		lock chunks:
-			to_remove = [coord for coord in chunks.Keys if metric.isChunkTooFar(coord)]
+			to_remove = [coord for coord in chunks.Keys if coord not in in_range]
+						 # metric.isChunkTooFar(coord)]
 			to_add = [coord for coord in in_range if not chunks.ContainsKey(coord)]
 
 			lock outgoing_queue:			
@@ -190,8 +191,9 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 			tmp_queue = Queue[of Chunk]()
 			tmp_queue2 = Queue[of Chunk]()
-			for coord in to_add:
-				if coord not in chunks:
+			for coord in in_range:
+			# for coord in to_add:
+				if coord not in chunks.Keys:
 					c = Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator)
 					chunks.Add(coord, c)
 
