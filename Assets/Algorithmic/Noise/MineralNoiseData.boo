@@ -26,13 +26,13 @@ class MineralNoiseData (INoiseData):
 		lowlands = Filter.SumFractal(Settings.Frequency, Settings.Lacunarity, Settings.Exponent + 0.75, Settings.OctaveCount)
 		lowlands.Primitive3D = Primitive.ImprovedPerlin(seed, NoiseQuality.Standard)
 		lowlands_scale = Modifier.ScaleBias(lowlands, 0.5, 0)
-		lowlands_turbulence = Tranformer.Displace(basic_land, constant1, lowlands_scale, constant1)
+		lowlands_turbulence = Transformer.Displace(basic_land, constant1, lowlands_scale, constant1)
 		#lowlands_turbulence = Transformer.Turbulence(basic_land, Air, lowlands_scale, Air, Settings.Power - 0.2)
 
 		hillcountry = Filter.SumFractal(Settings.Frequency, Settings.Lacunarity, Settings.Exponent + 0.75, Settings.OctaveCount)
 		hillcountry.Primitive3D = Primitive.ImprovedPerlin(seed+111111, NoiseQuality.Standard)
 		hillcountry_scale = Modifier.ScaleBias(hillcountry, 0.8, 0)
-		hillcountry_turbulence = Tranformer.Displace(basic_land, constant1, hillcountry_scale, constant1)
+		hillcountry_turbulence = Transformer.Displace(basic_land, constant1, hillcountry_scale, constant1)
 		#hillcountry_turbulence = Transformer.Turbulence(basic_land, Air, hillcountry, Air, Settings.Power + 0.1)
 
 		terrain_type = Filter.SumFractal(0.5, Settings.Lacunarity, Settings.Exponent, Settings.OctaveCount)

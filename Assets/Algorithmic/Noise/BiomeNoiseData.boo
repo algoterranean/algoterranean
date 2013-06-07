@@ -24,7 +24,7 @@ class BiomeNoiseData (INoiseData):
 		# frequency, lacunarity, exponent, octaves
 		lowlands = Filter.SumFractal(0.3, 0.8, 1.0, 1.0)
 		lowlands.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
-		lowlands_turb = Tranformer.Displace(basic_land,
+		lowlands_turb = Transformer.Displace(basic_land,
 											Primitive.Constant(1),
 											Modifier.ScaleBias(lowlands, 0.2, 0.0),
 											Primitive.Constant(1))
@@ -32,7 +32,7 @@ class BiomeNoiseData (INoiseData):
 
 		highlands = Filter.SumFractal(0.3, 3.0, 1.0, 3.0)
 		highlands.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
-		highlands_turb = Tranformer.Displace(basic_land2,
+		highlands_turb = Transformer.Displace(basic_land2,
 											Primitive.Constant(1),
 											Modifier.ScaleBias(highlands, 0.5, 0.0),
 											Primitive.Constant(1))
