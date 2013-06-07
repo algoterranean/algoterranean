@@ -50,6 +50,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	block_generator as BlockGenerator
 	mesh_generator as MeshGenerator
 
+	origin_thread as Thread
 	block_thread as Thread
 	block_thread2 as Thread
 	block_thread3 as Thread		
@@ -69,12 +70,15 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		outgoing_queue = Queue[of DMMessage]()
 		block_queue = Queue[of Chunk]()
 		mesh_queue = Queue[of Chunk]()
+
 		origin = Vector3(0, 0, 0)
 		origin_init = false
 		metric = ChunkMetric(origin,
 							 Settings.ChunkSize,
 							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
 
+		origin_thread = Thread(ThreadStart(_origin_thread))
+		origin_thread.Start()
 		block_thread = Thread(ThreadStart(_block_thread))
 		block_thread.Start()
 		# block_thread2 = Thread(ThreadStart(_block_thread))
@@ -162,7 +166,76 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#block_thread2.Abort()
 		# block_thread3.Abort()
 		mesh_thread.Abort()
-		# mesh_thread2.Abort()		
+		# mesh_thread2.Abort()
+		origin_thread.Abort()
+
+
+	def _origin_thread():
+		local_origin = Vector3(99, 99, 99)
+		while true:
+			gen = false
+			x1 = Math.Abs(local_origin.x - origin.x)
+			y1 = Math.Abs(local_origin.y - origin.y)
+			z1 = Math.Abs(local_origin.z - origin.z)
+			if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10:
+				gen = false
+			else:
+				local_origin = origin
+				gen = true
+
+			if gen:
+				in_range = metric.getChunksInRange()
+				lock chunks:
+					for coord in in_range:
+						if coord not in chunks:
+							chunks.Add(coord, Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator))
+
+					to_remove = List[of WorldBlockCoordinate]()
+					for coord in chunks.Keys:
+						if coord not in in_range:
+							to_remove.Add(coord)
+
+					lock outgoing_queue:
+						for coord in to_remove:
+							outgoing_queue.Enqueue(DMMessage("RemoveMesh", chunks[coord]))
+							chunks.Remove(coord)
+
+
+					tmp_queue = Queue[of Chunk]()
+					l = List[of WorldBlockCoordinate]()
+					# l2 = List[of WorldBlockCoordinate]()
+					for coord in chunks.Keys:
+						if chunks[coord].GenerateBlocks:
+							l.Add(coord)
+						# if chunks[coord].GenerateMesh:
+						# 	l2.Add(coord)
+					l.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
+						d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
+						d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
+						if d1 < d2:
+							return -1
+						elif d1 > d2:
+							return 1
+						else:
+							return 0
+				
+					# l2.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
+					# 	d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
+					# 	d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
+					# 	if d1 < d2:
+					# 		return -1
+					# 	elif d1 > d2:
+					# 		return 1
+					# 	else:
+					# 		return 0
+
+					for coord in l:
+						tmp_queue.Enqueue(chunks[coord])
+					lock block_queue:
+						block_queue = tmp_queue
+					# for coord in l2:
+					# 	tmp_queue2.Enqueue(chunks[coord])
+		
 		
 
 
@@ -178,72 +251,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		origin_init = true
 		origin = o
 		metric.Origin = origin
-		in_range = metric.getChunksInRange()
 		
-		
-		lock chunks:
-			# to_remove as List[of WorldBlockCoordinate] = [coord for coord in chunks.Keys if coord not in in_range]
-			# to_add as List[of WorldBlockCoordinate] = [coord for coord in in_range if not chunks.ContainsKey(coord)]
-			to_remove = List[of WorldBlockCoordinate]()
-			to_add = List[of WorldBlockCoordinate]()
-			for coord in in_range:
-				if coord not in chunks:
-					to_add.Add(coord)
-			for coord in chunks.Keys:
-				if coord not in in_range:
-					to_remove.Add(coord)
-
-			lock outgoing_queue:
-				for coord in to_remove:
-					outgoing_queue.Enqueue(DMMessage("RemoveMesh", chunks[coord]))
-					chunks.Remove(coord)
-
-			tmp_queue = Queue[of Chunk]()
-			tmp_queue2 = Queue[of Chunk]()
-			for coord in in_range:
-			# for coord in to_add:
-				if coord not in chunks.Keys:
-					c = Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator)
-					chunks.Add(coord, c)
-
-			l = List[of WorldBlockCoordinate]()
-			l2 = List[of WorldBlockCoordinate]()
-			for coord in chunks.Keys:
-				if chunks[coord].GenerateBlocks:
-					l.Add(coord)
-				if chunks[coord].GenerateMesh:
-					l2.Add(coord)
-			l.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
-				d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
-				d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
-				if d1 < d2:
-					return -1
-				elif d1 > d2:
-					return 1
-				else:
-					return 0
-				
-			l2.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
-				d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
-				d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
-				if d1 < d2:
-					return -1
-				elif d1 > d2:
-					return 1
-				else:
-					return 0
-
-			for coord in l:
-				tmp_queue.Enqueue(chunks[coord])
-			for coord in l2:
-				tmp_queue2.Enqueue(chunks[coord])
-
-		# lock mesh_queue:
-		# 	mesh_queue = tmp_queue2
-		lock block_queue:
-			block_queue = tmp_queue
-
-					
 
 	def Update():
 		lock outgoing_queue:
