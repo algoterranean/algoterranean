@@ -45,6 +45,7 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 			building = false
 			mask_block = 0			
 			for z as byte in range(chunk_size):
+				:west_last_block
 				if west_mask[y, z] and not building:
 					building = true
 					mask_block = west_mask[y, z]
@@ -106,9 +107,10 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 							west_mask[y3, z3] = 0
 
 					if west_mask[y, z]:
-						building = true
-						mask_block = west_mask[y, z]
-						i = z
+						goto west_last_block
+						# building = true
+						# mask_block = west_mask[y, z]
+						# i = z
 
 
 							
@@ -116,6 +118,7 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 			building = false
 			mask_block = 0
 			for z as byte in range(chunk_size):
+				:east_last_block
 				if east_mask[y, z] and not building:
 					building = true
 					mask_block = east_mask[y, z]
@@ -168,9 +171,10 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 							east_mask[y3, z3] = 0
 
 					if east_mask[y, z]:
-						building = true
-						mask_block = east_mask[y, z]
-						i = z
+						goto east_last_block
+						# building = true
+						# mask_block = east_mask[y, z]
+						# i = z
 							
 
 	# do the north and south pass
@@ -204,6 +208,7 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 			building = false
 			mask_block = 0
 			for x as byte in range(chunk_size):
+				:south_last_block
 				if south_mask[y, x] and not building:
 					building = true
 					mask_block = south_mask[y, x]
@@ -246,7 +251,7 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 					normals.Push(Vector3(0, 0, -1))
 					normals.Push(Vector3(0, 0, -1))
 					normals.Push(Vector3(0, 0, -1))
-					_add_uvs(Blocks.block_def[mask_block].uv_x, Blocks.block_def[mask_block].uv_y)					
+					_add_uvs(Blocks.block_def[mask_block].uv_x, Blocks.block_def[mask_block].uv_y)
 					#_add_uvs(0.6, 0)
 
 
@@ -255,15 +260,17 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 							south_mask[y3, x3] = 0
 
 					if south_mask[y, x]:
-						building = true
-						mask_block = south_mask[y, x]
-						i = x
+						goto south_last_block
+						# building = true
+						# mask_block = south_mask[y, x]
+						# i = x
 							
 
 		for y as byte in range(chunk_size):
 			building = false
 			mask_block = 0
 			for x as byte in range(chunk_size):
+				:north_last_block
 				if north_mask[y, x] and not building:
 					building = true
 					mask_block = north_mask[y, x]
@@ -316,11 +323,10 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 							north_mask[y3, x3] = 0
 
 					if north_mask[y, x]:
-						building = true
-						mask_block = north_mask[y, x]
-						i = x
-						# if x == chunk_size - 1:
-						# 	pass
+						goto north_last_block
+						# building = true
+						# mask_block = north_mask[y, x]
+						# i = x
 							
 							
 	# do the up and down pass
@@ -354,6 +360,7 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 			building = false
 			mask_block = 0
 			for z as byte in range(chunk_size):
+				:down_last_block
 				if down_mask[x, z] and not building:
 					building = true
 					mask_block = down_mask[x, z]
@@ -361,10 +368,11 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 				if (down_mask[x, z] != mask_block and building) or (z == chunk_size-1 and building):
 					if (down_mask[x, z] != mask_block and building) and down_mask[x, z]:
 						j = z - 1
-					elif (z == chunk_size-1 and building and down_mask[x, z]):
+					elif (z == chunk_size-1 and building) and down_mask[x, z]:
 						j = z
 					else:
 						j = z - 1
+						
 					building = false
 					done = false
 					h = 1
@@ -404,15 +412,14 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 							down_mask[x3, z3] = 0
 
 					if down_mask[x, z]:
-						building = true
-						mask_block = down_mask[x, z]
-						i = z
-							
+						goto down_last_block
+						
 
 		for x as byte in range(chunk_size):
 			building = false
 			mask_block = 0
 			for z as byte in range(chunk_size):
+				:up_last_block
 				if up_mask[x, z] and not building:
 					building = true
 					mask_block = up_mask[x, z]
@@ -462,9 +469,10 @@ def generateMeshGreedy3(blocks as (byte, 3)) as MeshData2:
 						for z3 in range(i, j+1):
 							up_mask[x3, z3] = 0
 					if up_mask[x, z]:
-						building = true
-						mask_block = up_mask[x, z]
-						i = z
+						goto up_last_block
+						# building = true
+						# mask_block = up_mask[x, z]
+						# i = z
 							
 					
 							
