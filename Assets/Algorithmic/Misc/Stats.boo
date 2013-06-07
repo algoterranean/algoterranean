@@ -51,11 +51,11 @@ class Stats (MonoBehaviour):
 			m_time_last = String.Format("{0:0.0}", perf_mesh_last_time)
 			m_time_max = String.Format("{0:0.0}", perf_mesh_max_time)
 			m_time_min = String.Format("{0:0.0}", perf_mesh_min_time)
-			col1_len = 12
-			col2_len = 12
-			col3_len = 12
-			col4_len = 12
-			col5_len = 12		
+			col1_len = 10
+			col2_len = 10
+			col3_len = 10
+			col4_len = 10
+			col5_len = 10		
 
 			block_creation_count = String.Format("{0}", perf_block_creation_count)
 			mesh_creation_count = String.Format("{0}", perf_mesh_creation_count)

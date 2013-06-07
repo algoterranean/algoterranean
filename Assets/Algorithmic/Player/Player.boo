@@ -37,6 +37,7 @@ class Player (MonoBehaviour):
 		return orientation
 
 	def Update():
+		
 	# 	horiz = Input.GetAxis("Mouse X") * rotate_speed
 	# 	vert = Input.GetAxis("Mouse Y") * rotate_speed
 	# 	transform.Rotate(0, horiz, 0)
@@ -55,29 +56,29 @@ class Player (MonoBehaviour):
 	# 	player_particle.Velocity.x = local_dir.x
 	# 	player_particle.Velocity.z = local_dir.z
 
-	# 	if Input.GetButtonDown("Fire1"):
-	# 		# chunk_ball.setBlock(LongVector3(t, 54, 5), BLOCK.AIR)
-	# 		# chunk_ball.setBlock(LongVector3(t, 55, 6), BLOCK.DIRT)
-	# 		# t += 1
+		# if Input.GetButtonDown("Fire1"):
+		# 	# chunk_ball.setBlock(LongVector3(t, 54, 5), BLOCK.AIR)
+		# 	# chunk_ball.setBlock(LongVector3(t, 55, 6), BLOCK.DIRT)
+		# 	# t += 1
 			
-	# 		player_camera = gameObject.Find("Player/1st Person Camera")
-	# 		p1 = player_camera.transform.position
-	# 		dir = player_camera.transform.forward * 5
-	# 		p2 = p1 + dir
+		# 	player_camera = gameObject.Find("Player/1st Person Camera")
+		# 	p1 = player_camera.transform.position
+		# 	dir = player_camera.transform.forward * 5
+		# 	p2 = p1 + dir
 			
-	# 		print "DIGGING: camera: $(dir), p1: $(p1), p2: $(p2)"
+		# 	print "DIGGING: camera: $(dir), p1: $(p1), p2: $(p2)"
 
-	# 		tc = world.getChunkCollider()
-	# 		c = tc.CheckCollisionsSweep(AABB(p2, Vector3(0, 0, 0)),
-	# 									AABB(p1, Vector3(0, 0, 0)))
+		# 	# tc = world.getChunkCollider()
+		# 	# c = tc.CheckCollisionsSweep(AABB(p2, Vector3(0, 0, 0)),
+		# 	# 							AABB(p1, Vector3(0, 0, 0)))
 			
-	# 		if len(c) > 0:
-	# 			ba = c[0].block_aabb
-	# 			print "DIGGING: $c"
-	# 			print "ACTUAL BLOCK: $ba"
-	# 			chunk_ball.setBlock(WorldBlockCoordinate(ba.center.x - ba.radius.x,
-	# 											ba.center.y - ba.radius.y,
-	# 											ba.center.z - ba.radius.z), BLOCK.AIR)
+		# 	# if len(c) > 0:
+		# 	# 	ba = c[0].block_aabb
+		# 	# 	print "DIGGING: $c"
+		# 	# 	print "ACTUAL BLOCK: $ba"
+		# 	# 	chunk_ball.setBlock(WorldBlockCoordinate(ba.center.x - ba.radius.x,
+		# 	# 									ba.center.y - ba.radius.y,
+		# 	# 									ba.center.z - ba.radius.z), BLOCK.AIR)
 
 	# 	if Input.GetButtonDown("Fire2"):
 	# 		player_camera = gameObject.Find("Player/1st Person Camera")

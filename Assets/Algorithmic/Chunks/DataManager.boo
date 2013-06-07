@@ -78,7 +78,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
 
 		origin_thread = Thread(ThreadStart(_origin_thread))
-		origin_thread.Start()
+		#origin_thread.Start()
 		block_thread = Thread(ThreadStart(_block_thread))
 		block_thread.Start()
 		# block_thread2 = Thread(ThreadStart(_block_thread))
@@ -167,12 +167,13 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# block_thread3.Abort()
 		mesh_thread.Abort()
 		# mesh_thread2.Abort()
-		origin_thread.Abort()
+		#origin_thread.Abort()
 
 
 	def _origin_thread():
 		local_origin = Vector3(99, 99, 99)
-		while true:
+		run = true
+		while run:
 			gen = false
 			x1 = Math.Abs(local_origin.x - origin.x)
 			y1 = Math.Abs(local_origin.y - origin.y)
@@ -182,6 +183,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			else:
 				local_origin = origin
 				gen = true
+				run = false
 
 			if gen:
 				in_range = metric.getChunksInRange()
@@ -251,6 +253,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		origin_init = true
 		origin = o
 		metric.Origin = origin
+
+		_origin_thread()
 		
 
 	def Update():
@@ -310,49 +314,49 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# 			print "Could not find the chunk"			
 
 
-	# # def getBlock(x as long, y as long, z as long):
-	# # 	pass
+	# # # def getBlock(x as long, y as long, z as long):
+	# # # 	pass
 
 
-	def getBlock(world as WorldBlockCoordinate):
-	#def getBlock(x as long, y as long, z as long):
-		size = Settings.ChunkSize
-		x = world.x
-		y = world.y
-		z = world.z
+	# def getBlock(world as WorldBlockCoordinate):
+	# #def getBlock(x as long, y as long, z as long):
+	# 	size = Settings.ChunkSize
+	# 	x = world.x
+	# 	y = world.y
+	# 	z = world.z
 		
-		if x < 0:
-			new_x = x + 1
-		else:
-			new_x = x
-		c_x = new_x / size - (1 if x < 0 else 0)
-		start_x = c_x * size
-		#end_x = start_x + size - 1
-		b_x as byte = x - start_x
+	# 	if x < 0:
+	# 		new_x = x + 1
+	# 	else:
+	# 		new_x = x
+	# 	c_x = new_x / size - (1 if x < 0 else 0)
+	# 	start_x = c_x * size
+	# 	#end_x = start_x + size - 1
+	# 	b_x as byte = x - start_x
 
-		if y < 0:
-			new_y = y + 1
-		else:
-			new_y = y
-		c_y = new_y / size - (1 if y < 0 else 0)
-		start_y = c_y * size
-		#end_y = start_y + size - 1
-		b_y as byte = y - start_y
+	# 	if y < 0:
+	# 		new_y = y + 1
+	# 	else:
+	# 		new_y = y
+	# 	c_y = new_y / size - (1 if y < 0 else 0)
+	# 	start_y = c_y * size
+	# 	#end_y = start_y + size - 1
+	# 	b_y as byte = y - start_y
 
-		if z < 0:
-			new_z = z + 1
-		else:
-			new_z = z
-		c_z = new_z / size - (1 if z < 0 else 0)
-		start_z = c_z * size
-		#end_z = start_z + size - 1
-		b_z as byte = z - start_z
+	# 	if z < 0:
+	# 		new_z = z + 1
+	# 	else:
+	# 		new_z = z
+	# 	c_z = new_z / size - (1 if z < 0 else 0)
+	# 	start_z = c_z * size
+	# 	#end_z = start_z + size - 1
+	# 	b_z as byte = z - start_z
 
-		chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
-		if chunk_cached is not null and chunk_cached.getCoords() == chunk_coords:
-			return chunk_cached.getBlock(b_x, b_y, b_z)
-		else:
-			if chunks.TryGetValue(chunk_coords, chunk_cached):
-				return chunk_cached.getBlock(b_x, b_y, b_z)
-			else:
-				return 0
+	# 	chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
+	# 	if chunk_cached is not null and chunk_cached.getCoords() == chunk_coords:
+	# 		return chunk_cached.getBlock(b_x, b_y, b_z)
+	# 	else:
+	# 		if chunks.TryGetValue(chunk_coords, chunk_cached):
+	# 			return chunk_cached.getBlock(b_x, b_y, b_z)
+	# 		else:
+	# 			return 0

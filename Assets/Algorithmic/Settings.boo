@@ -9,13 +9,16 @@ struct Settings:
 
 
 	public static ChunkSize as int = 32
-	public static MaxChunks as int = 4 # minecraft farthest by default is 8 (256 blocks in each direction)
+	public static MaxChunks as int = 2 # minecraft farthest by default is 8 (256 blocks in each direction)
 	public static MaxChunksVertical as int = 2 # minecraft farthest by default is 4 (256 blocks total up/down)
 	
 	public static PlayerRadius = Vector3(1.5, 3.0, 1.5)
 	#public static PlayerRadius = Vector3(0.5, 1, 0.5)
 
-	public static Seed as int = 2 #System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()
+	public static Seed as int = 1821724748 #System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()	
 	public static TerrainDepth as single = (MaxChunksVertical * 2 + 1) * ChunkSize
+
+	# seeds
+	# 1821724748 = to test out lighting and SSAO bugs/effects
 	
 
