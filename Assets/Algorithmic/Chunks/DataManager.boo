@@ -159,7 +159,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 	def OnApplicationQuit():
 		block_thread.Abort()
-		# block_thread2.Abort()
+		#block_thread2.Abort()
 		# block_thread3.Abort()
 		mesh_thread.Abort()
 		# mesh_thread2.Abort()		
