@@ -19,6 +19,8 @@ class Player (MonoBehaviour):
 	t = 0
 	public reticle_tex as Texture2D
 	first as bool
+	main_camera as GameObject
+	block_outline as BlockOutline
 
 	def Start ():
 		rotate_speed = 3.5
@@ -29,14 +31,51 @@ class Player (MonoBehaviour):
 		#player_particle = gameObject.Find("Player").GetComponent("Particle")
 		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
 		chunk_ball = gameObject.Find("Engine/ChunkManager").GetComponent("DataManager")
+		main_camera = gameObject.Find("Player/First Person Controller/Main Camera")
 		#player_camera = gameObject.Find("Player/1st Person Camera")
 		#world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
-		
+		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline")
 
 	def getOrientation():
 		return orientation
 
 	def Update():
+		out as RaycastHit
+		if not Physics.Raycast(main_camera.transform.position, main_camera.transform.forward, out, 5.0):
+			block_outline.disable()
+		else:
+			coord = Algorithmic.Utils.whichChunk(out.point)
+
+			local = WorldBlockCoordinate(System.Math.Floor(out.point.x - coord.x),
+										 System.Math.Floor(out.point.y - coord.y),
+										 System.Math.Floor(out.point.z - coord.z))
+			#print "hit: $(out.point), normal: $(out.normal), chunk: $coord, local: $local"
+			pos = Vector3(local.x + coord.x - 0.5 + 1.0, local.y + coord.y -0.5, local.z + coord.z - 0.5 + 1.0)
+			if out.normal.x == 1:
+				pos.x -= 1
+			# elif out.normal.x == -1:
+			# 	pos.x += 1
+			# elif out.normal.y == -1:
+			# 	pos.y += 1
+			elif out.normal.y == 1:
+				pos.y -= 1
+			elif out.normal.z == 1:
+				pos.z -= 1
+			# elif out.normal.z == -1:
+			# 	pos.z += 1
+			pos.y += 1
+				
+			block_outline.setPosition(pos)
+			block_outline.enable()
+
+
+			
+			
+			
+		
+		
+
+
 		
 	# 	horiz = Input.GetAxis("Mouse X") * rotate_speed
 	# 	vert = Input.GetAxis("Mouse Y") * rotate_speed
