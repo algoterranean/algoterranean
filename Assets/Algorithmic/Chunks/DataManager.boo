@@ -78,7 +78,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
 
 		origin_thread = Thread(ThreadStart(_origin_thread))
-		#origin_thread.Start()
+		origin_thread.Start()
 		block_thread = Thread(ThreadStart(_block_thread))
 		block_thread.Start()
 		# block_thread2 = Thread(ThreadStart(_block_thread))
@@ -167,13 +167,14 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# block_thread3.Abort()
 		mesh_thread.Abort()
 		# mesh_thread2.Abort()
-		#origin_thread.Abort()
+		origin_thread.Abort()
 
 
 	def _origin_thread():
 		local_origin = Vector3(99, 99, 99)
-		run = true
-		while run:
+		#run = true
+		#while run:
+		while true:
 			gen = false
 			x1 = Math.Abs(local_origin.x - origin.x)
 			y1 = Math.Abs(local_origin.y - origin.y)
@@ -183,12 +184,12 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			else:
 				local_origin = origin
 				gen = true
-				run = false
+				#run = false
 
 			if gen:
 				in_range = metric.getChunksInRange()
 				lock chunks:
-					for coord in in_range:
+					for coord in in_range.Keys:
 						if coord not in chunks:
 							chunks.Add(coord, Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator))
 
@@ -254,7 +255,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		origin = o
 		metric.Origin = origin
 
-		_origin_thread()
+		#_origin_thread()
 		
 
 	def Update():
