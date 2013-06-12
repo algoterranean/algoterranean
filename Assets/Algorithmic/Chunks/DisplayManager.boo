@@ -67,15 +67,36 @@ class DisplayManager (MonoBehaviour):
 	#
 	
 	def _refresh_mesh_object(c as Chunk):
-		pass
+		print "REFRESHING MESH"
+		m = c.getMeshData()
+		mesh = Mesh()
+		mesh.vertices = m.vertices
+		mesh.triangles = m.triangles
+		mesh.normals = m.normals
+		mesh.uv = m.uvs
+		o = gameObject.Find("Terrain/$c")
+		print "FOUND $o"
+		o.GetComponent(MeshFilter).sharedMesh = mesh
+		o.GetComponent(MeshCollider).sharedMesh = mesh
+
+		# gameObject.Find("Terrain/$c").GetComponent(MeshFilter).sharedMesh = mesh
+		# gameObject.Find("Terrain/$c").GetComponent(MeshCollider).sharedMesh = mesh
+		
+
 		# chunk_mesh as MeshData = c.getMesh()
+		# if draw_meshes_directly:
+		# 	pass
+		# else:
+		# 	o = gameObject.Find("$c")
+		# 	if o != null:
+				
 		# actual_mesh = visible_meshes[c.getCoords()]
 		# actual_mesh.Clear()
 		# actual_mesh.vertices = chunk_mesh.getVertices()
 		# actual_mesh.triangles = chunk_mesh.getTriangles()
 		# actual_mesh.normals = chunk_mesh.getNormals()
 		# actual_mesh.uv = chunk_mesh.getUVs()
-		# visible_meshes[c.getCoords()] = actual_mesh
+		# # visible_meshes[c.getCoords()] = actual_mesh
 
 	# TO DO: fix this. if a chunk is removed before it is added
 	# (they are added when they are queued but removed when the distance
@@ -99,7 +120,7 @@ class DisplayManager (MonoBehaviour):
 		mesh.triangles = m.triangles
 		mesh.normals = m.normals
 		mesh.uv = m.uvs
-		print "TRIANGLE COUNT: $(len(m.triangles)/3)"
+		#print "TRIANGLE COUNT: $(len(m.triangles)/3)"
 		if draw_meshes_directly:
 			visible_meshes[c.getCoords()] = mesh
 		else:

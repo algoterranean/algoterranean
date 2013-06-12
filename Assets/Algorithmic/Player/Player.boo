@@ -21,6 +21,7 @@ class Player (MonoBehaviour):
 	first as bool
 	main_camera as GameObject
 	block_outline as BlockOutline
+	stats as Stats
 
 	def Start ():
 		rotate_speed = 3.5
@@ -35,11 +36,14 @@ class Player (MonoBehaviour):
 		#player_camera = gameObject.Find("Player/1st Person Camera")
 		#world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
 		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline")
+		stats = gameObject.Find("Engine/ChunkManager").GetComponent("Stats")
 
 	def getOrientation():
 		return orientation
 
 	def Update():
+		block_found = false
+		# outline the block that is in range
 		out as RaycastHit
 		if not Physics.Raycast(main_camera.transform.position, main_camera.transform.forward, out, 5.0):
 			block_outline.disable()
@@ -67,14 +71,31 @@ class Player (MonoBehaviour):
 				
 			block_outline.setPosition(pos)
 			block_outline.enable()
+			block_found = true
+			stats.LookingAt(Vector3(pos.x-0.5, pos.y-0.5, pos.z-0.5), 0)
 
-
-			
+		# digging
+		if Input.GetButtonDown("Fire1"):
+			if block_found:
+				chunk_ball.setBlock(WorldBlockCoordinate(pos.x-0.5, pos.y-0.5, pos.z-0.5), 0)
+		elif Input.GetButtonDown("Fire2"):
+			if block_found:
+				if out.normal.x == 1:
+					pos.x += 1
+				elif out.normal.x == -1:
+					pos.x -= 1
+				elif out.normal.y == 1:
+					pos.y += 1
+				elif out.normal.y == -1:
+					pos.y -= 1
+				elif out.normal.z == 1:
+					pos.z += 1
+				elif out.normal.z == -1:
+					pos.z -= 1
+				chunk_ball.setBlock(WorldBlockCoordinate(pos.x-0.5, pos.y-0.5, pos.z-0.5), 50)
 			
 			
 		
-		
-
 
 		
 	# 	horiz = Input.GetAxis("Mouse X") * rotate_speed
