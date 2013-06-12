@@ -21,10 +21,14 @@ class Stats (MonoBehaviour):
 	perf_block_min_time = 9999.0	
 	perf_block_last_time = 0.0
 	seed = 0
+	looking_at as Vector3
+	looking_at_type as byte
 
 	
 
 	def Start ():
+		#looking_at = Vector3(9, 9, 9)
+		looking_at_type = 0
 		font_resource = Resources.Load("Fonts/whiterabbit") as Font
 		text_style = GUIStyle()
 		text_style.font = font_resource
@@ -35,13 +39,18 @@ class Stats (MonoBehaviour):
 	def Update():
 		if Input.GetKeyDown(KeyCode.F3):
 			display = not display
-		
+
+	def LookingAt(v as Vector3, block as int):
+		self.looking_at = v
+		self.looking_at_type = block
 
 	def OnGUI():
 		if display:
 			s = "<b>Seed</b>: $seed\n"
-			s += "<b>Chunks</b>: $chunks_visible / $chunks_max"
-			GUI.Label(Rect(25, 25, 200, 25), s, text_style)
+			s += "<b>Chunks</b>: $chunks_visible / $chunks_max\n"
+			s += "<b>Looking at</b>: $(self.looking_at), $(self.looking_at_type)\n"
+
+			GUI.Label(Rect(25, 25, 200, 100), s, text_style)
 
 			b_time = String.Format("{0:0.0}", perf_block_creation_time/perf_block_creation_count)
 			b_time_last = String.Format("{0:0.0}", perf_block_last_time)
@@ -65,7 +74,7 @@ class Stats (MonoBehaviour):
 			p += "Chunk" + " " * (col1_len-5) + "$block_creation_count" + " " * (col2_len-len(block_creation_count)) + "$b_time" + " " * (col3_len-len(b_time)) + "$b_time_min" + " " * (col4_len - len(b_time_min)) + "$b_time_max" + "\n"
 			p += "Mesh" + " " * (col1_len-4) + "$mesh_creation_count" + " " * (col2_len-len(mesh_creation_count)) + "$m_time" + " " * (col3_len-len(m_time)) + "$m_time_min" + " " * (col4_len - len(m_time_min)) + "$m_time_max" + "\n"
 
-			GUI.Label(Rect(300, 25, 400, 200), p, text_style)
+			GUI.Label(Rect(350, 25, 400, 200), p, text_style)
 
 	def PerfMaxChunks(i as int):
 		chunks_max = i
@@ -96,6 +105,10 @@ class Stats (MonoBehaviour):
 		if time < perf_block_min_time:
 			perf_block_min_time = time			
 		perf_block_last_time = time
+
+
+		
+
 		
 
 
