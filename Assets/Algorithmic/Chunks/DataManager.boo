@@ -80,9 +80,13 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		origin_thread = Thread(ThreadStart(_origin_thread))
 		origin_thread.Start()
 		block_thread = Thread(ThreadStart(_block_thread))
+		block_thread.IsBackground = true
 		block_thread.Start()
-		# block_thread2 = Thread(ThreadStart(_block_thread))
-		# block_thread2.Start()
+		block_thread2 = Thread(ThreadStart(_block_thread))
+		block_thread2.IsBackground = true
+		block_thread2.Start()
+		
+		
 		# block_thread3 = Thread(ThreadStart(_block_thread))
 		# block_thread3.Start()		
 		mesh_thread = Thread(ThreadStart(_mesh_thread))
@@ -137,6 +141,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 						mesh_queue.Enqueue(chunk)
 					lock outgoing_queue:
 						outgoing_queue.Enqueue(DMMessage("PerfBlockCreation", (t2 - t1).TotalMilliseconds))
+			else:
+				Thread.Sleep(50)
 
 
 	def _mesh_thread():
@@ -158,12 +164,17 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				lock outgoing_queue:
 					outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
 					outgoing_queue.Enqueue(DMMessage("PerfMeshCreation", (t2 - t1).TotalMilliseconds))
+			else:
+				Thread.Sleep(10)
 
 
 
 	def OnApplicationQuit():
 		block_thread.Abort()
-		#block_thread2.Abort()
+		block_thread.Join()
+		block_thread2.Abort()
+		block_thread2.Join()
+		
 		# block_thread3.Abort()
 		mesh_thread.Abort()
 		# mesh_thread2.Abort()
@@ -238,6 +249,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 						block_queue = tmp_queue
 					# for coord in l2:
 					# 	tmp_queue2.Enqueue(chunks[coord])
+			else:
+				Thread.Sleep(10)
 		
 		
 
@@ -263,6 +276,40 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			for i in range(len(outgoing_queue)):
 				m = outgoing_queue.Dequeue()
 				SendMessage(m.function, m.argument)
+
+	def setBlock(world as WorldBlockCoordinate, block as byte) as void:
+		size = Settings.ChunkSize
+		size_f = size cast single
+		#coord = Algorithmic.Utils.whichChunk(Vector3(world.x, world.y, world.z))
+		chunk_x = Floor(world.x / size_f) * size
+		chunk_y = Floor(world.y / size_f) * size
+		chunk_z = Floor(world.z / size_f) * size
+		local_x = Abs(chunk_x - world.x)
+		local_y = Abs(chunk_y - world.y)
+		local_z = Abs(chunk_z - world.z)
+		# if world.x < 0:
+		# 	local_x = size - local_x - 1
+		# if world.y < 0:
+		# 	local_y = size - local_y - 1
+		# if world.z < 0:
+		# 	local_z = size - local_z - 1
+			
+		coord = WorldBlockCoordinate(chunk_x, chunk_y, chunk_z)
+
+		print "Setting chunk ($chunk_x, $chunk_y, $chunk_z), block ($local_x, $local_y, $local_z) to $block (from world $world)"
+		
+		lock chunks:
+			if coord in chunks:
+				c as Chunk = chunks[coord]
+				c.setBlock(local_x, local_y, local_z, block)
+				#print "Setting $block_coords to $block"
+				c.generateMesh()
+				lock outgoing_queue:
+					outgoing_queue.Enqueue(DMMessage("RefreshMesh",c))
+			else:
+				print "Could not find the chunk"			
+
+
 
 	# def setBlock(world as WorldBlockCoordinate, block as byte) as void:
 	# 	size = Settings.ChunkSize
@@ -305,12 +352,20 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	# 	lock chunks:
 	# 		if chunk_coords in chunks:
 	# 			i as Chunk = chunks[chunk_coords]
-	# 			c as BlockData = i.getBlocks()
-	# 			c.setBlock(block_coords, block)
-	# 			m = MeshData(c, self)
-	# 			m.CalculateMesh()
-	# 			i.setMesh(m)
-	# 			SendMessage("RefreshMesh", i)
+	# 			i.setBlock(block_coords.x, block_coords.y, block_coords.z, block)
+	# 			print "Setting $block_coords to $block"
+	# 			# c as BlockData = i.getBlocks()
+	# 			# c.setBlock(block_coords, block)
+	# 			i.generateMesh()
+	# 			lock outgoing_queue:
+	# 				outgoing_queue.Enqueue(DMMessage("RefreshMesh",i))
+				
+				
+	# 			# m = mesh_generator(i.
+	# 			# m = MeshData(c, self)
+	# 			# m.CalculateMesh()
+	# 			# i.setMesh(m)
+	# 			# SendMessage("RefreshMesh", i)
 	# 		else:
 	# 			print "Could not find the chunk"			
 
