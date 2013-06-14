@@ -42,23 +42,23 @@ class ChunkMetric:
 
 	def getChunksInRange() as Dictionary[of WorldBlockCoordinate, bool]:
 		l = Dictionary[of WorldBlockCoordinate, bool]()
+		scale = Settings.ChunkScale
+		o_x = System.Math.Floor(origin.x / size / scale)
+		o_y = System.Math.Floor(origin.y / size / scale)
+		o_z = System.Math.Floor(origin.z / size / scale)
+		
 		for x in range(-max_x, max_x+1):
 			for y in range(-max_y, max_y+1):
 				for z in range(-max_z, max_z+1):
-					o_x = System.Math.Floor(origin.x / size)
-					o_y = System.Math.Floor(origin.y / size)
-					o_z = System.Math.Floor(origin.z / size)
 					a = (o_x + x)
 					b = (o_y + y)
 					c = (o_z + z)
-
 					
 					# a as long = (origin.x + x * size)/size					
 					# a as long = (origin.x + x * size)/size
 					# b as long = (origin.y + y * size)/size
 					# c as long = (origin.z + z * size)/size
-					l[WorldBlockCoordinate(a * size, b * size, c * size)] = true
-
+					l[WorldBlockCoordinate(a * size * scale, b * size * scale, c * size * scale)] = true
 		return l
 
 	def getOrderedChunksInRange() as List[of WorldBlockCoordinate]:
@@ -73,9 +73,10 @@ class ChunkMetric:
 		
 
 	def isChunkTooFar(c as WorldBlockCoordinate) as bool:
-		if Math.Abs(c.x - origin.x)/size > max_x or \
-			Math.Abs(c.y - origin.y)/size > max_y or \
-			Math.Abs(c.z - origin.z)/size > max_z:
+		scale = Settings.ChunkScale
+		if Math.Abs(c.x - origin.x)/size * scale > max_x or \
+			Math.Abs(c.y - origin.y)/size * scale > max_y or \
+			Math.Abs(c.z - origin.z)/size *scale > max_z:
 			return true
 		return false
 

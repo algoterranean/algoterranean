@@ -84,7 +84,7 @@ class Stats (MonoBehaviour):
 		chunks_visible += 1
 		chunks_created += 1
 
-	def RemoveMesh():
+	def RemoveMesh2():
 	# def decrementChunksVisible():
 		chunks_visible -= 1
 

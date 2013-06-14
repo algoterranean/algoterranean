@@ -43,6 +43,8 @@ class Player (MonoBehaviour):
 
 	def Update():
 		block_found = false
+		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)		
+		return
 		# outline the block that is in range
 		out as RaycastHit
 		if not Physics.Raycast(main_camera.transform.position, main_camera.transform.forward, out, 5.0):
@@ -169,7 +171,7 @@ class Player (MonoBehaviour):
 	# 	# 	chunk_ball.setOrigin(Vector3(0, 0, 0))
 	# 	# 	first = false
 	# 	# else:
-		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)
+		
 
 
 			

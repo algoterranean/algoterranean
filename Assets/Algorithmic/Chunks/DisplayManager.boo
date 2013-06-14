@@ -110,10 +110,13 @@ class DisplayManager (MonoBehaviour):
 			o = gameObject.Find("$c")
 			if o != null:
 				gameObject.Destroy(o)
+				SendMessage("RemoveMesh2", c)
 			else:
 				pass
 
 	def _create_mesh_object(c as Chunk):
+		scale = Settings.ChunkScale
+		
 		m = c.getMeshData()
 		mesh = Mesh()
 		mesh.vertices = m.vertices
@@ -135,4 +138,5 @@ class DisplayManager (MonoBehaviour):
 			coords = c.getCoords()
 			t = gameObject.Find("Terrain").transform
 			o.transform.parent = t
+			o.transform.localScale = Vector3(scale, scale, scale)
 			o.transform.position = Vector3(coords.x, coords.y, coords.z)

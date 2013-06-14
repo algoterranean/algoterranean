@@ -66,11 +66,16 @@ class Chunk:
 			blocks[x, y, z] = val
 
 	def generateBlocks():
+		scale = 1/Settings.ChunkScale
+		c_x as long = coords.x / Settings.ChunkScale
+		c_y as long = coords.y / Settings.ChunkScale
+		c_z as long = coords.z / Settings.ChunkScale
 		lock blocks:
 			for x in range(size):
 				for z in range(size):
 					for y in range(size):
-						blocks[x, y, z] = block_generator(x + coords.x, y + coords.y, z + coords.z)
+						#blocks[x, y, z] = block_generator(x + coords.x * scale, y + coords.y * scale, z + coords.z * scale)
+						blocks[x, y, z] = block_generator(x + c_x, y + c_y, z + c_z)
 		# lock flag_gen_noise:
 		# 	flag_gen_noise = false
 

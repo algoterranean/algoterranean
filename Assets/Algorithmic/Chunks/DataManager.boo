@@ -84,7 +84,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		block_thread.Start()
 		block_thread2 = Thread(ThreadStart(_block_thread))
 		block_thread2.IsBackground = true
-		block_thread2.Start()
+		#block_thread2.Start()
+		
 		
 		
 		# block_thread3 = Thread(ThreadStart(_block_thread))
@@ -186,21 +187,24 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		#run = true
 		#while run:
 		while true:
-			gen = false
-			x1 = Math.Abs(local_origin.x - origin.x)
-			y1 = Math.Abs(local_origin.y - origin.y)
-			z1 = Math.Abs(local_origin.z - origin.z)
-			if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10:
-				gen = false
-			else:
-				local_origin = origin
-				gen = true
-				#run = false
+			# gen = false
+			# x1 = Math.Abs(local_origin.x - origin.x)
+			# y1 = Math.Abs(local_origin.y - origin.y)
+			# z1 = Math.Abs(local_origin.z - origin.z)
+			# if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10: #* Settings.ChunkScale:
+			# 	gen = false
+			# else:
+			# 	local_origin = origin
+			# 	gen = true
+			# 	#metric.Origin = local_origin
+			# 	#run = false
 
-			if gen:
+			if local_origin != origin:
+				local_origin = origin
 				in_range = metric.getChunksInRange()
 				lock chunks:
 					for coord in in_range.Keys:
+						#print coord
 						if coord not in chunks:
 							chunks.Add(coord, Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator))
 
@@ -261,7 +265,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			x1 = Math.Abs(o.x - origin.x)
 			y1 = Math.Abs(o.y - origin.y)
 			z1 = Math.Abs(o.z - origin.z)
-			if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10:
+			if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10 * Settings.ChunkScale:
 				return
 
 		origin_init = true
