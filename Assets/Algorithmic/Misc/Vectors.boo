@@ -10,7 +10,7 @@ struct WorldBlockCoordinate (IComparable):
 		x = _x
 		y = _y
 		z = _z
-		hash = (x * 397) ^ (y * 647) ^ z
+		hash = (x * 907) ^ (y * 241) ^ z
 
 	override def GetHashCode() as int:
 		return hash
@@ -32,6 +32,41 @@ struct WorldBlockCoordinate (IComparable):
 			return 1
 		else:
 			return 0
+
+struct ChunkBlockCoordinate(IComparable):
+	x as byte
+	y as byte
+	z as byte
+	hash as int
+
+	def constructor(_x as byte, _y as byte, _z as byte):
+		x = _x
+		y = _y
+		z = _z
+		hash = (x * 397) ^ (y * 647) ^ z
+
+	override def GetHashCode() as int:
+		return hash
+
+	override def Equals(o) as bool:
+		v = o cast ChunkBlockCoordinate
+		return v.x == x and v.y == y and v.z == z
+
+	override def ToString() as string:
+		return "($x, $y, $z)"
+
+	def CompareTo(o as object) as int:
+		c = o cast ChunkBlockCoordinate
+		a = Abs(x cast int) + Abs(y cast int) + Abs(z cast int)
+		b = Abs(c.x cast int) + Abs(c.y cast int) + Abs(c.z cast int)
+		if a < b:
+			return -1
+		elif a > b:
+			return 1
+		else:
+			return 0
+
+
 
 
 struct ByteVector3:

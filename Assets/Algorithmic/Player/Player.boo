@@ -1,8 +1,10 @@
 namespace Algorithmic.Player
 
 import UnityEngine
+import System.Math
 import Algorithmic.Chunks
 import Algorithmic.Physics
+import Algorithmic.Utils
 
 
 class Player (MonoBehaviour):
@@ -17,6 +19,7 @@ class Player (MonoBehaviour):
 	world as Algorithmic.Physics.World
 	public jumping = false
 	t = 0
+	raycast_distance = 10.0
 	public reticle_tex as Texture2D
 	first as bool
 	main_camera as GameObject
@@ -42,62 +45,60 @@ class Player (MonoBehaviour):
 		return orientation
 
 	def Update():
+		scale = Settings.ChunkScale
+		size as single = Settings.ChunkSize
 		block_found = false
 		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)		
-		return
+
 		# outline the block that is in range
 		out as RaycastHit
-		if not Physics.Raycast(main_camera.transform.position, main_camera.transform.forward, out, 5.0):
+		if not Physics.Raycast(main_camera.transform.position, main_camera.transform.forward, out, raycast_distance):
 			block_outline.disable()
 		else:
-			coord = Algorithmic.Utils.whichChunk(out.point)
+			chunk_coord as WorldBlockCoordinate, local_coord as WorldBlockCoordinate, abs_coord as WorldBlockCoordinate = decomposeCoordinates(out.point)
 
-			local = WorldBlockCoordinate(System.Math.Floor(out.point.x - coord.x),
-										 System.Math.Floor(out.point.y - coord.y),
-										 System.Math.Floor(out.point.z - coord.z))
-			#print "hit: $(out.point), normal: $(out.normal), chunk: $coord, local: $local"
-			pos = Vector3(local.x + coord.x - 0.5 + 1.0, local.y + coord.y -0.5, local.z + coord.z - 0.5 + 1.0)
+			pos = Vector3(chunk_coord.x + local_coord.x,
+						  chunk_coord.y + local_coord.y,
+						  chunk_coord.z + local_coord.z)
+
 			if out.normal.x == 1:
 				pos.x -= 1
-			# elif out.normal.x == -1:
-			# 	pos.x += 1
-			# elif out.normal.y == -1:
-			# 	pos.y += 1
 			elif out.normal.y == 1:
 				pos.y -= 1
 			elif out.normal.z == 1:
 				pos.z -= 1
-			# elif out.normal.z == -1:
-			# 	pos.z += 1
-			pos.y += 1
-				
+			pos.x *= scale
+			pos.y *= scale
+			pos.z *= scale
+			stats.LookingAt(pos, 0)
+
 			block_outline.setPosition(pos)
 			block_outline.enable()
 			block_found = true
-			stats.LookingAt(Vector3(pos.x-0.5, pos.y-0.5, pos.z-0.5), 0)
-
+			
+				
 		# digging
 		if Input.GetButtonDown("Fire1"):
 			if block_found:
-				chunk_ball.setBlock(WorldBlockCoordinate(pos.x-0.5, pos.y-0.5, pos.z-0.5), 0)
+				p = WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z)
+				if out.normal.x == 1:
+					p.x -= 1
+				elif out.normal.y == 1:
+					p.y -= 1
+				elif out.normal.z == 1:
+					p.z -= 1
+				chunk_ball.setBlock(p, 0)
+		# building
 		elif Input.GetButtonDown("Fire2"):
 			if block_found:
-				if out.normal.x == 1:
-					pos.x += 1
-				elif out.normal.x == -1:
-					pos.x -= 1
-				elif out.normal.y == 1:
-					pos.y += 1
+				p = WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z)
+				if out.normal.x == -1:
+					p.x -= 1
 				elif out.normal.y == -1:
-					pos.y -= 1
-				elif out.normal.z == 1:
-					pos.z += 1
+					p.y -= 1
 				elif out.normal.z == -1:
-					pos.z -= 1
-				chunk_ball.setBlock(WorldBlockCoordinate(pos.x-0.5, pos.y-0.5, pos.z-0.5), 50)
-			
-			
-		
+					p.z -= 1
+				chunk_ball.setBlock(p, 50)
 
 		
 	# 	horiz = Input.GetAxis("Mouse X") * rotate_speed

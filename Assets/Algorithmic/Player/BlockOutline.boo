@@ -30,13 +30,23 @@ class BlockOutline (MonoBehaviour):
 	lines = []
 
 	def updateLines():
+		scale = Settings.ChunkScale
 		for x in range(len(lines)):
 			l = lines[len(lines) - x - 1] cast VectorLine
 			c = coordinates[x] cast Boo.Lang.List
 			a = c[0] cast Vector3
 			b = c[1] cast Vector3
+
+			a.x *= scale
+			a.y *= scale
+			a.z *= scale
+			b.x *= scale
+			b.y *= scale
+			b.z *= scale
+			
 			l.points3[0] = Vector3(position.x + a.x, position.y + a.y, position.z + a.z)
 			l.points3[1] = Vector3(position.x + b.x, position.y + b.y, position.z + b.z)
+			
 			if a.x:
 				l.points3[0].x += offset
 			else:
@@ -61,7 +71,13 @@ class BlockOutline (MonoBehaviour):
 				l.points3[1].z += offset
 			else:
 				l.points3[1].z -= offset
-				
+
+			# l.points3[0].x *= scale
+			# l.points3[0].y *= scale
+			# l.points3[0].z *= scale
+			# l.points3[1].x *= scale
+			# l.points3[1].y *= scale
+			# l.points3[1].z *= scale
 				
 				
 			
@@ -81,7 +97,7 @@ class BlockOutline (MonoBehaviour):
 				x.Draw3D()
 
 	def setPosition(p as Vector3):
-		position = Vector3(p.x - 0.5, p.y - 0.5, p.z - 0.5)
+		position = Vector3(p.x, p.y, p.z)
 		updateLines()
 
 
