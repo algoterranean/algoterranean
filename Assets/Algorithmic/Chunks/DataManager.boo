@@ -11,6 +11,7 @@ import Algorithmic
 import UnityEngine
 import System.Collections.Generic
 import System.Threading
+import Algorithmic.Utils
 
 
 struct DMMessage:
@@ -135,7 +136,11 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				if chunk.GenerateBlocks:
 					chunk.GenerateBlocks = false
 					t1 = System.DateTime.Now
-					chunk.generateBlocks()
+					try:
+						chunk.generateBlocks()
+					except e:
+						print "THREAD ERROR $e"
+						
 					t2 = System.DateTime.Now
 					chunk.GenerateMesh = true
 					lock mesh_queue:
@@ -280,143 +285,30 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			for i in range(len(outgoing_queue)):
 				m = outgoing_queue.Dequeue()
 				SendMessage(m.function, m.argument)
+				
 
 	def setBlock(world as WorldBlockCoordinate, block as byte) as void:
-		size = Settings.ChunkSize
-		size_f = size cast single
-		#coord = Algorithmic.Utils.whichChunk(Vector3(world.x, world.y, world.z))
-		chunk_x = Floor(world.x / size_f) * size
-		chunk_y = Floor(world.y / size_f) * size
-		chunk_z = Floor(world.z / size_f) * size
-		local_x = Abs(chunk_x - world.x)
-		local_y = Abs(chunk_y - world.y)
-		local_z = Abs(chunk_z - world.z)
-		# if world.x < 0:
-		# 	local_x = size - local_x - 1
-		# if world.y < 0:
-		# 	local_y = size - local_y - 1
-		# if world.z < 0:
-		# 	local_z = size - local_z - 1
-			
-		coord = WorldBlockCoordinate(chunk_x, chunk_y, chunk_z)
-
-		print "Setting chunk ($chunk_x, $chunk_y, $chunk_z), block ($local_x, $local_y, $local_z) to $block (from world $world)"
+		chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
 		
 		lock chunks:
-			if coord in chunks:
-				c as Chunk = chunks[coord]
-				c.setBlock(local_x, local_y, local_z, block)
-				#print "Setting $block_coords to $block"
+			if chunk_coord in chunks:
+				c as Chunk = chunks[chunk_coord]
+				c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
 				c.generateMesh()
 				lock outgoing_queue:
 					outgoing_queue.Enqueue(DMMessage("RefreshMesh",c))
+			else:
+				print "Could not find the chunk"
+
+	def getBlock(world as WorldBlockCoordinate) as byte:
+		chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
+		
+		lock chunks:
+			if chunk_coord in chunks:
+				c as Chunk = chunks[chunk_coord]
+				return c.getBlock(local_coord.x, local_coord.y, local_coord.z)
 			else:
 				print "Could not find the chunk"			
 
 
 
-	# def setBlock(world as WorldBlockCoordinate, block as byte) as void:
-	# 	size = Settings.ChunkSize
-	# 	x = world.x
-	# 	y = world.y
-	# 	z = world.z
-		
-	# 	if x < 0:
-	# 		new_x = x + 1
-	# 	else:
-	# 		new_x = x
-	# 	c_x = new_x / size - (1 if x < 0 else 0)
-	# 	start_x = c_x * size
-	# 	#end_x = start_x + size - 1
-	# 	b_x = x - start_x
-
-	# 	if y < 0:
-	# 		new_y = y + 1
-	# 	else:
-	# 		new_y = y
-	# 	c_y = new_y / size - (1 if y < 0 else 0)
-	# 	start_y = c_y * size
-	# 	#end_y = start_y + size - 1
-	# 	b_y = y - start_y
-
-	# 	if z < 0:
-	# 		new_z = z + 1
-	# 	else:
-	# 		new_z = z
-	# 	c_z = new_z / size - (1 if z < 0 else 0)
-	# 	start_z = c_z * size
-	# 	#end_z = start_z + size - 1
-	# 	b_z = z - start_z
-
-	# 	chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
-	# 	#chunk_coords = "$(c_x*size),$(c_y*size),$(c_z*size)"
-	# 	block_coords = ByteVector3(b_x, b_y, b_z)
-	# 	#print "GetBlock: $world, $chunk_coords, $block_coords"
-
-	# 	lock chunks:
-	# 		if chunk_coords in chunks:
-	# 			i as Chunk = chunks[chunk_coords]
-	# 			i.setBlock(block_coords.x, block_coords.y, block_coords.z, block)
-	# 			print "Setting $block_coords to $block"
-	# 			# c as BlockData = i.getBlocks()
-	# 			# c.setBlock(block_coords, block)
-	# 			i.generateMesh()
-	# 			lock outgoing_queue:
-	# 				outgoing_queue.Enqueue(DMMessage("RefreshMesh",i))
-				
-				
-	# 			# m = mesh_generator(i.
-	# 			# m = MeshData(c, self)
-	# 			# m.CalculateMesh()
-	# 			# i.setMesh(m)
-	# 			# SendMessage("RefreshMesh", i)
-	# 		else:
-	# 			print "Could not find the chunk"			
-
-
-	# # # def getBlock(x as long, y as long, z as long):
-	# # # 	pass
-
-
-	# def getBlock(world as WorldBlockCoordinate):
-	# #def getBlock(x as long, y as long, z as long):
-	# 	size = Settings.ChunkSize
-	# 	x = world.x
-	# 	y = world.y
-	# 	z = world.z
-		
-	# 	if x < 0:
-	# 		new_x = x + 1
-	# 	else:
-	# 		new_x = x
-	# 	c_x = new_x / size - (1 if x < 0 else 0)
-	# 	start_x = c_x * size
-	# 	#end_x = start_x + size - 1
-	# 	b_x as byte = x - start_x
-
-	# 	if y < 0:
-	# 		new_y = y + 1
-	# 	else:
-	# 		new_y = y
-	# 	c_y = new_y / size - (1 if y < 0 else 0)
-	# 	start_y = c_y * size
-	# 	#end_y = start_y + size - 1
-	# 	b_y as byte = y - start_y
-
-	# 	if z < 0:
-	# 		new_z = z + 1
-	# 	else:
-	# 		new_z = z
-	# 	c_z = new_z / size - (1 if z < 0 else 0)
-	# 	start_z = c_z * size
-	# 	#end_z = start_z + size - 1
-	# 	b_z as byte = z - start_z
-
-	# 	chunk_coords = WorldBlockCoordinate(c_x * size, c_y * size, c_z * size)
-	# 	if chunk_cached is not null and chunk_cached.getCoords() == chunk_coords:
-	# 		return chunk_cached.getBlock(b_x, b_y, b_z)
-	# 	else:
-	# 		if chunks.TryGetValue(chunk_coords, chunk_cached):
-	# 			return chunk_cached.getBlock(b_x, b_y, b_z)
-	# 		else:
-	# 			return 0
