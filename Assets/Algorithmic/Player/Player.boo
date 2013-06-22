@@ -19,12 +19,13 @@ class Player (MonoBehaviour):
 	world as Algorithmic.Physics.World
 	public jumping = false
 	t = 0
-	raycast_distance = 10.0
+	raycast_distance = 5.0
 	public reticle_tex as Texture2D
 	first as bool
 	main_camera as GameObject
-	block_outline as BlockOutline
+	block_outline as BlockOutline2
 	stats as Stats
+	outline_size = 3
 
 	def Start ():
 		rotate_speed = 3.5
@@ -38,7 +39,7 @@ class Player (MonoBehaviour):
 		main_camera = gameObject.Find("Player/First Person Controller/Main Camera")
 		#player_camera = gameObject.Find("Player/1st Person Camera")
 		#world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
-		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline")
+		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline2")
 		stats = gameObject.Find("Engine/ChunkManager").GetComponent("Stats")
 
 	def getOrientation():
@@ -48,7 +49,7 @@ class Player (MonoBehaviour):
 		scale = Settings.ChunkScale
 		size as single = Settings.ChunkSize
 		block_found = false
-		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)		
+		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)
 
 		# outline the block that is in range
 		out as RaycastHit
@@ -63,41 +64,61 @@ class Player (MonoBehaviour):
 
 			if out.normal.x == 1:
 				pos.x -= 1
+				abs_coord.x -=1
 			elif out.normal.y == 1:
 				pos.y -= 1
+				abs_coord.y -=1
 			elif out.normal.z == 1:
 				pos.z -= 1
+				abs_coord.z -=1
 			pos.x *= scale
 			pos.y *= scale
 			pos.z *= scale
 			stats.LookingAt(pos, 0)
 
+			#block_outline.setSize(1)
+
+
 			block_outline.setPosition(pos)
+			block_outline.refreshMesh(WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z), outline_size)
 			block_outline.enable()
 			block_found = true
-			
+
+		if Input.GetAxis("Mouse ScrollWheel"):
+			outline_size += Input.GetAxis("Mouse ScrollWheel")
+			outline_size = outline_size % 3 + 1
 				
 		# digging
 		if Input.GetButtonDown("Fire1"):
 			if block_found:
 				p = WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z)
-				if out.normal.x == 1:
-					p.x -= 1
-				elif out.normal.y == 1:
-					p.y -= 1
-				elif out.normal.z == 1:
-					p.z -= 1
-				chunk_ball.setBlock(p, 0)
+				chunk_ball.setBlocks(p, outline_size, 0)
+				
 		# building
 		elif Input.GetButtonDown("Fire2"):
 			if block_found:
 				p = WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z)
-				if out.normal.x == -1:
+				if out.normal.x == 1:
+					p.x += 1
+				elif out.normal.x == -1:
 					p.x -= 1
+				elif out.normal.y == 1:
+					p.y += 1
 				elif out.normal.y == -1:
 					p.y -= 1
+				elif out.normal.z == 1:
+					p.z += 1
 				elif out.normal.z == -1:
 					p.z -= 1
+
+					
+
+				# if out.normal.x == -1:
+				# 	p.x -= 1
+				# elif out.normal.y == -1:
+				# 	p.y -= 1
+				# elif out.normal.z == -1:
+				# 	p.z -= 1
 				chunk_ball.setBlock(p, 50)
 
 		

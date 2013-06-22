@@ -300,6 +300,27 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			else:
 				print "Could not find the chunk"
 
+	def setBlocks(world as WorldBlockCoordinate, size as byte, block as byte):
+		chunks_to_update = {}
+		for x in range(size):
+			for y in range(size):
+				for z in range(size):
+					chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(WorldBlockCoordinate(world.x + x, world.y + y, world.z + z))
+		
+					lock chunks:
+						if chunk_coord in chunks:
+							c as Chunk = chunks[chunk_coord]
+							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
+							chunks_to_update["$c"] = c
+
+		for k in chunks_to_update.Keys:
+			c = chunks_to_update[k]
+			c.generateMesh()
+			lock outgoing_queue:
+				outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
+
+					
+
 	def getBlock(world as WorldBlockCoordinate) as byte:
 		chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
 		
@@ -308,7 +329,17 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				c as Chunk = chunks[chunk_coord]
 				return c.getBlock(local_coord.x, local_coord.y, local_coord.z)
 			else:
-				print "Could not find the chunk"			
+				return 0
+				print "Could not find the chunk"
+
+
+	def getBlocks(world as WorldBlockCoordinate, size as byte) as (byte, 3):
+		blocks = matrix(byte, size, size, size)
+		for x in range(size):
+			for y in range(size):
+				for z in range(size):
+					blocks[x, y, z] = getBlock(WorldBlockCoordinate(world.x + x, world.y + y, world.z + z))
+		return blocks
 
 
 

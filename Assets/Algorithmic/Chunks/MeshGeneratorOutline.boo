@@ -1,6 +1,6 @@
 namespace Algorithmic.Chunks
 
-def generateMesh(blocks as (byte, 3)) as MeshData2:
+def generateMeshOutline(blocks as (byte, 3)) as MeshData2:
 	chunk_size = len(blocks, 0) #Settings.ChunkSize
 	#size = chunk.getSize()
 	vertice_size = 0
@@ -8,37 +8,7 @@ def generateMesh(blocks as (byte, 3)) as MeshData2:
 	uv_size = 0
 	aabb_size = 0
 
-	#coords = chunk.getCoordinates()
-	# en = data_manager.getChunk(WorldBlockCoordinate(coords.x + Settings.ChunkSize, coords.y, coords.z))
-	# wn = data_manager.getChunk(WorldBlockCoordinate(coords.x - Settings.ChunkSize, coords.y, coords.z))
-	# nn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z + Settings.ChunkSize))
-	# sn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y, coords.z - Settings.ChunkSize))
-	# un = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y + Settings.ChunkSize, coords.z))
-	# dn = data_manager.getChunk(WorldBlockCoordinate(coords.x, coords.y - Settings.ChunkSize, coords.z))
-	# if en != null:
-	# 	east_neighbor = en.getBlocks()
-	# if wn != null:
-	# 	west_neighbor = wn.getBlocks()
-	# if nn != null:
-	# 	north_neighbor = nn.getBlocks()
-	# if sn != null:
-	# 	south_neighbor = sn.getBlocks()
-	# if un != null:
-	# 	up_neighbor = un.getBlocks()
-	# if dn != null:
-	# 	down_neighbor = dn.getBlocks()
-
-	# vertices = matrix(Vector3, vertice_size)
-	# triangles = matrix(int, triangle_size)
-	# uvs = matrix(Vector2, uv_size)
-	# normals = matrix(Vector3, vertice_size)
-	## _bounding_volumes = matrix(AABB, aabb_size)
-
-	# vertice_count = 0
-	# triangle_count = 0
-	# uv_count = 0
-	# normal_count = 0
-	#aabb_count = 0
+	outline_offset = 0.005
 
 	vertices = List[of Vector3]()
 	uvs = List[of Vector2]()
@@ -61,13 +31,6 @@ def generateMesh(blocks as (byte, 3)) as MeshData2:
 		triangles.Push(vertice_count-2)
 		triangles.Push(vertice_count-1)
 		triangles.Push(vertice_count-4)
-		# triangles[triangle_count]   = vertice_count-4 # 0
-		# triangles[triangle_count+1] = vertice_count-3 # 1
-		# triangles[triangle_count+2] = vertice_count-2 # 2
-		# triangles[triangle_count+3] = vertice_count-2 # 2
-		# triangles[triangle_count+4] = vertice_count-1 # 3
-		# triangles[triangle_count+5] = vertice_count-4 # 0
-		# triangle_count += 6
 
 	def _add_normals(n as Vector3):
 		normals.Push(n)
@@ -127,60 +90,70 @@ def generateMesh(blocks as (byte, 3)) as MeshData2:
 				if block:
 					aabb_test = false
 					if not block_west:
-						vertices.Push(Vector3(x, y, z))
-						vertices.Push(Vector3(x, y, z+1))
-						vertices.Push(Vector3(x, y+1, z+1))
-						vertices.Push(Vector3(x, y+1, z))
+						vertices.Push(Vector3(x - outline_offset, y - outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y- outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y+1 + outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y+1 + outline_offset, z - outline_offset))
 						vertice_count += 4
 						_calc_triangles()
 						_add_normals(Vector3(-1, 0, 0))
 						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						aabb_test = true
+						
 					if not block_east:
-						vertices.Push(Vector3(x+1, y, z+1))
-						vertices.Push(Vector3(x+1, y, z))
-						vertices.Push(Vector3(x+1, y+1, z))
-						vertices.Push(Vector3(x+1, y+1, z+1))
+						vertices.Push(Vector3(x+1 + outline_offset, y - outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y - outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y+1 + outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y+1 + outline_offset, z+1 + outline_offset))
 						vertice_count += 4
 						_calc_triangles()
 						_add_normals(Vector3(1, 0, 0))
 						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						aabb_test = true
+
+						
+
+						
 					if not block_south:
-						vertices.Push(Vector3(x+1, y, z))
-						vertices.Push(Vector3(x, y, z))
-						vertices.Push(Vector3(x, y+1, z))
-						vertices.Push(Vector3(x+1, y+1, z))
+						vertices.Push(Vector3(x+1 + outline_offset, y - outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y - outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y+1 + outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y+1 + outline_offset, z - outline_offset))
 						vertice_count += 4
 						_calc_triangles()
 						_add_normals(Vector3(0, 0, -1))
 						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						aabb_test = true
+						
 					if not block_north:
-						vertices.Push(Vector3(x, y, z+1))
-						vertices.Push(Vector3(x+1, y, z+1))
-						vertices.Push(Vector3(x+1, y+1, z+1))
-						vertices.Push(Vector3(x, y+1, z+1))
+						vertices.Push(Vector3(x - outline_offset, y - outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y - outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y+1 + outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y+1 + outline_offset, z+1 + outline_offset))
 						vertice_count += 4
 						_calc_triangles()
 						_add_normals(Vector3(0, 0, 1))
 						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						aabb_test = true
+						
+						
+						
 					if not block_down:
-						vertices.Push(Vector3(x+1, y, z+1))
-						vertices.Push(Vector3(x, y, z+1))
-						vertices.Push(Vector3(x, y, z))
-						vertices.Push(Vector3(x+1, y, z))
+						vertices.Push(Vector3(x+1 + outline_offset, y - outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y - outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y - outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y - outline_offset, z - outline_offset))
 						vertice_count += 4
 						_calc_triangles()
 						_add_normals(Vector3(0, -1, 0))
 						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						aabb_test = true
+						
 					if not block_up:
-						vertices.Push(Vector3(x+1, y+1, z))
-						vertices.Push(Vector3(x, y+1, z))
-						vertices.Push(Vector3(x, y+1, z+1))
-						vertices.Push(Vector3(x+1, y+1, z+1))
+						vertices.Push(Vector3(x+1 + outline_offset, y+1 +outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y+1 + outline_offset, z - outline_offset))
+						vertices.Push(Vector3(x - outline_offset, y+1 + outline_offset, z+1 + outline_offset))
+						vertices.Push(Vector3(x+1 + outline_offset, y+1 + outline_offset, z+1 + outline_offset))
 						vertice_count += 4
 						_calc_triangles()
 						_add_normals(Vector3(0, 1, 0))
