@@ -59,9 +59,11 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 	mesh_thread2 as Thread	
 	block_queue as Queue[of Chunk]
 	mesh_queue as Queue[of Chunk]
+	display_manager as DisplayManager
 	
 
 	def Awake():
+		display_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
 		chunk_size = Settings.ChunkSize
 		x = BiomeNoiseData2()
 		#x = SolidNoiseData()
@@ -167,6 +169,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 				t1 = System.DateTime.Now
 				chunk.generateMesh()
 				t2 = System.DateTime.Now
+				print "CREATING $chunk"
 				lock outgoing_queue:
 					outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
 					outgoing_queue.Enqueue(DMMessage("PerfMeshCreation", (t2 - t1).TotalMilliseconds))
@@ -282,9 +285,16 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 
 	def Update():
 		lock outgoing_queue:
-			for i in range(len(outgoing_queue)):
+			for i in range(outgoing_queue.Count):
 				m = outgoing_queue.Dequeue()
-				SendMessage(m.function, m.argument)
+				
+				print "SENDING $(m.function) -> $(m.argument)"
+				if m.function == "CreateMesh":
+					display_manager.CreateMesh(m.argument)
+				elif m.function == "RefreshMesh":
+					display_manager.RefreshMesh(m.argument)
+				else:
+					SendMessage(m.function, m.argument)
 				
 
 	def setBlock(world as WorldBlockCoordinate, block as byte) as void:

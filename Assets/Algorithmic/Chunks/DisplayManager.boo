@@ -8,9 +8,10 @@ import System.Collections.Generic
 
 
 class DisplayManager (MonoBehaviour):
-
-	add_mesh_queue = [] #List[of Chunk]()
-	remove_mesh_queue = [] #List[of Chunk]()
+	add_mesh_queue = Queue[of Chunk]()
+	remove_mesh_queue = Queue[of Chunk]()
+	#add_mesh_queue = [] #List[of Chunk]()
+	# remove_mesh_queue = [] #List[of Chunk]()
 	visible_meshes = Dictionary[of WorldBlockCoordinate, Mesh]()
 	mesh_mat as Material
 	draw_meshes_directly = false
@@ -22,12 +23,16 @@ class DisplayManager (MonoBehaviour):
 
 	def Update():
 		# if there is a mesh to add, pop it off and add it
-		if len(add_mesh_queue) > 0:
-			_create_mesh_object(add_mesh_queue.Pop())
+		for i in range(len(add_mesh_queue)):
+		# if len(add_mesh_queue) > 0:
+			_create_mesh_object(add_mesh_queue.Dequeue())
+			# _create_mesh_object(add_mesh_queue.Pop())
 
 		# if there is a mesh to remove, pop it off and remove it
-		if len(remove_mesh_queue) > 0:
-			_remove_mesh_object(remove_mesh_queue.Pop())
+		# if len(remove_mesh_queue) > 0:
+		for i in range(len(remove_mesh_queue)):
+			_remove_mesh_object(remove_mesh_queue.Dequeue())
+			# _remove_mesh_object(remove_mesh_queue.Pop())
 
 		# draw all of the visible meshes every frame.
 		# this is much faster than creating and using traditional GameObjects
@@ -48,7 +53,8 @@ class DisplayManager (MonoBehaviour):
 	#
 				
 	def CreateMesh(c as Chunk):
-		add_mesh_queue.Push(c)
+		add_mesh_queue.Enqueue(c)
+		#add_mesh_queue.Push(c)
 		#pass
 		# if c.getCoords() in visible_meshes:
 		# 	_refresh_mesh_object(c)
@@ -56,18 +62,18 @@ class DisplayManager (MonoBehaviour):
 		# 	add_mesh_queue.Push(c)
 
 	def RemoveMesh(c as Chunk):
-		remove_mesh_queue.Push(c)
+		remove_mesh_queue.Enqueue(c)
+		# remove_mesh_queue.Push(c)
 
 	def RefreshMesh(c as Chunk):
 		_refresh_mesh_object(c)		
-
 
 	#
 	# helper functions for removing chunks, adding chunks, and refreshing chunks
 	#
 	
 	def _refresh_mesh_object(c as Chunk):
-		print "REFRESHING MESH"
+		# print "REFRESHING MESH"
 		m = c.getMeshData()
 		mesh = Mesh()
 		mesh.vertices = m.vertices
@@ -75,7 +81,7 @@ class DisplayManager (MonoBehaviour):
 		mesh.normals = m.normals
 		mesh.uv = m.uvs
 		o = gameObject.Find("Terrain/$c")
-		print "FOUND $o"
+		# print "FOUND $o"
 		o.GetComponent(MeshFilter).sharedMesh = mesh
 		o.GetComponent(MeshCollider).sharedMesh = mesh
 
@@ -115,6 +121,7 @@ class DisplayManager (MonoBehaviour):
 				pass
 
 	def _create_mesh_object(c as Chunk):
+		# print "DISPLAYING $c"
 		scale = Settings.ChunkScale
 		
 		m = c.getMeshData()
