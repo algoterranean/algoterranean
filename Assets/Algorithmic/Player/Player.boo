@@ -9,7 +9,7 @@ import Algorithmic.Utils
 
 class Player (MonoBehaviour):
 	chunk_manager as DisplayManager
-	chunk_ball as IChunkGenerator
+	chunk_ball as DataManager
 	orientation as Vector3
 	rotate_speed as single
 	movement_speed as single
@@ -51,6 +51,19 @@ class Player (MonoBehaviour):
 		block_found = false
 		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)
 
+
+		# TO DO: REWRITE THIS UGLY ASS SHIT CODE
+		m_delta = Input.GetAxisRaw("Mouse ScrollWheel")
+		if m_delta != 0:
+			outline_size += m_delta
+			if m_delta > 0:			
+				outline_size = outline_size % 3 + 1
+			else:
+				outline_size = outline_size % 3
+				if outline_size == 0:
+					outline_size = 3
+
+
 		# outline the block that is in range
 		out as RaycastHit
 		if not Physics.Raycast(main_camera.transform.position, main_camera.transform.forward, out, raycast_distance):
@@ -74,25 +87,44 @@ class Player (MonoBehaviour):
 			pos.x *= scale
 			pos.y *= scale
 			pos.z *= scale
-			stats.LookingAt(pos, 0)
+			stats.LookingAt(main_camera.transform.forward, 0)
+			#stats.LookingAt(pos, 0)
 
 			#block_outline.setSize(1)
 
-
+			if main_camera.transform.forward.x < 0:
+				pos.x -= (outline_size- 1)* scale
+			if main_camera.transform.forward.y < 0:				
+				pos.y -= (outline_size - 1)* scale
+			if main_camera.transform.forward.z < 0:				
+				pos.z -= (outline_size- 1)* scale
+				
 			block_outline.setPosition(pos)
-			block_outline.refreshMesh(WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z), outline_size)
+			block_outline.refreshMesh(WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z), outline_size, main_camera.transform.forward)
 			block_outline.enable()
 			block_found = true
 
-		if Input.GetAxis("Mouse ScrollWheel"):
-			outline_size += Input.GetAxis("Mouse ScrollWheel")
-			outline_size = outline_size % 3 + 1
+
+
+
+		
+		# if  m_delta > 0:
+		# 	outline_size += 1
+		# 	outline_size = Abs(outline_size % 3 + 1)
+			
+			
+		# elif m_delta < 0:
+		# 	if outline_size == 0:
+		# 		outline_size = 2
+		# 	else:
+		# 		outline_size -= 1
+		# 	outline_size = Abs(outline_size % 3 + 1)
 				
 		# digging
 		if Input.GetButtonDown("Fire1"):
 			if block_found:
 				p = WorldBlockCoordinate(abs_coord.x, abs_coord.y, abs_coord.z)
-				chunk_ball.setBlocks(p, outline_size, 0)
+				chunk_ball.setBlocks(p, outline_size, main_camera.transform.forward, 0)
 				
 		# building
 		elif Input.GetButtonDown("Fire2"):
@@ -111,15 +143,14 @@ class Player (MonoBehaviour):
 				elif out.normal.z == -1:
 					p.z -= 1
 
-					
-
 				# if out.normal.x == -1:
 				# 	p.x -= 1
 				# elif out.normal.y == -1:
 				# 	p.y -= 1
 				# elif out.normal.z == -1:
 				# 	p.z -= 1
-				chunk_ball.setBlock(p, 50)
+				chunk_ball.setBlocks(p, outline_size, 50)
+				# chunk_ball.setBlock(p, 50)
 
 		
 	# 	horiz = Input.GetAxis("Mouse X") * rotate_speed

@@ -39,7 +39,7 @@ callable BlockGenerator(world_x as long, world_y as long, world_z as long) as by
 callable MeshGenerator(blocks as (byte, 3)) as MeshData2
 
 
-class DataManager (MonoBehaviour, IChunkGenerator):
+class DataManager (MonoBehaviour):
 	origin as Vector3
 	origin_lock as object
 	origin_init as bool
@@ -87,7 +87,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		block_thread.Start()
 		block_thread2 = Thread(ThreadStart(_block_thread))
 		block_thread2.IsBackground = true
-		#block_thread2.Start()
+		block_thread2.Start()
 		
 		
 		
@@ -95,8 +95,8 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		# block_thread3.Start()		
 		mesh_thread = Thread(ThreadStart(_mesh_thread))
 		mesh_thread.Start()
-		# mesh_thread2 = Thread(ThreadStart(_mesh_thread))
-		# mesh_thread2.Start()
+		mesh_thread2 = Thread(ThreadStart(_mesh_thread))
+		mesh_thread2.Start()
 
 		SendMessage("PerfMaxChunks", Math.Pow(Settings.MaxChunks * 2 + 1, 2) * (Settings.MaxChunksVertical * 2 + 1))
 		
@@ -184,10 +184,13 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 		block_thread2.Abort()
 		block_thread2.Join()
 		
-		# block_thread3.Abort()
 		mesh_thread.Abort()
-		# mesh_thread2.Abort()
+		mesh_thread.Join()
+		mesh_thread2.Abort()
+		mesh_thread2.Join()
+		
 		origin_thread.Abort()
+		origin_thread.Join()
 
 
 	def _origin_thread():
@@ -288,7 +291,7 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			for i in range(outgoing_queue.Count):
 				m = outgoing_queue.Dequeue()
 				
-				print "SENDING $(m.function) -> $(m.argument)"
+				#print "SENDING $(m.function) -> $(m.argument)"
 				if m.function == "CreateMesh":
 					display_manager.CreateMesh(m.argument)
 				elif m.function == "RefreshMesh":
@@ -329,19 +332,48 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			lock outgoing_queue:
 				outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
 
+
+	def setBlocks(world as WorldBlockCoordinate, size as byte, direction as Vector3, block as byte):
+		chunks_to_update = {}
+		for x in range(size):
+			for y in range(size):
+				for z in range(size):
+					w = WorldBlockCoordinate(world.x + x, world.y + y, world.z + z)
+					if direction.x < 0:
+						w.x -= (size - 1)
+					if direction.y < 0:
+						w.y -= (size - 1)
+					if direction.z < 0:
+						w.z -= (size - 1)
 					
+					chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(w)
+		
+					lock chunks:
+						if chunk_coord in chunks:
+							c as Chunk = chunks[chunk_coord]
+							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
+							chunks_to_update["$c"] = c
+
+		for k in chunks_to_update.Keys:
+			c = chunks_to_update[k]
+			c.generateMesh()
+			lock outgoing_queue:
+				outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
+				
+				
+
 
 	def getBlock(world as WorldBlockCoordinate) as byte:
 		chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
 		
-		lock chunks:
-			if chunk_coord in chunks:
-				c as Chunk = chunks[chunk_coord]
-				return c.getBlock(local_coord.x, local_coord.y, local_coord.z)
-			else:
-				return 0
-				print "Could not find the chunk"
-
+		# lock chunks:
+		if chunk_coord in chunks:
+			c as Chunk = chunks[chunk_coord]
+			return c.getBlock(local_coord.x, local_coord.y, local_coord.z)
+		else:
+			print "Could not find the chunk"			
+			return 0
+		
 
 	def getBlocks(world as WorldBlockCoordinate, size as byte) as (byte, 3):
 		blocks = matrix(byte, size, size, size)
@@ -349,6 +381,22 @@ class DataManager (MonoBehaviour, IChunkGenerator):
 			for y in range(size):
 				for z in range(size):
 					blocks[x, y, z] = getBlock(WorldBlockCoordinate(world.x + x, world.y + y, world.z + z))
+		return blocks
+
+	def getBlocks(world as WorldBlockCoordinate, size as byte, direction as Vector3) as (byte, 3):
+		blocks = matrix(byte, size, size, size)
+		
+		for x in range(size):
+			for y in range(size):
+				for z in range(size):
+					w = WorldBlockCoordinate(world.x + x, world.y + y, world.z + z)
+					if direction.x < 0:
+						w.x -= (size - 1)
+					if direction.y < 0:
+						w.y -= (size - 1)
+					if direction.z < 0:
+						w.z -= (size - 1)
+					blocks[x, y, z] = getBlock(w)
 		return blocks
 
 

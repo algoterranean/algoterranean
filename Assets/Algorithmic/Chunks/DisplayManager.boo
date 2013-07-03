@@ -13,6 +13,7 @@ class DisplayManager (MonoBehaviour):
 	#add_mesh_queue = [] #List[of Chunk]()
 	# remove_mesh_queue = [] #List[of Chunk]()
 	visible_meshes = Dictionary[of WorldBlockCoordinate, Mesh]()
+	terrain_objects = Dictionary[of WorldBlockCoordinate, GameObject]()
 	mesh_mat as Material
 	draw_meshes_directly = false
 
@@ -113,12 +114,20 @@ class DisplayManager (MonoBehaviour):
 		if draw_meshes_directly:
 			visible_meshes.Remove(c.getCoords())
 		else:
-			o = gameObject.Find("$c")
-			if o != null:
+			coords = c.getCoords()
+			if coords in terrain_objects:
+				o = terrain_objects[coords]
+				terrain_objects.Remove(coords)
 				gameObject.Destroy(o)
 				SendMessage("RemoveMesh2", c)
-			else:
-				pass
+				
+
+			# o = gameObject.Find("Terrain/$c")
+			# if o != null:
+			# 	gameObject.Destroy(o)
+			# 	SendMessage("RemoveMesh2", c)
+			# else:
+			# 	pass
 
 	def _create_mesh_object(c as Chunk):
 		# print "DISPLAYING $c"
@@ -136,14 +145,18 @@ class DisplayManager (MonoBehaviour):
 		else:
 			o = GameObject()
 			o.name = "$c"
+			t = gameObject.Find("Terrain").transform
+			coords = c.getCoords()			
+			o.transform.parent = t
+			o.transform.localScale = Vector3(scale, scale, scale)
+			o.transform.position = Vector3(coords.x, coords.y, coords.z)
+			
 			o.AddComponent(MeshFilter)
 			o.AddComponent(MeshRenderer)
 			o.AddComponent(MeshCollider)
 			o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
 			o.GetComponent(MeshFilter).sharedMesh = mesh
 			o.GetComponent(MeshCollider).sharedMesh = mesh
-			coords = c.getCoords()
-			t = gameObject.Find("Terrain").transform
-			o.transform.parent = t
-			o.transform.localScale = Vector3(scale, scale, scale)
-			o.transform.position = Vector3(coords.x, coords.y, coords.z)
+
+			terrain_objects[coords] = o
+

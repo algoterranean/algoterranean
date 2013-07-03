@@ -45,9 +45,13 @@ class BlockOutline2 (MonoBehaviour):
 	# 	if _enabled:
 	# 		pass
 
-	def refreshMesh(world as WorldBlockCoordinate, _size as byte):
+	def refreshMesh(world as WorldBlockCoordinate, _size as byte, normal as Vector3):
 		size = _size
-		blocks = data_manager.getBlocks(world, size)
+		blocks = data_manager.getBlocks(world, size, normal)
+		# for x in range(len(blocks, 0)):
+		# 	for y in range(len(blocks, 1)):
+		# 		for z in range(len(blocks, 2)):
+		# 			print blocks[x, y, z]
 		#matrix(byte, size, size, size)
 		#blocks[0, 0, 0] = 50
 		
@@ -62,7 +66,10 @@ class BlockOutline2 (MonoBehaviour):
 		
 		scale = Settings.ChunkScale #* 1.02/1.0
 		offset = 0 #0.0005/4.0 #scale - Settings.ChunkScale
-		block_object.transform.position = Vector3(position.x - offset, position.y - offset, position.z - offset)
+
+		block_object.transform.position = Vector3(position.x - offset,
+												  position.y - offset,
+												  position.z - offset)
 		block_object.transform.localScale = Vector3(scale, scale, scale)
 		
 
