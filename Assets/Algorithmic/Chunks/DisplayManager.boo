@@ -131,7 +131,7 @@ class DisplayManager (MonoBehaviour):
 
 	def _create_mesh_object(c as Chunk):
 		# print "DISPLAYING $c"
-		scale = Settings.ChunkScale
+		scale = Settings.Chunks.Scale
 		
 		m = c.getMeshData()
 		mesh = Mesh()

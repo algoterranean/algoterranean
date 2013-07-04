@@ -2,7 +2,7 @@ namespace Algorithmic.Chunks
 
 
 def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
-	chunk_size = Settings.ChunkSize
+	chunk_size = Settings.Chunks.Size
 	vertices = List[of Vector3]()
 	uvs = List[of Vector2]()
 	normals = List[of Vector3]()

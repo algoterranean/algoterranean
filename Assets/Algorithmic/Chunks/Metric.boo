@@ -6,23 +6,21 @@ namespace Algorithmic.Chunks
 import System.Collections.Generic
 
 
-class Metric ():
-	
-	max_distance as single
+# class Metric ():
+# 	max_distance as single
 
-	
-	def constructor(max_distance as single):
-		self.max_distance = max_distance
+# 	def constructor(max_distance as single):
+# 		self.max_distance = max_distance
 
-	def tooFar(origin_coords as WorldBlockCoordinate, chunk_coords as WorldBlockCoordinate):
-		#Math.Abs(origin_coords.y - chunk_coords.y) > max_distance or \		
-		if Math.Abs(origin_coords.x - chunk_coords.x) > max_distance or \
-			Math.Abs(origin_coords.y - chunk_coords.y) > (Settings.ChunkSize * Settings.MaxChunksVertical) or \
-			Math.Abs(origin_coords.z - chunk_coords.z) > max_distance:
-			return true
-		return false
+# 	def tooFar(origin_coords as WorldBlockCoordinate, chunk_coords as WorldBlockCoordinate):
+# 		#Math.Abs(origin_coords.y - chunk_coords.y) > max_distance or \		
+# 		if Math.Abs(origin_coords.x - chunk_coords.x) > max_distance or \
+# 			Math.Abs(origin_coords.y - chunk_coords.y) > (Settings.ChunkSize * Settings.MaxChunksVertical) or \
+# 			Math.Abs(origin_coords.z - chunk_coords.z) > max_distance:
+# 			return true
+# 		return false
 
-	# def closeEnough(origin_coords as WorldBlockCoordinate, chunk_coords as WorldBlockCoordinate):
+# 	# def closeEnough(origin_coords as WorldBlockCoordinate, chunk_coords as WorldBlockCoordinate):
 
 
 class ChunkMetric:
@@ -42,7 +40,7 @@ class ChunkMetric:
 
 	def getChunksInRange() as Dictionary[of WorldBlockCoordinate, bool]:
 		l = Dictionary[of WorldBlockCoordinate, bool]()
-		scale = Settings.ChunkScale
+		scale = Settings.Chunks.Scale
 		o_x = System.Math.Floor(origin.x / size / scale)
 		o_y = System.Math.Floor(origin.y / size / scale)
 		o_z = System.Math.Floor(origin.z / size / scale)
@@ -73,7 +71,7 @@ class ChunkMetric:
 		
 
 	def isChunkTooFar(c as WorldBlockCoordinate) as bool:
-		scale = Settings.ChunkScale
+		scale = Settings.Chunks.Scale
 		if Math.Abs(c.x - origin.x)/size * scale > max_x or \
 			Math.Abs(c.y - origin.y)/size * scale > max_y or \
 			Math.Abs(c.z - origin.z)/size *scale > max_z:

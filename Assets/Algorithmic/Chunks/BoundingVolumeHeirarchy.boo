@@ -169,9 +169,9 @@ class BoundingVolumeTree:
 					tree.radius.y == 0.5 and
 					tree.radius.z == 0.5):
 
-					pos = ByteVector3(Math.Abs(tree.center.x - 0.5) % Settings.ChunkSize,
-									  Math.Abs(tree.center.y - 0.5) % Settings.ChunkSize,
-									  Math.Abs(tree.center.z - 0.5) % Settings.ChunkSize)
+					pos = ByteVector3(Math.Abs(tree.center.x - 0.5) % Settings.Chunks.Size,
+									  Math.Abs(tree.center.y - 0.5) % Settings.Chunks.Size,
+									  Math.Abs(tree.center.z - 0.5) % Settings.Chunks.Size)
 					block = chunk.getBlock(pos)
 					if block:
 						# Log.Log("_check")

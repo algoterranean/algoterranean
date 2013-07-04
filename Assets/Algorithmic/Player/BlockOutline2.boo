@@ -34,8 +34,8 @@ class BlockOutline2 (MonoBehaviour):
 		block_object.GetComponent(MeshRenderer).material = Resources.Load("Materials/BlockOutline") as Material
 		block_object.GetComponent(MeshFilter).sharedMesh = mesh
 
-		scale = Settings.ChunkScale * 1.02/1.0
-		offset = scale - Settings.ChunkScale
+		scale = Settings.Chunks.Scale * 1.02/1.0
+		offset = scale - Settings.Chunks.Scale
 		block_object.transform.position = Vector3(position.x - offset, position.y - offset, position.z - offset)
 		block_object.transform.localScale = Vector3(scale, scale, scale)
 		
@@ -64,7 +64,7 @@ class BlockOutline2 (MonoBehaviour):
 
 		block_object.GetComponent(MeshFilter).sharedMesh = mesh
 		
-		scale = Settings.ChunkScale #* 1.02/1.0
+		scale = Settings.Chunks.Scale #* 1.02/1.0
 		offset = 0 #0.0005/4.0 #scale - Settings.ChunkScale
 
 		block_object.transform.position = Vector3(position.x - offset,
@@ -76,7 +76,7 @@ class BlockOutline2 (MonoBehaviour):
 		
 
 	def setPosition(p as Vector3):
-		scale = Settings.ChunkScale #* 1.01/1.0
+		scale = Settings.Chunks.Scale #* 1.01/1.0
 		offset = 0.005/4.0 #scale - Settings.ChunkScale
 		position = Vector3(p.x,
 						   p.y,

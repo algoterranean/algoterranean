@@ -9,19 +9,19 @@ class Utils ():
                     yield x, y, z
 
 	static def whichChunk(coords as Vector3) as WorldBlockCoordinate:
-        size = Settings.ChunkSize cast single
-        scale = Settings.ChunkScale
+        size = Settings.Chunks.Size cast single
+        scale = Settings.Chunks.Scale
         x_pos = Floor(coords.x / size)
         y_pos = Floor(coords.y / size)
         z_pos = Floor(coords.z / size)
-        return WorldBlockCoordinate(x_pos * Settings.ChunkSize * scale,
-									y_pos * Settings.ChunkSize * scale,
-									z_pos * Settings.ChunkSize * scale)
+        return WorldBlockCoordinate(x_pos * Settings.Chunks.Size * scale,
+									y_pos * Settings.Chunks.Size * scale,
+									z_pos * Settings.Chunks.Size * scale)
 
 	static def decomposeCoordinates(world as WorldBlockCoordinate):
-		size = Settings.ChunkSize
+		size = Settings.Chunks.Size
 		size_f = size cast single
-		scale = Settings.ChunkScale
+		scale = Settings.Chunks.Scale
 
 		chunk_x = Floor(world.x / size_f) * size * scale
 		chunk_y = Floor(world.y / size_f) * size * scale
@@ -36,9 +36,9 @@ class Utils ():
 		return chunk_coord, local_coord
 
 	static def decomposeCoordinates(world as Vector3):
-		size = Settings.ChunkSize
+		size = Settings.Chunks.Size
 		size_f = size cast single
-		scale = Settings.ChunkScale
+		scale = Settings.Chunks.Scale
 	
 		chunk_coord = WorldBlockCoordinate(Floor(world.x / size / scale) * size * scale,
 										   Floor(world.y / size / scale) * size * scale,

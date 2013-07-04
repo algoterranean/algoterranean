@@ -36,7 +36,7 @@ class Stats (MonoBehaviour):
 		text_style.font = font_resource
 		text_style.normal.textColor = Color.white
 		text_style.richText = true
-		seed = Settings.Seed
+		seed = Settings.Terrain.Seed
 
 
 	def Update():

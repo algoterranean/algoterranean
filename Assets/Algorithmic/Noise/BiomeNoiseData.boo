@@ -8,8 +8,8 @@ class BiomeNoiseData (INoiseData):
 	highlands_turb as Transformer.Displace
 
 	voronoi_select as Filter.Voronoi
-	seed = Settings.Seed
-	coord_scale = 1/Settings.TerrainDepth * 4
+	seed = Settings.Terrain.Seed
+	coord_scale = 1/Settings.Chunks.Depth * 4
 
 	
 	def constructor():

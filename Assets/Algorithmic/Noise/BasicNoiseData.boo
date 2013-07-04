@@ -8,8 +8,8 @@ class BasicNoiseData (INoiseData):
 	perlin_select as LibNoise.Modifier.Select
 	#seed_generator = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF)
 	#seed_generator.Next()	
-	seed = Settings.Seed
-	coord_scale = 1/Settings.TerrainDepth
+	seed = Settings.Terrain.Seed
+	coord_scale = 1/Settings.Chunks.Depth
 
 	def constructor():
 		## constant0 = Primitive.Constant(0)
@@ -22,10 +22,13 @@ class BasicNoiseData (INoiseData):
 		
 		# basic terrain
 		##############################################################################
-		octave_sum = Filter.SumFractal(Settings.Frequency, Settings.Lacunarity, Settings.Exponent, Settings.OctaveCount)
+		octave_sum = Filter.SumFractal(Settings.Terrain.Frequency,
+									   Settings.Terrain.Lacunarity,
+									   Settings.Terrain.Exponent,
+									   Settings.Terrain.OctaveCount)
 		octave_sum.Primitive3D = Primitive.ImprovedPerlin(seed, NoiseQuality.Standard)
 		gradient = Primitive.MyGradient(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
-		turbulence = Transformer.Turbulence(gradient, Air, octave_sum, Air, Settings.Power)
+		turbulence = Transformer.Turbulence(gradient, Air, octave_sum, Air, Settings.Terrain.Power)
 		perlin_select = Modifier.Select(turbulence, Solid, Air, -1.0, 0.2, 0.0)
 
 

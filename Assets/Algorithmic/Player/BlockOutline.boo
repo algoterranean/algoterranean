@@ -30,7 +30,7 @@ class BlockOutline (MonoBehaviour):
 	lines = []
 
 	def updateLines():
-		scale = Settings.ChunkScale
+		scale = Settings.Chunks.Scale
 		for x in range(len(lines)):
 			l = lines[len(lines) - x - 1] cast VectorLine
 			c = coordinates[x] cast Boo.Lang.List

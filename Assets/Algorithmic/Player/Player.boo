@@ -42,12 +42,18 @@ class Player (MonoBehaviour):
 		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline2")
 		stats = gameObject.Find("Engine/ChunkManager").GetComponent("Stats")
 
+
 	def getOrientation():
 		return orientation
 
 	def Update():
-		scale = Settings.ChunkScale
-		size as single = Settings.ChunkSize
+		# TO DO: should only happen once! FIX!
+		mm = gameObject.Find("Player/KGFMapSystem/photo/photo_plane_0_0")
+		gameObject.Destroy(mm)
+
+		
+		scale = Settings.Chunks.Scale
+		size as single = Settings.Chunks.Size
 		block_found = false
 		chunk_ball.setOrigin(Vector3(transform.position.x, 0, transform.position.z)) #transform.position)
 

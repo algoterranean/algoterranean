@@ -4,7 +4,7 @@ import UnityEngine
 
 class SolidNoiseData (INoiseData):
 	select as Primitive.Constant
-	coord_scale = 1/Settings.TerrainDepth
+	coord_scale = 1/Settings.Chunks.Depth
 	
 	def constructor():
 		select = Primitive.Constant(BLOCK.ROCK cast int)

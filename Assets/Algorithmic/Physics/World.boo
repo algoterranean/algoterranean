@@ -46,7 +46,7 @@ class World (MonoBehaviour):
 		player = gameObject.Find("Player").GetComponent("Player")
 		registry.add(player_particle, forces.gravity)
 		particles.Push(player_particle)
-		player_radius = Settings.PlayerRadius
+		player_radius = Settings.Player.Radius
 		chunk_collider = ChunkCollider(chunk_ball)
 		
 	def FixedUpdate():

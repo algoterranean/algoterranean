@@ -5,8 +5,8 @@ import Algorithmic
 
 class MineralNoiseData (INoiseData):
 	total_select as Modifier.Select
-	seed = Settings.Seed
-	coord_scale = 1/Settings.TerrainDepth
+	seed = Settings.Terrain.Seed
+	coord_scale = 1/Settings.Chunks.Depth
 
 	def constructor():
 		Grass = Primitive.Constant(BLOCK.GRASS cast int)
@@ -23,19 +23,27 @@ class MineralNoiseData (INoiseData):
 		basic_land = Combiner.Max(dirt_select, rock_select)
 		
 
-		lowlands = Filter.SumFractal(Settings.Frequency, Settings.Lacunarity, Settings.Exponent + 0.75, Settings.OctaveCount)
+		lowlands = Filter.SumFractal(Settings.Terrain.Frequency,
+									 Settings.Terrain.Lacunarity,
+									 Settings.Terrain.Exponent + 0.75,
+									 Settings.Terrain.OctaveCount)
 		lowlands.Primitive3D = Primitive.ImprovedPerlin(seed, NoiseQuality.Standard)
 		lowlands_scale = Modifier.ScaleBias(lowlands, 0.5, 0)
 		lowlands_turbulence = Transformer.Displace(basic_land, constant1, lowlands_scale, constant1)
 		#lowlands_turbulence = Transformer.Turbulence(basic_land, Air, lowlands_scale, Air, Settings.Power - 0.2)
 
-		hillcountry = Filter.SumFractal(Settings.Frequency, Settings.Lacunarity, Settings.Exponent + 0.75, Settings.OctaveCount)
+		hillcountry = Filter.SumFractal(Settings.Terrain.Frequency,
+										Settings.Terrain.Lacunarity,
+										Settings.Terrain.Exponent + 0.75,
+										Settings.Terrain.OctaveCount)
 		hillcountry.Primitive3D = Primitive.ImprovedPerlin(seed+111111, NoiseQuality.Standard)
 		hillcountry_scale = Modifier.ScaleBias(hillcountry, 0.8, 0)
 		hillcountry_turbulence = Transformer.Displace(basic_land, constant1, hillcountry_scale, constant1)
 		#hillcountry_turbulence = Transformer.Turbulence(basic_land, Air, hillcountry, Air, Settings.Power + 0.1)
 
-		terrain_type = Filter.SumFractal(0.5, Settings.Lacunarity, Settings.Exponent, Settings.OctaveCount)
+		terrain_type = Filter.SumFractal(0.5, Settings.Terrain.Lacunarity,
+										 Settings.Terrain.Exponent,
+										 Settings.Terrain.OctaveCount)
 		terrain_type.Primitive3D = Primitive.ImprovedPerlin(seed+9943, NoiseQuality.Standard)
 		terrain_type_select = Modifier.Select(terrain_type, lowlands_turbulence, hillcountry_turbulence, 
 						      -1.0, 0.0, 0.0)

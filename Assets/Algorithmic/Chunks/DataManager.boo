@@ -64,7 +64,7 @@ class DataManager (MonoBehaviour):
 
 	def Awake():
 		display_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
-		chunk_size = Settings.ChunkSize
+		chunk_size = Settings.Chunks.Size
 		x = BiomeNoiseData2()
 		#x = SolidNoiseData()
 		block_generator = x.getBlock
@@ -77,8 +77,8 @@ class DataManager (MonoBehaviour):
 		origin = Vector3(0, 0, 0)
 		origin_init = false
 		metric = ChunkMetric(origin,
-							 Settings.ChunkSize,
-							 Settings.MaxChunks, Settings.MaxChunksVertical, Settings.MaxChunks)
+							 Settings.Chunks.Size,
+							 Settings.Chunks.MaxHorizontal, Settings.Chunks.MaxVertical, Settings.Chunks.MaxHorizontal)
 
 		origin_thread = Thread(ThreadStart(_origin_thread))
 		origin_thread.Start()
@@ -98,14 +98,14 @@ class DataManager (MonoBehaviour):
 		mesh_thread2 = Thread(ThreadStart(_mesh_thread))
 		mesh_thread2.Start()
 
-		SendMessage("PerfMaxChunks", Math.Pow(Settings.MaxChunks * 2 + 1, 2) * (Settings.MaxChunksVertical * 2 + 1))
+		SendMessage("PerfMaxChunks", Math.Pow(Settings.Chunks.MaxHorizontal * 2 + 1, 2) * (Settings.Chunks.MaxVertical * 2 + 1))
 		
 
 
 
 	def areNeighborsReady(chunk as Chunk) as bool:
 		c = chunk.getCoords()
-		size = Settings.ChunkSize
+		size = Settings.Chunks.Size
 		e = WorldBlockCoordinate(c.x + size, c.y, c.z)
 		w = WorldBlockCoordinate(c.x - size, c.y, c.z)
 		n = WorldBlockCoordinate(c.x, c.y, c.z + size)
@@ -217,7 +217,8 @@ class DataManager (MonoBehaviour):
 					for coord in in_range.Keys:
 						#print coord
 						if coord not in chunks:
-							chunks.Add(coord, Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator))
+							#chunks.Add(coord, Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator))
+							chunks.Add(coord, Chunk(coord, chunk_size, FormFlatNoiseData().getBlock, mesh_generator))
 
 					to_remove = List[of WorldBlockCoordinate]()
 					for coord in chunks.Keys:
@@ -276,7 +277,7 @@ class DataManager (MonoBehaviour):
 			x1 = Math.Abs(o.x - origin.x)
 			y1 = Math.Abs(o.y - origin.y)
 			z1 = Math.Abs(o.z - origin.z)
-			if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10 * Settings.ChunkScale:
+			if Math.Sqrt(x1 * x1 + y1 * y1 + z1 * z1) < 10 * Settings.Chunks.Scale:
 				return
 
 		origin_init = true

@@ -92,26 +92,26 @@ class Chunk:
 
 	def generateBlocks():
 		if not interpolate:
-			scale = 1/Settings.ChunkScale
-			c_x as long = coords.x / Settings.ChunkScale
-			c_y as long = coords.y / Settings.ChunkScale
-			c_z as long = coords.z / Settings.ChunkScale
+			scale = 1/Settings.Chunks.Scale
+			c_x as long = coords.x / Settings.Chunks.Scale
+			c_y as long = coords.y / Settings.Chunks.Scale
+			c_z as long = coords.z / Settings.Chunks.Scale
 			lock blocks:
 				for x in range(size):
 					for z in range(size):
 						for y in range(size):
 							blocks[x, y, z] = block_generator(x + c_x, y + c_y, z + c_z)
 		else:
-			skip_size_x = Settings.ChunkInterpolateSizeX
+			skip_size_x = Settings.Chunks.Interpolate.X
 			skip_size_f_x = skip_size_x cast single
-			skip_size_y = Settings.ChunkInterpolateSizeY
+			skip_size_y = Settings.Chunks.Interpolate.Y
 			skip_size_f_y = skip_size_y cast single
-			skip_size_z = Settings.ChunkInterpolateSizeZ
+			skip_size_z = Settings.Chunks.Interpolate.Z
 			skip_size_f_z = skip_size_z cast single			
-			scale = 1/Settings.ChunkScale
-			c_x2 as long = coords.x / Settings.ChunkScale
-			c_y2 as long = coords.y / Settings.ChunkScale
-			c_z2 as long = coords.z / Settings.ChunkScale
+			scale = 1/Settings.Chunks.Scale
+			c_x2 as long = coords.x / Settings.Chunks.Scale
+			c_y2 as long = coords.y / Settings.Chunks.Scale
+			c_z2 as long = coords.z / Settings.Chunks.Scale
 
 			for x in range(0, size+1, skip_size_x):
 				for y in range(0, size+1, skip_size_y):
