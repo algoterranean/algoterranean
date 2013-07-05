@@ -105,7 +105,7 @@ class DataManager (MonoBehaviour):
 
 	def areNeighborsReady(chunk as Chunk) as bool:
 		c = chunk.getCoords()
-		size = Settings.Chunks.Size
+		size as int = Settings.Chunks.Size * Settings.Chunks.Scale
 		e = WorldBlockCoordinate(c.x + size, c.y, c.z)
 		w = WorldBlockCoordinate(c.x - size, c.y, c.z)
 		n = WorldBlockCoordinate(c.x, c.y, c.z + size)
@@ -136,15 +136,16 @@ class DataManager (MonoBehaviour):
 
 			if found:
 				if chunk.GenerateBlocks:
-					chunk.GenerateBlocks = false
+
 					t1 = System.DateTime.Now
 					try:
 						chunk.generateBlocks()
+						chunk.GenerateBlocks = false
+						chunk.GenerateMesh = true
 					except e:
 						print "THREAD ERROR $e"
 						
 					t2 = System.DateTime.Now
-					chunk.GenerateMesh = true
 					lock mesh_queue:
 						mesh_queue.Enqueue(chunk)
 					lock outgoing_queue:
@@ -160,7 +161,7 @@ class DataManager (MonoBehaviour):
 			lock mesh_queue:
 				if mesh_queue.Count > 0:
 					chunk = mesh_queue.Dequeue()
-					if chunk.GenerateMesh: #and areNeighborsReady(chunk):
+					if chunk.GenerateMesh and areNeighborsReady(chunk):
 						found = true
 					else:
 						mesh_queue.Enqueue(chunk)
