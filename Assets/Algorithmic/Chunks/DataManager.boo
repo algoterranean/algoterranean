@@ -23,11 +23,11 @@ struct DMMessage:
 		argument = a
 		
 
-struct MeshData2:
-	uvs as (Vector2)
-	vertices as (Vector3)
-	normals as (Vector3)
-	triangles as (int)
+class MeshData2:
+	public uvs as (Vector2)
+	public vertices as (Vector3)
+	public normals as (Vector3)
+	public triangles as (int)
 
 	def constructor(u as (Vector2), v as (Vector3), n as (Vector3), t as (int)):
 		uvs = u
@@ -36,7 +36,15 @@ struct MeshData2:
 		triangles = t
 		
 callable BlockGenerator(world_x as long, world_y as long, world_z as long) as byte
-callable MeshGenerator(blocks as (byte, 3)) as MeshData2
+callable MeshGenerator(blocks as (byte, 3), neighbors as List[of Chunk]) as MeshData2
+
+					   # east_blocks as (byte, 3),
+					   # west_blocks as (byte, 3),
+					   # north_blocks as (byte, 3),
+					   # south_blocks as (byte, 3),
+					   # up_blocks as (byte, 3),
+					   # down_block as (byte, 3)
+					   # ) as MeshData2
 
 
 class DataManager (MonoBehaviour):
@@ -50,6 +58,7 @@ class DataManager (MonoBehaviour):
 	chunk_size as byte
 	block_generator as BlockGenerator
 	mesh_generator as MeshGenerator
+	mesh_physx_generator as MeshGenerator
 
 	origin_thread as Thread
 	block_thread as Thread
@@ -68,7 +77,8 @@ class DataManager (MonoBehaviour):
 		x = BiomeNoiseData2()
 		#x = SolidNoiseData()
 		block_generator = x.getBlock
-		mesh_generator = generateMeshGreedy3
+		mesh_generator = generateMesh
+		mesh_physx_generator = generateMeshGreedy2
 		chunks = Dictionary[of WorldBlockCoordinate, Chunk]()
 		outgoing_queue = Queue[of DMMessage]()
 		block_queue = Queue[of Chunk]()
@@ -90,7 +100,6 @@ class DataManager (MonoBehaviour):
 		block_thread2.Start()
 		
 		
-		
 		# block_thread3 = Thread(ThreadStart(_block_thread))
 		# block_thread3.Start()		
 		mesh_thread = Thread(ThreadStart(_mesh_thread))
@@ -103,7 +112,7 @@ class DataManager (MonoBehaviour):
 
 
 
-	def areNeighborsReady(chunk as Chunk) as bool:
+	def areNeighborsReady(chunk as Chunk, ref neighbors as List[of Chunk]) as bool:
 		c = chunk.getCoords()
 		size as int = Settings.Chunks.Size * Settings.Chunks.Scale
 		e = WorldBlockCoordinate(c.x + size, c.y, c.z)
@@ -112,15 +121,26 @@ class DataManager (MonoBehaviour):
 		s = WorldBlockCoordinate(c.x, c.y, c.z - size)
 		u = WorldBlockCoordinate(c.x, c.y + size, c.z)
 		d = WorldBlockCoordinate(c.x, c.y - size, c.z)
-		lock chunks:
-			if e in chunks and not chunks[e].GenerateBlocks and \
-				w in chunks and not chunks[w].GenerateBlocks and \
-				n in chunks and not chunks[n].GenerateBlocks and \
-				s in chunks and not chunks[s].GenerateBlocks and \
-				u in chunks and not chunks[u].GenerateBlocks and \
-				d in chunks and not chunks[d].GenerateBlocks:
-				return true
-			return false
+		neighbors[0] = (chunks[e] if e in chunks else null)
+		neighbors[1] = (chunks[w] if w in chunks else null)
+		neighbors[2] = (chunks[n] if n in chunks else null)
+		neighbors[3] = (chunks[s] if s in chunks else null)
+		neighbors[4] = (chunks[u] if u in chunks else null)
+		neighbors[5] = (chunks[d] if d in chunks else null)
+		for i in range(6):
+			if neighbors[i] == null or neighbors[i].GenerateBlocks:
+				return false
+		return true
+		
+		# lock chunks:
+		# 	if e in chunks and not chunks[e].GenerateBlocks and \
+		# 		w in chunks and not chunks[w].GenerateBlocks and \
+		# 		n in chunks and not chunks[n].GenerateBlocks and \
+		# 		s in chunks and not chunks[s].GenerateBlocks and \
+		# 		u in chunks and not chunks[u].GenerateBlocks and \
+		# 		d in chunks and not chunks[d].GenerateBlocks:
+		# 		return true
+		# 	return false
 
 		
 	def _block_thread():
@@ -156,24 +176,31 @@ class DataManager (MonoBehaviour):
 
 	def _mesh_thread():
 		chunk as Chunk
+		neighbors = List[of Chunk]()
+		for i in range(6):
+			neighbors.Add(null)
+			
 		while true:
 			found = false
 			lock mesh_queue:
 				if mesh_queue.Count > 0:
 					chunk = mesh_queue.Dequeue()
-					if chunk.GenerateMesh and areNeighborsReady(chunk):
+					if chunk.GenerateMesh and areNeighborsReady(chunk, neighbors):
 						found = true
 					else:
 						mesh_queue.Enqueue(chunk)
 			if found:
-				chunk.GenerateMesh = false
-				t1 = System.DateTime.Now
-				chunk.generateMesh()
-				t2 = System.DateTime.Now
-				print "CREATING $chunk"
-				lock outgoing_queue:
-					outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
-					outgoing_queue.Enqueue(DMMessage("PerfMeshCreation", (t2 - t1).TotalMilliseconds))
+				try:
+					chunk.GenerateMesh = false
+					t1 = System.DateTime.Now
+					chunk.generateMesh(neighbors)
+					t2 = System.DateTime.Now
+					#print "CREATING $chunk"
+					lock outgoing_queue:
+						outgoing_queue.Enqueue(DMMessage("CreateMesh", chunk))
+						outgoing_queue.Enqueue(DMMessage("PerfMeshCreation", (t2 - t1).TotalMilliseconds))
+				except e:
+					print "THREAD ERROR $e"
 			else:
 				Thread.Sleep(10)
 
@@ -219,7 +246,7 @@ class DataManager (MonoBehaviour):
 						#print coord
 						if coord not in chunks:
 							#chunks.Add(coord, Chunk(coord, chunk_size, BiomeNoiseData2().getBlock, mesh_generator))
-							chunks.Add(coord, Chunk(coord, chunk_size, FormFlatNoiseData().getBlock, mesh_generator))
+							chunks.Add(coord, Chunk(coord, chunk_size, FormFlatNoiseData().getBlock, mesh_generator, mesh_physx_generator))
 
 					to_remove = List[of WorldBlockCoordinate]()
 					for coord in chunks.Keys:
@@ -309,7 +336,7 @@ class DataManager (MonoBehaviour):
 			if chunk_coord in chunks:
 				c as Chunk = chunks[chunk_coord]
 				c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
-				c.generateMesh()
+				# c.generateMesh()
 				lock outgoing_queue:
 					outgoing_queue.Enqueue(DMMessage("RefreshMesh",c))
 			else:
@@ -328,11 +355,11 @@ class DataManager (MonoBehaviour):
 							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
 							chunks_to_update["$c"] = c
 
-		for k in chunks_to_update.Keys:
-			c = chunks_to_update[k]
-			c.generateMesh()
-			lock outgoing_queue:
-				outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
+		# for k in chunks_to_update.Keys:
+		# 	c = chunks_to_update[k]
+		# 	c.generateMesh()
+		# 	lock outgoing_queue:
+		# 		outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
 
 
 	def setBlocks(world as WorldBlockCoordinate, size as byte, direction as Vector3, block as byte):
@@ -356,11 +383,11 @@ class DataManager (MonoBehaviour):
 							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
 							chunks_to_update["$c"] = c
 
-		for k in chunks_to_update.Keys:
-			c = chunks_to_update[k]
-			c.generateMesh()
-			lock outgoing_queue:
-				outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
+		# for k in chunks_to_update.Keys:
+		# 	c = chunks_to_update[k]
+		# 	c.generateMesh()
+		# 	lock outgoing_queue:
+		# 		outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
 				
 				
 

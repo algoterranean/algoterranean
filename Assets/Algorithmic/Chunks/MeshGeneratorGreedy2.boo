@@ -1,7 +1,8 @@
 namespace Algorithmic.Chunks
 
-
-def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
+def generateMeshGreedy2(blocks as (byte, 3),
+						neighbors as System.Collections.Generic.List[of Chunk]) as MeshData2:
+	
 	chunk_size = Settings.Chunks.Size
 	vertices = List[of Vector3]()
 	uvs = List[of Vector2]()
@@ -24,11 +25,13 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 			for z as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if x == 0:
-					block_west = BLOCK.AIR
+					block_west = neighbors[1].getBlock(chunk_size-1, y, z)					
+					#block_west = BLOCK.AIR
 				else:
 					block_west = blocks[x - 1, y, z]
 				if x == chunk_size - 1:
-					block_east = BLOCK.AIR
+					block_east = neighbors[0].getBlock(0, y, z)					
+					#block_east = BLOCK.AIR
 				else:
 					block_east = blocks[x + 1, y, z]
 				
@@ -78,11 +81,11 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 					triangles.Push(vertice_count-2)
 					triangles.Push(vertice_count-1)
 					triangles.Push(vertice_count-4)
-					normals.Push(Vector3(1, 0, 0))
-					normals.Push(Vector3(1, 0, 0))
-					normals.Push(Vector3(1, 0, 0))
-					normals.Push(Vector3(1, 0, 0))
-					_add_uvs(0.6, 0)
+					# normals.Push(Vector3(1, 0, 0))
+					# normals.Push(Vector3(1, 0, 0))
+					# normals.Push(Vector3(1, 0, 0))
+					# normals.Push(Vector3(1, 0, 0))
+					# _add_uvs(0.6, 0)
 
 
 					for y3 in range(y, h+y):
@@ -129,11 +132,11 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 					triangles.Push(vertice_count-2)
 					triangles.Push(vertice_count-1)
 					triangles.Push(vertice_count-4)
-					normals.Push(Vector3(-1, 0, 0))
-					normals.Push(Vector3(-1, 0, 0))
-					normals.Push(Vector3(-1, 0, 0))
-					normals.Push(Vector3(-1, 0, 0))
-					_add_uvs(0.6, 0)
+					# normals.Push(Vector3(-1, 0, 0))
+					# normals.Push(Vector3(-1, 0, 0))
+					# normals.Push(Vector3(-1, 0, 0))
+					# normals.Push(Vector3(-1, 0, 0))
+					# _add_uvs(0.6, 0)
 
 
 					for y3 in range(y, h+y):
@@ -150,11 +153,13 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 			for x as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if z == 0:
-					block_south = BLOCK.AIR
+					block_south = neighbors[3].getBlock(x, y, chunk_size-1)					
+					#block_south = BLOCK.AIR
 				else:
 					block_south = blocks[x, y, z-1]
 				if z == chunk_size - 1:
-					block_north = BLOCK.AIR
+					block_north = neighbors[2].getBlock(x, y, 0)					
+					#block_north = BLOCK.AIR
 				else:
 					block_north = blocks[x, y, z+1]
 				
@@ -205,11 +210,11 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 					triangles.Push(vertice_count-2)
 					triangles.Push(vertice_count-1)
 					triangles.Push(vertice_count-4)
-					normals.Push(Vector3(0, 0, -1))
-					normals.Push(Vector3(0, 0, -1))
-					normals.Push(Vector3(0, 0, -1))
-					normals.Push(Vector3(0, 0, -1))
-					_add_uvs(0.6, 0)
+					# normals.Push(Vector3(0, 0, -1))
+					# normals.Push(Vector3(0, 0, -1))
+					# normals.Push(Vector3(0, 0, -1))
+					# normals.Push(Vector3(0, 0, -1))
+					# _add_uvs(0.6, 0)
 
 
 					for y3 in range(y, h+y):
@@ -255,11 +260,11 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 					triangles.Push(vertice_count-2)
 					triangles.Push(vertice_count-1)
 					triangles.Push(vertice_count-4)
-					normals.Push(Vector3(0, 0, 1))
-					normals.Push(Vector3(0, 0, 1))
-					normals.Push(Vector3(0, 0, 1))
-					normals.Push(Vector3(0, 0, 1))
-					_add_uvs(0.6, 0)
+					# normals.Push(Vector3(0, 0, 1))
+					# normals.Push(Vector3(0, 0, 1))
+					# normals.Push(Vector3(0, 0, 1))
+					# normals.Push(Vector3(0, 0, 1))
+					# _add_uvs(0.6, 0)
 
 
 					for y3 in range(y, h+y):
@@ -276,11 +281,13 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 			for z as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if y == 0:
-					block_down = BLOCK.AIR
+					block_down = neighbors[5].getBlock(x, chunk_size-1, z)					
+					#block_down = BLOCK.AIR
 				else:
 					block_down = blocks[x, y-1, z]
 				if y == chunk_size - 1:
-					block_up = BLOCK.AIR
+					block_up = neighbors[4].getBlock(x, 0, z)										
+					#block_up = BLOCK.AIR
 				else:
 					block_up = blocks[x, y+1, z]
 				
@@ -331,11 +338,11 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 					triangles.Push(vertice_count-2)
 					triangles.Push(vertice_count-1)
 					triangles.Push(vertice_count-4)
-					normals.Push(Vector3(0, 1, 0))
-					normals.Push(Vector3(0, 1, 0))
-					normals.Push(Vector3(0, 1, 0))
-					normals.Push(Vector3(0, 1, 0))
-					_add_uvs(0.6, 0)
+					# normals.Push(Vector3(0, 1, 0))
+					# normals.Push(Vector3(0, 1, 0))
+					# normals.Push(Vector3(0, 1, 0))
+					# normals.Push(Vector3(0, 1, 0))
+					# _add_uvs(0.6, 0)
 
 					for x3 in range(x, x+h):
 						for z3 in range(i, j+1):
@@ -379,11 +386,11 @@ def generateMeshGreedy2(blocks as (byte, 3)) as MeshData2:
 					triangles.Push(vertice_count-2)
 					triangles.Push(vertice_count-1)
 					triangles.Push(vertice_count-4)
-					normals.Push(Vector3(0, -1, 0))
-					normals.Push(Vector3(0, -1, 0))
-					normals.Push(Vector3(0, -1, 0))
-					normals.Push(Vector3(0, -1, 0))
-					_add_uvs(0.6, 0)
+					# normals.Push(Vector3(0, -1, 0))
+					# normals.Push(Vector3(0, -1, 0))
+					# normals.Push(Vector3(0, -1, 0))
+					# normals.Push(Vector3(0, -1, 0))
+					# _add_uvs(0.6, 0)
 
 					for x3 in range(x, x+h):
 						for z3 in range(i, j+1):

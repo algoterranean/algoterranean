@@ -134,19 +134,22 @@ class DisplayManager (MonoBehaviour):
 		scale = Settings.Chunks.Scale
 		
 		m = c.getMeshData()
+		m2 = c.getMeshPhysXData()
 		mesh = Mesh()
 		mesh.vertices = m.vertices
 		mesh.triangles = m.triangles
 		mesh.normals = m.normals
 		mesh.uv = m.uvs
-		#print "TRIANGLE COUNT: $(len(m.triangles)/3)"
+		mesh_physx = Mesh()
+		mesh_physx.vertices = m2.vertices
+		mesh_physx.triangles = m2.triangles
 		if draw_meshes_directly:
 			visible_meshes[c.getCoords()] = mesh
 		else:
 			o = GameObject()
 			o.name = "$c"
 			t = gameObject.Find("Terrain").transform
-			coords = c.getCoords()			
+			coords = c.getCoords()
 			o.transform.parent = t
 			o.transform.localScale = Vector3(scale, scale, scale)
 			o.transform.position = Vector3(coords.x, coords.y, coords.z)
@@ -154,9 +157,10 @@ class DisplayManager (MonoBehaviour):
 			o.AddComponent(MeshFilter)
 			o.AddComponent(MeshRenderer)
 			o.AddComponent(MeshCollider)
-			o.GetComponent(MeshRenderer).material = Resources.Load("Materials/Measure") as Material
+			o.GetComponent(MeshRenderer).material = mesh_mat #Resources.Load("Materials/Measure") as Material
 			o.GetComponent(MeshFilter).sharedMesh = mesh
-			o.GetComponent(MeshCollider).sharedMesh = mesh
+			o.GetComponent(MeshCollider).sharedMesh = mesh_physx
 
 			terrain_objects[coords] = o
+			c.clearMeshData()
 

@@ -1,6 +1,8 @@
 namespace Algorithmic.Chunks
 
-def generateMesh(blocks as (byte, 3)) as MeshData2:
+def generateMesh(blocks as (byte, 3),
+				 neighbors as System.Collections.Generic.List[of Chunk]) as MeshData2:
+	
 	chunk_size = len(blocks, 0) #Settings.ChunkSize
 	#size = chunk.getSize()
 	vertice_size = 0
@@ -82,42 +84,48 @@ def generateMesh(blocks as (byte, 3)) as MeshData2:
 				block = blocks[x, y, z] #chunk.getBlock(ByteVector3(x, y, z))
 
 				if x == 0: #and west_neighbor.isNull():
-					block_west = BLOCK.AIR
+					block_west = neighbors[1].getBlock(chunk_size-1, y, z)
+					#block_west = BLOCK.AIR
 				# elif x == 0 and not west_neighbor.isNull():
 				# 	block_west = west_neighbor.getBlock(ByteVector3(chunk_size-1, y, z))
 				else:
 					block_west = blocks[x-1, y, z] #chunk.getBlock(ByteVector3(x-1, y, z))
 
 				if x == chunk_size -1: #and east_neighbor.isNull():
-					block_east = BLOCK.AIR
+					block_east = neighbors[0].getBlock(0, y, z)
+					#block_east = BLOCK.AIR
 				# elif x == chunk_size - 1 and not east_neighbor.isNull():
 				# 	block_east = east_neighbor.getBlock(ByteVector3(0, y, z))
 				else:
 					block_east = blocks[x+1, y, z] #chunk.getBlock(ByteVector3(x+1, y ,z))
 
 				if z == 0: #and south_neighbor.isNull():
-					block_south = BLOCK.AIR
+					block_south = neighbors[3].getBlock(x, y, chunk_size-1)
+					#block_south = BLOCK.AIR
 				# elif z == 0 and not south_neighbor.isNull():
 				# 	block_south = south_neighbor.getBlock(ByteVector3(x, y, chunk_size-1))
 				else:
 					block_south = blocks[x, y, z-1] #chunk.getBlock(ByteVector3(x, y, z-1))
 
 				if z == chunk_size-1: #and north_neighbor.isNull():
-					block_north = BLOCK.AIR
+					block_north = neighbors[2].getBlock(x, y, 0)
+					#block_north = BLOCK.AIR
 				# elif z == chunk_size-1 and not north_neighbor.isNull():
 				# 	block_north = north_neighbor.getBlock(ByteVector3(x, y, 0))
 				else:
 					block_north = blocks[x, y, z+1] #chunk.getBlock(ByteVector3(x, y, z+1))
 
 				if y == 0: #and down_neighbor.isNull():
-					block_down = BLOCK.AIR
+					block_down = neighbors[5].getBlock(x, chunk_size-1, z)
+					#block_down = BLOCK.AIR
 				# elif y == 0 and not down_neighbor.isNull():
 				# 	block_down = down_neighbor.getBlock(ByteVector3(x, chunk_size-1, z))
 				else:
 					block_down = blocks[x, y-1, z] #chunk.getBlock(ByteVector3(x, y-1, z))
 
 				if y == chunk_size-1: #and up_neighbor.isNull():
-					block_up = BLOCK.AIR
+					block_up = neighbors[4].getBlock(x, 0, z)
+					#block_up = BLOCK.AIR
 				# elif y == chunk_size-1 and not up_neighbor.isNull():
 				# 	block_up = up_neighbor.getBlock(ByteVector3(x, 0, z))
 				else:

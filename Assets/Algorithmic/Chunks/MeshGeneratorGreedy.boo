@@ -1,7 +1,10 @@
 namespace Algorithmic.Chunks
+#import System.Collections.Generic
 
 
-def generateMeshGreedy(blocks as (byte, 3)) as MeshData2:
+def generateMeshGreedy(blocks as (byte, 3),
+					   neighbors as System.Collections.Generic.List[of Chunk]) as MeshData2:
+	
 	chunk_size = Settings.Chunks.Size
 	vertices = List[of Vector3]()
 	uvs = List[of Vector2]()

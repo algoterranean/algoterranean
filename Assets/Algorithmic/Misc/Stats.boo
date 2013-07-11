@@ -37,6 +37,7 @@ class Stats (MonoBehaviour):
 		text_style.normal.textColor = Color.white
 		text_style.richText = true
 		seed = Settings.Terrain.Seed
+		InvokeRepeating("_update_text", 2, 1.0)
 
 
 	def Update():
@@ -83,7 +84,8 @@ class Stats (MonoBehaviour):
 			GUI.Label(Rect(350, 25, 400, 200), t2, text_style)
 
 	def FixedUpdate():
-		_update_text()
+		pass
+		#_update_text()
 
 	def PerfMaxChunks(i as int):
 		chunks_max = i
