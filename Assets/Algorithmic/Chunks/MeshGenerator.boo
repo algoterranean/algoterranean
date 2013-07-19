@@ -288,10 +288,10 @@ def generateMesh(chunk as Chunk,
 				l_x = x - 1
 			light_chunk.UpdateHash()
 			# print "LIGHT CHECK: $light_chunk, z: $z, local: $l_x, $l_y, $l_z, coords: $coords"
-			if direction == 'NORTH':
-				light_a = neighbors[light_chunk].getLight(l_x, l_y, l_z)
-			else:
-				light_c = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# if direction == 'NORTH':
+			# 	light_a = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# else:
+			light_c = neighbors[light_chunk].getLight(l_x, l_y, l_z)
 
 			light_chunk.x = coords.x
 			l_x = x
@@ -305,19 +305,19 @@ def generateMesh(chunk as Chunk,
 				light_chunk.x = coords.x
 				l_x = x + 1
 			light_chunk.UpdateHash()
-			if direction == 'NORTH':
-				light_c = neighbors[light_chunk].getLight(l_x, l_y, l_z)
-			else:
-				light_a = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# if direction == 'NORTH':
+			# 	light_c = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# else:
+			light_a = neighbors[light_chunk].getLight(l_x, l_y, l_z)
 
 			# ROW 2
 			light_chunk.y = coords.y
 			l_y = y
 			light_chunk.UpdateHash()
-			if direction == 'NORTH':
-				light_f = neighbors[light_chunk].getLight(l_x, l_y, l_z)
-			else:
-				light_d = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# if direction == 'NORTH':
+			# 	light_f = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# else:
+			light_d = neighbors[light_chunk].getLight(l_x, l_y, l_z)
 
 			light_chunk.x = coords.x
 			l_x = x
@@ -332,10 +332,10 @@ def generateMesh(chunk as Chunk,
 				light_chunk.x = coords.x
 				l_x = x - 1
 			light_chunk.UpdateHash()
-			if direction == 'NORTH':
-				light_d = neighbors[light_chunk].getLight(l_x, l_y, l_z)
-			else:
-				light_f = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# if direction == 'NORTH':
+			# 	light_d = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# else:
+			light_f = neighbors[light_chunk].getLight(l_x, l_y, l_z)
 
 			# ROW 3
 			if y == 0:
@@ -345,11 +345,11 @@ def generateMesh(chunk as Chunk,
 				light_chunk.y = coords.y
 				l_y = y - 1
 			light_chunk.UpdateHash()
-			if direction == 'NORTH':
-				light_g = neighbors[light_chunk].getLight(l_x, l_y, l_z)
-			else:
-				light_i = neighbors[light_chunk].getLight(l_x, l_y, l_z)
-
+			# if direction == 'NORTH':
+			# 	light_g = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# else:
+			light_i = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+				
 			light_chunk.x = coords.x
 			l_x = x
 			light_chunk.UpdateHash()
@@ -363,10 +363,10 @@ def generateMesh(chunk as Chunk,
 				light_chunk.x = coords.x
 				l_x = x + 1
 			light_chunk.UpdateHash()
-			if direction == 'NORTH':
-				light_i = neighbors[light_chunk].getLight(l_x, l_y, l_z)
-			else:
-				light_g = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# if direction == 'NORTH':
+			# 	light_i = neighbors[light_chunk].getLight(l_x, l_y, l_z)
+			# else:
+			light_g = neighbors[light_chunk].getLight(l_x, l_y, l_z)
 
 		point_k = (light_e + light_f + light_h + light_i) / 4.0 / 255.0
 		point_j = (light_e + light_d + light_h + light_g) / 4.0 / 255.0
