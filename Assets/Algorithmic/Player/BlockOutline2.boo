@@ -8,7 +8,7 @@ class BlockOutline2 (MonoBehaviour):
 
 	blocks as (byte, 3)
 	mesh_generator = generateMeshOutline
-	mesh_data as MeshData2
+	mesh_data as MeshData
 	mesh as Mesh
 	block_object as GameObject
 	data_manager as DataManager

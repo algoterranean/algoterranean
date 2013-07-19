@@ -3,7 +3,7 @@ namespace Algorithmic.Chunks
 import UnityEngine
 
 
-class MeshData (IChunkMeshData):
+class MeshData_OLD (IChunkMeshData):
 	data_manager as IChunkGenerator
 	chunk as IChunkBlockData
 	mesh_calculated as bool

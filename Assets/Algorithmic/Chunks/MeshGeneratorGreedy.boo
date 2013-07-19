@@ -2,14 +2,15 @@ namespace Algorithmic.Chunks
 #import System.Collections.Generic
 
 
-def generateMeshGreedy(blocks as (byte, 3),
-					   neighbors as System.Collections.Generic.List[of Chunk]) as MeshData2:
-	
+def generateMeshGreedy(chunk as Chunk,
+					   neighbors as System.Collections.Generic.List[of Chunk]) as MeshData:
+	blocks = chunk.Blocks
 	chunk_size = Settings.Chunks.Size
 	vertices = List[of Vector3]()
 	uvs = List[of Vector2]()
 	normals = List[of Vector3]()
 	triangles = List[of int]()
+	lights = List[of Color]()
 
 	def _add_uvs(x as single, y as single):
 		# give x, y coordinates in (0-9) by (0-9)
@@ -354,10 +355,11 @@ def generateMeshGreedy(blocks as (byte, 3),
 	# print "Vert LEN: $(len(vertices))"
 	# print "Uvs LEN: $(len(uvs))"
 	# print "Normals LEN: $(len(normals))"		
-	m = MeshData2(uvs.ToArray(),
-				  vertices.ToArray(),
-				  normals.ToArray(),
-				  triangles.ToArray())
+	m = MeshData(uvs.ToArray(),
+				 vertices.ToArray(),
+				 normals.ToArray(),
+				 triangles.ToArray(),
+				 lights.ToArray())
 	return m
 					
 				

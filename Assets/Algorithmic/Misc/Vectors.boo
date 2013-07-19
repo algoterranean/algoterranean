@@ -33,6 +33,10 @@ struct WorldBlockCoordinate (IComparable):
 		else:
 			return 0
 
+	def UpdateHash():
+		hash = (x * 907) ^ (y * 241) ^ z
+		
+
 struct ChunkBlockCoordinate(IComparable):
 	x as byte
 	y as byte

@@ -3,35 +3,43 @@ namespace Algorithmic.Chunks
 import Algorithmic.Physics
 import System.Collections.Generic
 
+# Chunk stores all of the block and light data for a chunk.
+# it is also responsible for generating this data via the provided
+# generator functions when necessary.
 class Chunk:
 	coords as WorldBlockCoordinate
+	
 	size as byte
 	blocks as (byte, 3)
 	lights as (byte, 3)
-	mesh_data as MeshData2
-	mesh_physx_data as MeshData2
-	block_generator as BlockGenerator
+	
+	mesh_data as MeshData
+	mesh_physx_data as MeshData
+	
+	block_generator as callable # TODO: block generator is actually getValue(x, y, z) from a Noise module
 	mesh_generator as MeshGenerator
 	mesh_physx_generator as MeshGenerator
-	flag_gen_noise as bool
-	needs_work as bool
+
 	_generate_lights as bool
 	_generate_blocks as bool
 	_generate_mesh as bool
+	
 	interpolate = true
 	
 
-	def constructor(c as WorldBlockCoordinate, s as byte, b_func as BlockGenerator, m_func as MeshGenerator, m_physx_func as MeshGenerator):
+	# coordinates, size, block generator, visual mesh generator, physics mesh generator
+	def constructor(c as WorldBlockCoordinate,
+					s as byte,
+					b_func as object,
+					m_func as MeshGenerator,
+					m_physx_func as MeshGenerator):
 		coords = c
 		size = s
 		block_generator = b_func
 		mesh_generator = m_func
 		mesh_physx_generator = m_physx_func
 		blocks = matrix(byte, size+1, size+1, size+1) # +1 for last block necessary for interpolation
-		lights = matrix(byte, size, size, size)
-		needs_work = true
-		flag_gen_noise = true
-		#flag_gen_noise = true
+		lights = matrix(byte, size+1, size+1, size+1)
 		_generate_blocks = true
 		_generate_mesh = true
 		_generate_lights = true
@@ -39,19 +47,6 @@ class Chunk:
 
 	override def ToString() as string:
 		return "$coords"
-
-	FlagGenBlocks as bool:
-		get:
-			return flag_gen_noise
-		set:
-			flag_gen_noise = value
-
-	NeedsWork as bool:
-		get:
-			return needs_work
-		set:
-			lock needs_work:
-				needs_work = value
 
 	GenerateBlocks as bool:
 		get:
@@ -71,6 +66,19 @@ class Chunk:
 		set:
 			_generate_lights = value
 
+	Blocks as (byte, 3):
+		get:
+			return blocks
+
+	Lights as (byte, 3):
+		get:
+			return lights
+
+
+	# this is used to inform the GC that it can reclaim this memory
+	# and is called by the Display Manager once it has consumed this
+	# data into a Mesh format. obviously this means that there can
+	# be only one object handling this chunk's mesh (for now).
 	def clearMeshData():
 		mesh_data = null
 		mesh_physx_data = null
@@ -79,10 +87,18 @@ class Chunk:
 	def getBlock(x as byte, y as byte, z as byte) as byte:
 		lock blocks:
 			return blocks[x, y, z]
+
+	def getLight(x as byte, y as byte, z as byte) as byte:
+		lock lights:
+			return lights[x, y, z]
 		
 	def setBlock(x as byte, y as byte, z as byte, val as byte):
 		lock blocks:
 			blocks[x, y, z] = val
+
+	def setLight(x as byte, y as byte, z as byte, val as byte):
+		lock lights:
+			lights[x, y, z] = val
 
 
 	def trilinear_interpolation(v000 as byte, v100 as byte, v010 as byte,
@@ -105,7 +121,9 @@ class Chunk:
 		else:
 			return block1
 
-
+	# set the lights for any solid block to 0 and any transparent block
+	# (that is, AIR) to full brightness. this needs to be called before
+	# any flood-fill algorithms for smooth lighting for performance reasons.
 	def initializeLights():
 		for x in range(size):
 			for y in range(size):
@@ -115,7 +133,10 @@ class Chunk:
 					else:
 						lights[x, y, z] = 255
 
-
+	# generate all of the blocks for this chunk using the provided
+	# block generator function. either generate each block directly or
+	# use interpolation to generate the "corner" blocks and then interpolate
+	# between the corners for performance reasons.
 	def generateBlocks():
 		if not interpolate:
 			scale = 1/Settings.Chunks.Scale
@@ -139,11 +160,13 @@ class Chunk:
 			c_y2 as long = coords.y / Settings.Chunks.Scale
 			c_z2 as long = coords.z / Settings.Chunks.Scale
 
+			# set all of the corner blocks necessary for interpolation
 			for x in range(0, size+1, skip_size_x):
 				for y in range(0, size+1, skip_size_y):
 					for z in range(0, size+1, skip_size_z):
 						blocks[x, y, z] = block_generator(x + c_x2, y + c_y2, z + c_z2)
-
+						
+			# generate all the other blocks via interpolation
 			for x in range(size+1):
 				for y in range(size+1):
 					for z in range(size+1):
@@ -160,8 +183,7 @@ class Chunk:
 							y_1 = (y if y == size else y_0 + skip_size_y)
 							z_1 = (z if z == size else z_0 + skip_size_z)
 
-							# print x, y, z, x_0, y_0, z_0, x_1, y_1, z_1
-
+							# these are the values for all of the "corners"
 							v000 = blocks[x_0, y_0, z_0]
 							v100 = blocks[x_1, y_0, z_0]
 							v010 = blocks[x_0, y_1, z_0]
@@ -184,14 +206,18 @@ class Chunk:
 
 
 
-	def generateMesh(neighbors as List[of Chunk]):
-		mesh_data = mesh_generator(blocks, neighbors)
-		mesh_physx_data = mesh_physx_generator(blocks, neighbors)
+	# use the provided mesh generator functions to generate the physics mesh
+	# and the display mesh.
+	def generateMesh(neighbors as Dictionary[of WorldBlockCoordinate, Chunk]):
+		mesh_data = mesh_generator(self, neighbors)
+		mesh_physx_data = mesh_physx_generator(self, neighbors)
 
-	def getMeshData() as MeshData2:
+	# used by DisplayManager
+	def getMeshData() as MeshData:
 		return mesh_data
 
-	def getMeshPhysXData() as MeshData2:
+	# used by DisplayManager
+	def getMeshPhysXData() as MeshData:
 		return mesh_physx_data	
 
 	def getCoords() as WorldBlockCoordinate:

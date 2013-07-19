@@ -1,6 +1,6 @@
 namespace Algorithmic.Chunks
 
-def generateMeshOutline(blocks as (byte, 3)) as MeshData2:
+def generateMeshOutline(blocks as (byte, 3)) as MeshData:
 	chunk_size = len(blocks, 0) #Settings.ChunkSize
 	#size = chunk.getSize()
 	vertice_size = 0
@@ -14,6 +14,7 @@ def generateMeshOutline(blocks as (byte, 3)) as MeshData2:
 	uvs = List[of Vector2]()
 	normals = List[of Vector3]()
 	triangles = List[of int]()
+	lights = List[of Color]()
 	vertice_count = 0
 	
 
@@ -164,10 +165,11 @@ def generateMeshOutline(blocks as (byte, 3)) as MeshData2:
 					## 	aabb_count += 1
 
 	t2 = DateTime.Now
-	m = MeshData2(uvs.ToArray(),
-				  vertices.ToArray(),
-				  normals.ToArray(),
-				  triangles.ToArray())
+	m = MeshData(uvs.ToArray(),
+				 vertices.ToArray(),
+				 normals.ToArray(),
+				 triangles.ToArray(),
+				 lights.ToArray())
 	t3 = DateTime.Now
 	#print "Finished mesh in $(t2-t1), $(t3-t2)"
 	return m

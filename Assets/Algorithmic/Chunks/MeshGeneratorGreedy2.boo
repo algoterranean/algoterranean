@@ -1,13 +1,14 @@
 namespace Algorithmic.Chunks
 
-def generateMeshGreedy2(blocks as (byte, 3),
-						neighbors as System.Collections.Generic.List[of Chunk]) as MeshData2:
-	
+def generateMeshGreedy2(chunk as Chunk,
+						neighbors as System.Collections.Generic.Dictionary[of WorldBlockCoordinate, Chunk]) as MeshData:
+	blocks = chunk.Blocks
 	chunk_size = Settings.Chunks.Size
 	vertices = List[of Vector3]()
 	uvs = List[of Vector2]()
 	normals = List[of Vector3]()
 	triangles = List[of int]()
+	lights = List[of Color]()
 
 	def _add_uvs(x as single, y as single):
 		# give x, y coordinates in (0-9) by (0-9)
@@ -15,6 +16,23 @@ def generateMeshGreedy2(blocks as (byte, 3),
 		uvs.Push(Vector2(x + 0.01, 1.0 - y - 0.01))
 		uvs.Push(Vector2(x - 0.01 + 0.1, 1.0 - y - 0.01))
 		uvs.Push(Vector2(x - 0.01 + 0.1, 1.0 - y - 0.1 + 0.01))
+
+	coords = chunk.getCoords()
+	offset = Settings.Chunks.Size * Settings.Chunks.Scale
+	w = WorldBlockCoordinate(coords.x - offset, coords.y, coords.z)
+	e = WorldBlockCoordinate(coords.x + offset, coords.y, coords.z)
+	n = WorldBlockCoordinate(coords.x, coords.y, coords.z + offset)
+	s = WorldBlockCoordinate(coords.x, coords.y, coords.z - offset)
+	u = WorldBlockCoordinate(coords.x, coords.y + offset, coords.z)
+	d = WorldBlockCoordinate(coords.x, coords.y - offset, coords.z)
+	n_w = neighbors[w]
+	n_e = neighbors[e]
+	n_n = neighbors[n]
+	n_s = neighbors[s]
+	n_u = neighbors[u]
+	n_d = neighbors[d]
+
+
 
 	# do the west and east pass
 	vertice_count = 0
@@ -25,12 +43,12 @@ def generateMeshGreedy2(blocks as (byte, 3),
 			for z as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if x == 0:
-					block_west = neighbors[1].getBlock(chunk_size-1, y, z)					
+					block_west = n_w.getBlock(chunk_size-1, y, z)					
 					#block_west = BLOCK.AIR
 				else:
 					block_west = blocks[x - 1, y, z]
 				if x == chunk_size - 1:
-					block_east = neighbors[0].getBlock(0, y, z)					
+					block_east = n_e.getBlock(0, y, z)					
 					#block_east = BLOCK.AIR
 				else:
 					block_east = blocks[x + 1, y, z]
@@ -153,12 +171,12 @@ def generateMeshGreedy2(blocks as (byte, 3),
 			for x as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if z == 0:
-					block_south = neighbors[3].getBlock(x, y, chunk_size-1)					
+					block_south = n_s.getBlock(x, y, chunk_size-1)					
 					#block_south = BLOCK.AIR
 				else:
 					block_south = blocks[x, y, z-1]
 				if z == chunk_size - 1:
-					block_north = neighbors[2].getBlock(x, y, 0)					
+					block_north = n_n.getBlock(x, y, 0)					
 					#block_north = BLOCK.AIR
 				else:
 					block_north = blocks[x, y, z+1]
@@ -281,12 +299,12 @@ def generateMeshGreedy2(blocks as (byte, 3),
 			for z as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if y == 0:
-					block_down = neighbors[5].getBlock(x, chunk_size-1, z)					
+					block_down = n_d.getBlock(x, chunk_size-1, z)
 					#block_down = BLOCK.AIR
 				else:
 					block_down = blocks[x, y-1, z]
 				if y == chunk_size - 1:
-					block_up = neighbors[4].getBlock(x, 0, z)										
+					block_up = n_u.getBlock(x, 0, z)
 					#block_up = BLOCK.AIR
 				else:
 					block_up = blocks[x, y+1, z]
@@ -401,10 +419,11 @@ def generateMeshGreedy2(blocks as (byte, 3),
 							
 
 			
-	m = MeshData2(uvs.ToArray(),
-				  vertices.ToArray(),
-				  normals.ToArray(),
-				  triangles.ToArray())
+	m = MeshData(uvs.ToArray(),
+				 vertices.ToArray(),
+				 normals.ToArray(),
+				 triangles.ToArray(),
+				 lights.ToArray())
 	return m
 
 	

@@ -12,7 +12,7 @@ class FormFlatNoiseData (INoiseData):
 
 	def constructor():
 		air = Primitive.Constant(BLOCK.AIR cast int)		
-		solid = Primitive.Constant(BLOCK.ROCK cast int)
+		solid = Primitive.Constant(BLOCK.MUD cast int)
 		
 
 		# basic ground structure (splits the world vertically between solid and air)
