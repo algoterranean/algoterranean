@@ -16,7 +16,7 @@ class Chunk:
 	mesh_data as MeshData
 	mesh_physx_data as MeshData
 	
-	block_generator as callable # TODO: block generator is actually getValue(x, y, z) from a Noise module
+	block_generator as BlockGenerator # TODO: block generator is actually getValue(x, y, z) from a Noise module
 	mesh_generator as MeshGenerator
 	mesh_physx_generator as MeshGenerator
 
@@ -25,12 +25,14 @@ class Chunk:
 	_generate_mesh as bool
 	
 	interpolate = true
+
+
 	
 
 	# coordinates, size, block generator, visual mesh generator, physics mesh generator
 	def constructor(c as WorldBlockCoordinate,
 					s as byte,
-					b_func as object,
+					b_func as BlockGenerator,
 					m_func as MeshGenerator,
 					m_physx_func as MeshGenerator):
 		coords = c
@@ -99,13 +101,11 @@ class Chunk:
 	def setLight(x as byte, y as byte, z as byte, val as byte):
 		lock lights:
 			lights[x, y, z] = val
-
-
 	def trilinear_interpolation(v000 as byte, v100 as byte, v010 as byte,
 								v110 as byte, v001 as byte, v101 as byte,
 								v011 as byte, v111 as byte,
-								x as single, y as single, z as single,
-								block1 as byte, block2 as byte):
+								x as single, y as single, z as single):
+
 		result = v000 * (1-x)*(1-y)*(1-z) + \
 			v100 * x * (1-y) * (1-z) + \
 			v010 * (1-x) * y * (1-z) + \
@@ -114,12 +114,76 @@ class Chunk:
 			v101 * x * (1-y) * z + \
 			v011 * (1-x) * y * z + \
 			v111*x*y*z
+		
+		new_distance = 256
+		new_block = 0
+
+		#int d = X > 0 ? X : -X;
+		# abs(x) = (x^(x>>31))-(x>>31)
+		# r1 = result - v000
+		# r2 = result - v100
+		# r3 = result - v010
+		# r4 = result - v110
+		# r5 = result - v001
+		# r6 = result - v101
+		# r7 = result - v011
+		# r8 = result - v111
+		
+		a = Math.Abs(result - v000)
+		b = Math.Abs(result - v100)
+		c = Math.Abs(result - v010)
+		d = Math.Abs(result - v110)
+		e = Math.Abs(result - v001)
+		f = Math.Abs(result - v101)
+		g = Math.Abs(result - v011)
+		h = Math.Abs(result - v111)
+		
+		if a < new_distance:
+			new_block = v000
+			new_distance = a
+		if b < new_distance:
+			new_block = v100
+			new_distance = b            
+		if c < new_distance:
+			new_block = v010
+			new_distance = c            
+		if d < new_distance:
+			new_block = v110
+			new_distance = d            
+		if e < new_distance:
+			new_block = v001
+			new_distance = e
+		if f < new_distance:
+			new_block = v101
+			new_distance = f            
+		if g < new_distance:
+			new_block = v011
+			new_distance = g            
+		if h < new_distance:
+			new_block = v111
+			new_distance = h
+
+		return new_block
+	# def trilinear_interpolation(v000 as byte, v100 as byte, v010 as byte,
+	# 							v110 as byte, v001 as byte, v101 as byte,
+	# 							v011 as byte, v111 as byte,
+	# 							x as single, y as single, z as single,
+	# 							block1 as byte, block2 as byte):
+	# 	# print "v000: $v000, v100: $v100, v010: $v010, v110: $v110, v001: $v001, v101: $v101, v001: $v001, v111: $v111, x: $x, y: $y, z: $z, block1: $block1, block2: $block2"
+	# 	result = v000 * (1-x)*(1-y)*(1-z) + \
+	# 		v100 * x * (1-y) * (1-z) + \
+	# 		v010 * (1-x) * y * (1-z) + \
+	# 		v110 * x * y * (1-z) + \
+	# 		v001 * (1-x) * (1-y) * z + \
+	# 		v101 * x * (1-y) * z + \
+	# 		v011 * (1-x) * y * z + \
+	# 		v111*x*y*z
 
 
-		if Math.Abs(result - block1) >= Math.Abs(block2 - result):
-			return block2
-		else:
-			return block1
+	# 	if Math.Abs(result - block1) >= Math.Abs(block2 - result):
+	# 		return block2
+	# 	else:
+	# 		return block1
 
 	# set the lights for any solid block to 0 and any transparent block
 	# (that is, AIR) to full brightness. this needs to be called before
@@ -139,15 +203,17 @@ class Chunk:
 	# between the corners for performance reasons.
 	def generateBlocks():
 		if not interpolate:
-			scale = 1/Settings.Chunks.Scale
+			scale = 1/Settings.Chunks.Scale					
 			c_x as long = coords.x / Settings.Chunks.Scale
 			c_y as long = coords.y / Settings.Chunks.Scale
 			c_z as long = coords.z / Settings.Chunks.Scale
+			new_size = size cast int
 			lock blocks:
-				for x in range(size):
-					for z in range(size):
-						for y in range(size):
+				for x in range(new_size):
+					for z in range(new_size):
+						for y in range(new_size):
 							blocks[x, y, z] = block_generator(x + c_x, y + c_y, z + c_z)
+
 		else:
 			skip_size_x = Settings.Chunks.Interpolate.X
 			skip_size_f_x = skip_size_x cast single
@@ -160,10 +226,12 @@ class Chunk:
 			c_y2 as long = coords.y / Settings.Chunks.Scale
 			c_z2 as long = coords.z / Settings.Chunks.Scale
 
+
+			
 			# set all of the corner blocks necessary for interpolation
 			for x in range(0, size+1, skip_size_x):
-				for y in range(0, size+1, skip_size_y):
-					for z in range(0, size+1, skip_size_z):
+				for z in range(0, size+1, skip_size_z):
+					for y in range(0, size+1, skip_size_y):
 						blocks[x, y, z] = block_generator(x + c_x2, y + c_y2, z + c_z2)
 						
 			# generate all the other blocks via interpolation
@@ -200,8 +268,8 @@ class Chunk:
 							result = trilinear_interpolation(v000, v100, v010,
 															 v110, v001, v101,
 															 v011, v111,
-															 relative_x, relative_y, relative_z,
-															 blocks[x_0, y_0, z_0], blocks[x_1, y_1, z_1])
+															 relative_x, relative_y, relative_z)
+															 # blocks[x_0, y_0, z_0], blocks[x_1, y_1, z_1])
 							blocks[x, y, z] = result
 
 

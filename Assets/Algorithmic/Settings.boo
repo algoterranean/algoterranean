@@ -9,13 +9,13 @@ struct Settings:
 		public static Exponent as single = 1.0
 		public static OctaveCount as single = 3.0 #3.0
 		public static Power = 0.5
-		public static Seed as int = 1 #System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()	#1821724748 #
+		public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()	#1821724748 #
 
 
 	struct Chunks:
 		public static Size as int = 32
-		public static MaxHorizontal as int = 11 # minecraft farthest by default is 8 (256 blocks in each direction)
-		public static MaxVertical as int = 4 # minecraft farthest by default is 4 (256 blocks total up/down)
+		public static MaxHorizontal as int = 10 + 1 # minecraft farthest by default is 8 (256 blocks in each direction)
+		public static MaxVertical as int = 3 + 1 # minecraft farthest by default is 4 (256 blocks total up/down)
 		public static Scale as single = 1.0/4.0
 		
 		struct Interpolate:

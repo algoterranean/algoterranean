@@ -218,7 +218,7 @@ def generateMesh(chunk as Chunk,
 		point_j = (light_e + light_d + light_h + light_g) / 4.0 / 255.0
 		point_f = (light_a + light_b + light_d + light_e) / 4.0 / 255.0
 		point_g = (light_e + light_b + light_c + light_f) / 4.0 / 255.0
-		print "LIGHT: ($x, $y, $z) ($point_k, $point_j, $point_f, $point_g)"
+		# print "LIGHT: ($x, $y, $z) ($point_k, $point_j, $point_f, $point_g)"
 
 		if direction == 'WEST':
 			lights.Add(Color(point_k, point_k, point_k, 1.0) * color)
@@ -379,12 +379,9 @@ def generateMesh(chunk as Chunk,
 			lights.Add(Color(point_j, point_j, point_j, 1.0) * color)			
 			lights.Add(Color(point_f, point_f, point_f, 1.0) * color)
 			lights.Add(Color(point_g, point_g, point_g, 1.0) * color)			
-
 		elif direction == 'SOUTH':
-
 			lights.Add(Color(point_j, point_j, point_j, 1.0) * color)
 			lights.Add(Color(point_k, point_k, point_k, 1.0) * color)
-			
 			lights.Add(Color(point_g, point_g, point_g, 1.0) * color)
 			lights.Add(Color(point_f, point_f, point_f, 1.0) * color)			
 			

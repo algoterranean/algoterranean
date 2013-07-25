@@ -89,10 +89,13 @@ class DataManager (MonoBehaviour):
 	mesh_queue as Queue[of Chunk]
 	
 	# work threads
-	thread_list as List[of Thread]	
+	thread_list as List[of Thread]
+	profile_threads as bool
 	
 
 	def Awake():
+		profile_threads = false
+		
 		display_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
 
 		origin = Vector3(0, 0, 0)
@@ -116,17 +119,14 @@ class DataManager (MonoBehaviour):
 		mesh_queue = Queue[of Chunk]()
 
 		thread_list = List[of Thread]()
-		thread_list.Add(Thread(ThreadStart(_origin_thread)))
-		thread_list.Add(Thread(ThreadStart(_block_thread)))
-		thread_list.Add(Thread(ThreadStart(_block_thread)))
-		thread_list.Add(Thread(ThreadStart(_mesh_thread)))
-		thread_list.Add(Thread(ThreadStart(_mesh_thread)))		
+		thread_list.Add(Thread(ThreadStart(_origin_thread)))		
+		if not profile_threads:
+			thread_list.Add(Thread(ThreadStart(_block_thread)))
+			thread_list.Add(Thread(ThreadStart(_block_thread)))
+			thread_list.Add(Thread(ThreadStart(_mesh_thread)))
+			thread_list.Add(Thread(ThreadStart(_mesh_thread)))
+		_start_threads()			
 		
-		# thread_list = List[of Thread]([,
-		# 			   Thread(ThreadStart(_block_thread)), Thread(ThreadStart(_block_thread)),
-		# 			   Thread(ThreadStart(_mesh_thread)), Thread(ThreadStart(_mesh_thread))])
-		_start_threads()
-
 		SendMessage("PerfMaxChunks", Math.Pow(Settings.Chunks.MaxHorizontal * 2 + 1, 2) * (Settings.Chunks.MaxVertical * 2 + 1))
 
 
@@ -146,8 +146,9 @@ class DataManager (MonoBehaviour):
 					display_manager.RefreshMesh(m.argument)
 				else:
 					SendMessage(m.function, m.argument)
-
-		# _mesh_thread()
+		if profile_threads:
+			_block_thread()
+			_mesh_thread()
 
 	def OnApplicationQuit():
 		_stop_threads()		
@@ -200,7 +201,11 @@ class DataManager (MonoBehaviour):
 					except e:
 						print "THREAD ERROR $e"
 			else:
-				Thread.Sleep(50)
+				Thread.Sleep(10)
+			if profile_threads:
+				return
+			
+
 
 
 	def _mesh_thread():
@@ -242,8 +247,11 @@ class DataManager (MonoBehaviour):
 					print "THREAD ERROR $e"
 
 			# nothing to do so take a brief nap so as not to consume 100% of the CPU in this loop
-			else: 
+			else:
 				Thread.Sleep(10)
+			if profile_threads:
+				return
+
 
 
 	def _origin_thread():
@@ -262,7 +270,9 @@ class DataManager (MonoBehaviour):
 							# in range but haven't been added yet
 							chunks.Add(coord, Chunk(coord,
 													chunk_size,
-													FormFlatNoiseData().getBlock,
+													#BiomeNoiseData2().getBlock,
+													#FormFlatNoiseData().getBlock,
+													V1NoiseData().getBlock,
 													mesh_generator,
 													mesh_physx_generator))
 
@@ -473,11 +483,14 @@ class DataManager (MonoBehaviour):
 							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
 							chunks_to_update["$c"] = c
 
-		# for k in chunks_to_update.Keys:
-		# 	c = chunks_to_update[k]
-		# 	c.generateMesh(_getNeighbors(c))
-		# 	lock outgoing_queue:
-		# 		outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
+		for k in chunks_to_update.Keys:
+			c = chunks_to_update[k]
+			neighbors = Dictionary[of WorldBlockCoordinate, Chunk]()					
+			_areNeighborsReady(c, neighbors)
+			c.initializeLights()
+			c.generateMesh(neighbors)
+			lock outgoing_queue:
+				outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
 
 
 	def getBlock(world as WorldBlockCoordinate) as byte:
