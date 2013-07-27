@@ -10,43 +10,63 @@ import Algorithmic.Utils
 class Player (MonoBehaviour):
 	chunk_manager as DisplayManager
 	chunk_ball as DataManager
-	orientation as Vector3
-	rotate_speed as single
-	movement_speed as single
-	player_particle as Algorithmic.Particle
-	player_camera as GameObject
-	terrain_collider as Algorithmic.Physics.ChunkCollider
-	world as Algorithmic.Physics.World
+
+	# old physics code
+	#
+	# orientation as Vector3
+	# rotate_speed as single
+	# movement_speed as single
+	# player_particle as Algorithmic.Particle
+	# player_camera as GameObject
+	# terrain_collider as Algorithmic.Physics.ChunkCollider
+	# world as Algorithmic.Physics.World
 	public jumping = false
-	t = 0
+	# t = 0
+	# first as bool
+	
 	raycast_distance = 5.0
 	public reticle_tex as Texture2D
-	first as bool
 	main_camera as GameObject
 	block_outline as BlockOutline2
 	stats as Stats
 	outline_size = 3
 
-	def Start ():
-		rotate_speed = 3.5
-		movement_speed = 5 * 3
-		orientation = Vector3(0, 45, 0)
-		first = true
+	enable_physics = false
+	
 
-		#player_particle = gameObject.Find("Player").GetComponent("Particle")
+	def Start ():
+		# old physics code
+		#
+		# rotate_speed = .5
+		# movement_speed = 5 * 3
+		# orientation = Vector3(0, 45, 0)
+		# first = true
+		# player_particle = gameObject.Find("Player").GetComponent("Particle")
+		# player_camera = gameObject.Find("Player/1st Person Camera")
+		# world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
+		
 		chunk_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DisplayManager")
 		chunk_ball = gameObject.Find("Engine/ChunkManager").GetComponent("DataManager")
 		main_camera = gameObject.Find("Player/First Person Controller/Main Camera")
-		#player_camera = gameObject.Find("Player/1st Person Camera")
-		#world = gameObject.Find("Engine/PhysicsManager").GetComponent("World")
 		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline2")
 		stats = gameObject.Find("Engine/ChunkManager").GetComponent("Stats")
+		Time.timeScale = 0
 
 
-	def getOrientation():
-		return orientation
+	# def getOrientation():
+	# 	return orientation
 
 	def Update():
+		# disable all physics (for debugging purposes)
+		if Input.GetKeyDown("return"):
+			enable_physics = not enable_physics
+			x as CharacterMotor
+			if not enable_physics:
+				Time.timeScale = 0
+			else:
+				Time.timeScale = 1
+
+		
 		# TO DO: should only happen once! FIX!
 		mm = gameObject.Find("Player/KGFMapSystem/photo/photo_plane_0_0")
 		gameObject.Destroy(mm)
@@ -113,7 +133,6 @@ class Player (MonoBehaviour):
 
 
 
-		
 		# if  m_delta > 0:
 		# 	outline_size += 1
 		# 	outline_size = Abs(outline_size % 3 + 1)
@@ -158,7 +177,8 @@ class Player (MonoBehaviour):
 				chunk_ball.setBlocks(p, outline_size, 50)
 				# chunk_ball.setBlock(p, 50)
 
-		
+	# old physics code
+	#
 	# 	horiz = Input.GetAxis("Mouse X") * rotate_speed
 	# 	vert = Input.GetAxis("Mouse Y") * rotate_speed
 	# 	transform.Rotate(0, horiz, 0)
