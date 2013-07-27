@@ -18,10 +18,12 @@ class V1NoiseData (INoiseData):
 		subsoil2 = Constant(BLOCK.SUBSOIL2 cast int)
 
 
-		layer1 = VerticalFill(topsoil, air, 10)
+		layer0 = VerticalFill(Constant(BLOCK.GRASS1 cast int), air, 11)
+		layer1 = VerticalFill(topsoil, layer0, 10)
 		layer2 = VerticalFill(subsoil, layer1, 8)
 		layer3 = VerticalFill(subsoil2, layer2, 4)
 		layer4 = VerticalFill(bedrock, layer3, 0)
+
 		
 
 
