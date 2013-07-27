@@ -28,22 +28,37 @@ def generateMesh(chunk as Chunk,
 	# local convenience functions to handle UVs, Triangles, and Normals
 	def _add_uvs(x as single, y as single):
 		# give x, y coordinates in (0-9) by (0-9)
-		for v as Vector2 in [Vector2(x + 0.01, 1.0 - y - 0.1 + 0.01),
-							 Vector2(x + 0.01, 1.0 - y - 0.01),
-							 Vector2(x - 0.01 + 0.1, 1.0 - y - 0.01),
-							 Vector2(x - 0.01 + 0.1, 1.0 - y - 0.1 + 0.01)]:
-			uvs.Add(v)
+		uvs.Add(Vector2(x + 0.01, 1.0 - y - 0.1 + 0.01))
+		uvs.Add(Vector2(x + 0.01, 1.0 - y - 0.01))
+		uvs.Add(Vector2(x - 0.01 + 0.1, 1.0 - y - 0.01))
+		uvs.Add(Vector2(x - 0.01 + 0.1, 1.0 - y - 0.1 + 0.01))
+		
+		# for v as Vector2 in [Vector2(x + 0.01, 1.0 - y - 0.1 + 0.01),
+		# 					 Vector2(x + 0.01, 1.0 - y - 0.01),
+		# 					 Vector2(x - 0.01 + 0.1, 1.0 - y - 0.01),
+		# 					 Vector2(x - 0.01 + 0.1, 1.0 - y - 0.1 + 0.01)]:
+		# 	uvs.Add(v)
 							 
 	def _add_triangles():
 		# clockwise order
-		for i as int in [4, 3, 2, 2, 1, 4]:
-			triangles.Add(vertice_count - i)
+		triangles.Add(vertice_count - 4)
+		triangles.Add(vertice_count - 3)
+		triangles.Add(vertice_count - 2)
+		triangles.Add(vertice_count - 2)
+		triangles.Add(vertice_count - 1)
+		triangles.Add(vertice_count - 4)		
+		# for i as int in [4, 3, 2, 2, 1, 4]:
+		# 	triangles.Add(vertice_count - i)
 
 	def _add_normals(n as Vector3):
 		# normals for the 4 corners of a square always
 		# point in the same direction
-		for i in range(4):
-			normals.Add(n)
+		normals.Add(n)
+		normals.Add(n)
+		normals.Add(n)
+		normals.Add(n)		
+		# for i in range(4):
+		# 	normals.Add(n)
 
 	# a   b | b   c | c   d |
 	#   A   |   B   |   C   |
