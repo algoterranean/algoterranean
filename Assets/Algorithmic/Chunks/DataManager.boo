@@ -122,9 +122,9 @@ class DataManager (MonoBehaviour):
 		thread_list.Add(Thread(ThreadStart(_origin_thread)))		
 		if not profile_threads:
 			thread_list.Add(Thread(ThreadStart(_block_thread)))
-			thread_list.Add(Thread(ThreadStart(_block_thread)))
+			# thread_list.Add(Thread(ThreadStart(_block_thread)))
 			thread_list.Add(Thread(ThreadStart(_mesh_thread)))
-			thread_list.Add(Thread(ThreadStart(_mesh_thread)))
+			# thread_list.Add(Thread(ThreadStart(_mesh_thread)))
 		_start_threads()			
 		
 		SendMessage("PerfMaxChunks", Math.Pow(Settings.Chunks.MaxHorizontal * 2 + 1, 2) * (Settings.Chunks.MaxVertical * 2 + 1))
@@ -152,7 +152,6 @@ class DataManager (MonoBehaviour):
 
 	def OnApplicationQuit():
 		_stop_threads()		
-
 
 	def _start_threads():
 		for x in thread_list:
@@ -463,6 +462,8 @@ class DataManager (MonoBehaviour):
 
 
 	def setBlocks(world as WorldBlockCoordinate, size as byte, direction as Vector3, block as byte):
+		chunk_size = Settings.Chunks.Size
+		chunk_scale = Settings.Chunks.Scale
 		chunks_to_update = {}
 		for x in range(size):
 			for y in range(size):
@@ -478,10 +479,33 @@ class DataManager (MonoBehaviour):
 					chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(w)
 		
 					lock chunks:
+						c as Chunk
 						if chunk_coord in chunks:
-							c as Chunk = chunks[chunk_coord]
+							c = chunks[chunk_coord]
 							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
 							chunks_to_update["$c"] = c
+
+						if local_coord.x == 0:
+							c = chunks[WorldBlockCoordinate(chunk_coord.x - chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
+							chunks_to_update["$c"] = c
+						elif local_coord.x == chunk_size - 1:
+							c = chunks[WorldBlockCoordinate(chunk_coord.x + chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
+							chunks_to_update["$c"] = c
+
+						if local_coord.y == 0:
+							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y- chunk_size * chunk_scale, chunk_coord.z)]
+							chunks_to_update["$c"] = c
+						elif local_coord.y == chunk_size - 1:
+							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y+ chunk_size * chunk_scale, chunk_coord.z)]
+							chunks_to_update["$c"] = c									   
+
+						if local_coord.z == 0:
+							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z- chunk_size * chunk_scale)]
+							chunks_to_update["$c"] = c
+						elif local_coord.z == chunk_size - 1:
+							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z+ chunk_size * chunk_scale)]
+							chunks_to_update["$c"] = c									
+						
 
 		for k in chunks_to_update.Keys:
 			c = chunks_to_update[k]
