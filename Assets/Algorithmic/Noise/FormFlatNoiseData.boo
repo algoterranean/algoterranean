@@ -12,17 +12,17 @@ class FormFlatNoiseData (INoiseData):
 	r = System.Random()
 
 	def constructor():
-		air = Primitive.Constant(BLOCK.AIR cast int)		
-		grass0 = Primitive.Constant(BLOCK.GRASS0 cast int)
-		grass1 = Primitive.Constant(BLOCK.GRASS1 cast int)
-		grass2 = Primitive.Constant(BLOCK.GRASS2 cast int)
-		grass3 = Primitive.Constant(BLOCK.GRASS3 cast int)
-		grass4 = Primitive.Constant(BLOCK.GRASS4 cast int)
-		grass5 = Primitive.Constant(BLOCK.GRASS5 cast int)
-		grass6 = Primitive.Constant(BLOCK.GRASS6 cast int)
-		grass7 = Primitive.Constant(BLOCK.GRASS7 cast int)
-		grass8 = Primitive.Constant(BLOCK.GRASS8 cast int)
-		grass9 = Primitive.Constant(BLOCK.GRASS9 cast int)				
+		air = Primitive.Constant(0)
+		grass0 = Primitive.Constant(90)
+		grass1 = Primitive.Constant(91)
+		grass2 = Primitive.Constant(92)
+		grass3 = Primitive.Constant(93)
+		grass4 = Primitive.Constant(94)
+		grass5 = Primitive.Constant(95)
+		grass6 = Primitive.Constant(96)
+		grass7 = Primitive.Constant(97)
+		grass8 = Primitive.Constant(98)
+		grass9 = Primitive.Constant(99)
 		
 
 		# basic ground structure (splits the world vertically between solid and air)

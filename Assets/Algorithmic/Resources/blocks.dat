@@ -1,0 +1,24 @@
+# Block Definition file
+
+# Format = Name, id (< 256), UV x-coord, UV y-coord, R, G, B
+#
+#    name is a string. must be unique.
+#    id is a byte. must be unique.
+#    the UV coords are floats and define the upper-left corner of the texture block
+#    R, G, and B are the Red, Green, and Blue colors of the block in byte form
+
+
+Air, 0, 0.0, 0.0, 0, 0, 0
+
+# Base Terrain
+Bedrock, 30, 0.0, 0.0, 133, 133, 133
+Subsoil2, 31, 0.0, 0.0, 89, 59, 29
+Subsoil, 32, 0.0, 0.0, 89, 59, 29
+Topsoil, 33, 0.0, 0.0, 89, 59, 29
+
+Grass0, 90, 0.0, 0.0, 38, 48, 40
+Grass0, 91, 0.0, 0.0, 38, 48, 40
+
+Dirt, 80, 0.0, 0.0, 150, 119, 87
+
+

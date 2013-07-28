@@ -10,15 +10,15 @@ class BiomeNoiseData2 (INoiseData):
 
 	
 	def constructor():
-		Air = Primitive.Constant(BLOCK.AIR cast int)		
-		b1 = Primitive.Constant(BLOCK.DIRT cast int)
-		b2 = Primitive.Constant(BLOCK.ROCK cast int)
-		b3 = Primitive.Constant(BLOCK.GRASS cast int)
-		b4 = Primitive.Constant(BLOCK.SWAMP cast int)
-		b5 = Primitive.Constant(BLOCK.WATER cast int)
-		b6 = Primitive.Constant(BLOCK.BLOOD cast int)
-		b7 = Primitive.Constant(BLOCK.MAGMA cast int)
-		b8 = Primitive.Constant(BLOCK.MUD cast int)
+		Air = Primitive.Constant(0)	
+		b1 = Primitive.Constant(50)
+		b2 = Primitive.Constant(50)
+		b3 = Primitive.Constant(90)
+		b4 = Primitive.Constant(91)
+		b5 = Primitive.Constant(200)
+		b6 = Primitive.Constant(201)
+		b7 = Primitive.Constant(202)
+		b8 = Primitive.Constant(203)
 		
 		
 		gradient = Primitive.MyGradient(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)

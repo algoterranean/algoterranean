@@ -7,7 +7,7 @@ class SolidNoiseData (INoiseData):
 	coord_scale = 1/Settings.Chunks.Depth
 	
 	def constructor():
-		select = Primitive.Constant(BLOCK.ROCK cast int)
+		select = Primitive.Constant(50)
 
 	def getBlock(x as long, y as long, z as long) as byte:
 		if y <= 54:

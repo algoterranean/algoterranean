@@ -29,11 +29,11 @@ def generateMeshGreedy(chunk as Chunk,
 			for z as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if x == 0:
-					block_west = BLOCK.AIR
+					block_west = 0
 				else:
 					block_west = blocks[x - 1, y, z]
 				if x == chunk_size - 1:
-					block_east = BLOCK.AIR
+					block_east = 0
 				else:
 					block_east = blocks[x + 1, y, z]
 				
@@ -166,11 +166,11 @@ def generateMeshGreedy(chunk as Chunk,
 			for x as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if z == 0:
-					block_south = BLOCK.AIR
+					block_south = 0
 				else:
 					block_south = blocks[x, y, z-1]
 				if z == chunk_size - 1:
-					block_north = BLOCK.AIR
+					block_north = 0
 				else:
 					block_north = blocks[x, y, z+1]
 				
@@ -261,11 +261,11 @@ def generateMeshGreedy(chunk as Chunk,
 			for z as byte in range(chunk_size):
 				block = blocks[x, y, z]
 				if y == 0:
-					block_down = BLOCK.AIR
+					block_down = 0
 				else:
 					block_down = blocks[x, y-1, z]
 				if y == chunk_size - 1:
-					block_up = BLOCK.AIR
+					block_up = 0
 				else:
 					block_up = blocks[x, y+1, z]
 				

@@ -1,6 +1,7 @@
 import LibNoise
 import Algorithmic.Chunks
 import LibNoise.Primitive
+import UnityEngine
 
 
 
@@ -11,14 +12,15 @@ class V1NoiseData (INoiseData):
 	def constructor():
 		# 1. all blocks above a threshold, height-wise should be air, and all below bedrock.
 		# 2. then we want a few layers of soil above the bedrock.
-		air = Constant(BLOCK.AIR cast int)
-		bedrock = Constant(BLOCK.BEDROCK cast int)
-		topsoil = Constant(BLOCK.TOPSOIL cast int)
-		subsoil = Constant(BLOCK.SUBSOIL cast int)
-		subsoil2 = Constant(BLOCK.SUBSOIL2 cast int)
+
+		air = Constant(0)
+		bedrock = Constant(30)
+		topsoil = Constant(33)
+		subsoil = Constant(32)
+		subsoil2 = Constant(33)
 
 
-		layer0 = VerticalFill(Constant(BLOCK.GRASS1 cast int), air, 11)
+		layer0 = VerticalFill(Constant(91), air, 11)
 		layer1 = VerticalFill(topsoil, layer0, 10)
 		layer2 = VerticalFill(subsoil, layer1, 8)
 		layer3 = VerticalFill(subsoil2, layer2, 4)
@@ -34,8 +36,6 @@ class V1NoiseData (INoiseData):
 		hills = Filter.SumFractal(0.1, 0.1, 1.2, 2.0)
 		hills.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
 
-
-		
 		turb = Transformer.Displace(layer4,
 									Primitive.Constant(1),
 									Modifier.Cache2D(hills),

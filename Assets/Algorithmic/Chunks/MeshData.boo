@@ -167,42 +167,42 @@ class MeshData_OLD (IChunkMeshData):
 					block = chunk.getBlock(ByteVector3(x, y, z))
 
 					if x == 0 and west_neighbor.isNull():
-						block_west = BLOCK.AIR
+						block_west = 0
 					elif x == 0 and not west_neighbor.isNull():
 						block_west = west_neighbor.getBlock(ByteVector3(size.x-1, y, z))
 					else:
 						block_west = chunk.getBlock(ByteVector3(x-1, y, z))
 
 					if x == size.x -1 and east_neighbor.isNull():
-						block_east = BLOCK.AIR
+						block_east = 0
 					elif x == size.x - 1 and not east_neighbor.isNull():
 						block_east = east_neighbor.getBlock(ByteVector3(0, y, z))
 					else:
 						block_east = chunk.getBlock(ByteVector3(x+1, y ,z))
 
 					if z == 0 and south_neighbor.isNull():
-						block_south = BLOCK.AIR
+						block_south = 0
 					elif z == 0 and not south_neighbor.isNull():
 						block_south = south_neighbor.getBlock(ByteVector3(x, y, size.z-1))
 					else:
 						block_south = chunk.getBlock(ByteVector3(x, y, z-1))
 
 					if z == size.z-1 and north_neighbor.isNull():
-						block_north = BLOCK.AIR
+						block_north = 0
 					elif z == size.z - 1 and not north_neighbor.isNull():
 						block_north = north_neighbor.getBlock(ByteVector3(x, y, 0))
 					else:
 						block_north = chunk.getBlock(ByteVector3(x, y, z+1))
 
 					if y == 0 and down_neighbor.isNull():
-						block_down = BLOCK.AIR
+						block_down = 0
 					elif y == 0 and not down_neighbor.isNull():
 						block_down = down_neighbor.getBlock(ByteVector3(x, size.y-1, z))
 					else:
 						block_down = chunk.getBlock(ByteVector3(x, y-1, z))
 
 					if y == size.y-1 and up_neighbor.isNull():
-						block_up = BLOCK.AIR
+						block_up = 0
 					elif y == size.y-1 and not up_neighbor.isNull():
 						block_up = up_neighbor.getBlock(ByteVector3(x, 0, z))
 					else:
@@ -288,42 +288,42 @@ class MeshData_OLD (IChunkMeshData):
 					block = chunk.getBlock(ByteVector3(x, y, z))
 
 					if x == 0 and west_neighbor.isNull():
-						block_west = BLOCK.AIR
+						block_west = 0
 					elif x == 0 and not west_neighbor.isNull():
 						block_west = west_neighbor.getBlock(ByteVector3(size.x-1, y, z))
 					else:
 						block_west = chunk.getBlock(ByteVector3(x-1, y, z))
 
 					if x == size.x -1 and east_neighbor.isNull():
-						block_east = BLOCK.AIR
+						block_east = 0
 					elif x == size.x - 1 and not east_neighbor.isNull():
 						block_east = east_neighbor.getBlock(ByteVector3(0, y, z))
 					else:
 						block_east = chunk.getBlock(ByteVector3(x+1, y ,z))
 
 					if z == 0 and south_neighbor.isNull():
-						block_south = BLOCK.AIR
+						block_south = 0
 					elif z == 0 and not south_neighbor.isNull():
 						block_south = south_neighbor.getBlock(ByteVector3(x, y, size.z-1))
 					else:
 						block_south = chunk.getBlock(ByteVector3(x, y, z-1))
 
 					if z == size.z-1 and north_neighbor.isNull():
-						block_north = BLOCK.AIR
+						block_north = 0
 					elif z == size.z-1 and not north_neighbor.isNull():
 						block_north = north_neighbor.getBlock(ByteVector3(x, y, 0))
 					else:
 						block_north = chunk.getBlock(ByteVector3(x, y, z+1))
 
 					if y == 0 and down_neighbor.isNull():
-						block_down = BLOCK.AIR
+						block_down = 0
 					elif y == 0 and not down_neighbor.isNull():
 						block_down = down_neighbor.getBlock(ByteVector3(x, size.y-1, z))
 					else:
 						block_down = chunk.getBlock(ByteVector3(x, y-1, z))
 
 					if y == size.y-1 and up_neighbor.isNull():
-						block_up = BLOCK.AIR
+						block_up = 0
 					elif y == size.y-1 and not up_neighbor.isNull():
 						block_up = up_neighbor.getBlock(ByteVector3(x, 0, z))
 					else:

@@ -1,1 +1,174 @@
-/Users/p/Dropbox/projects/algorithmic/TODO
+#+TODO: TODO(t!) MAYBE(w/!) STARTED(!) | DONE(!) CANCELED(c@)
+#+STARTUP: hidestars
+#+STARTUP: content
+
+
++--------------------------------+
+ Algorithmic: TODO List and Notes
++--------------------------------+
+
+
+* Website							    :website:
+** TODO Start developer blog.
+   - State "TODO"       from ""           [2013-06-17 Mon 15:22]
+
+
+* Boo Mode
+** TODO Types regexp: remove last section.
+   - State "TODO"       from ""           [2013-06-17 Mon 15:22]
+** DONE Add callable to keyword list.
+   - State "DONE"       from "STARTED"    [2013-07-25 Thu 20:50]
+   - State "STARTED"    from "MAYBE"      [2013-07-25 Thu 20:50]
+   - State "TODO"       from ""           [2013-06-17 Mon 15:22]
+** TODO Add callable to struct/enum highlighting of name.
+   - State "DONE"       from "STARTED"    [2013-07-25 Thu 20:50]
+   - State "STARTED"    from "MAYBE"      [2013-07-25 Thu 20:50]
+   - State "TODO"       from ""           [2013-06-17 Mon 15:22]
+** DONE Darken background of default emacs theme?
+   - State "DONE"       from "STARTED"    [2013-07-25 Thu 20:50]
+   - State "STARTED"    from "MAYBE"      [2013-07-25 Thu 20:50]
+   - State "TODO"       from ""           [2013-06-17 Mon 15:22]
+** TODO Add equals sign to the types highlighting.
+   - State "TODO"       from ""           [2013-06-17 Mon 15:22]
+
+
+* Code
+** Digging and Building 				   :digging:building:
+*** DONE Add block placement back now that blocks can be scaled in size.
+    - State "DONE"       from "STARTED"    [2013-06-17 Mon 18:05]
+    - State "STARTED"    from "MAYBE"      [2013-06-17 Mon 12:52]
+    - State "TODO"       from ""           [2013-06-17 Mon 12:49]
+*** DONE Fix getBlock() now that blocks can be scaled in size.
+    - State "DONE"       from "STARTED"    [2013-06-17 Mon 18:29]
+   - State "STARTED"    from "MAYBE"      [2013-06-17 Mon 12:52]
+   - State "TODO"       from ""           [2013-06-17 Mon 12:50]
+*** STARTED Move and cleanup block code in Player.boo to Utils.
+    - State "STARTED"    from "DONE"       [2013-06-22 Sat 18:39]
+    - State "DONE"       from "STARTED"    [2013-06-22 Sat 18:39]
+   - State "STARTED"    from "MAYBE"      [2013-06-17 Mon 12:52]
+   - State "TODO"       from ""           [2013-06-17 Mon 12:50]
+*** TODO Change digging so that blocks can be picked up rather than going immediately into inventory.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Change digging so that blocks have a difficulty ("hp") of digging.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** DONE Change digging so that the player can dig up more than 1 block at a time.
+    - State "DONE"       from "STARTED"    [2013-06-22 Sat 18:39]
+    - State "STARTED"    from "MAYBE"      [2013-06-22 Sat 18:39]
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** DONE Change building so that the player can place more than 1 block at a time.
+    - State "DONE"       from "STARTED"    [2013-06-22 Sat 18:43]
+    - State "STARTED"    from "MAYBE"      [2013-06-22 Sat 18:43]
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Improve digging of multiple blocks. 
+    Change from highlight to outline? 
+    Needs to go in the direction of the contact normal.
+*** TODO Improve place of multiple blocks.
+*** TODO When digging a border block, the neighboring chunks needs to have their meshes redrawn.
+** Chunk Management 					   :chunk_management:
+*** TODO Chunks need to know their neighbors.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Chunks shouldn't generate their mesh until all of their neighbors have their blocks generated.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Switch from a Chunk that uses NoiseData and looks through the blocks itself to a ChunkGenerator callable like the mesh generator.
+*** DONE Improve interpolation of block values.
+    - State "DONE"       from "TODO"       [2013-07-25 Thu 20:48]
+** Lighting 							   :lighting:
+*** DONE Add lighting.
+    - State "DONE"       from "STARTED"    [2013-07-25 Thu 20:48]
+    - State "STARTED"    from "MAYBE"      [2013-07-25 Thu 20:48]
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Improve lighting.
+*** DONE Change display mesh back to naive culling but use greedy mesh for physics.
+    - State "DONE"       from "STARTED"    [2013-07-25 Thu 20:49]
+    - State "STARTED"    from "MAYBE"      [2013-07-25 Thu 20:49]
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+   What to do about limiting height of terrain? How far up do we have to go to be sure nothing is blocking the light?
+*** TODO Add ability for the player to place lights.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add a day/night cycle with a skybox.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add a day/night cycle by changing the global lighting scheme.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+** Terrain 							    :terrain:
+*** TODO Add plants and vegetables to chunk generation.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add water.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Improve terrain visuals.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add new block types to the texture atlas.
+    - State "TODO"       from ""           [2013-06-17 Mon 13:53]
+*** TODO Add new block types to Blocks.boo and clean up how they are referenced so the code isn't so hideous.
+    - State "TODO"       from ""           [2013-06-17 Mon 13:53]
+*** TODO Consider using a more manual generation process and less strictly LibNoise generation.
+** Physics 							    :physics:
+*** TODO Add ability to toggle physics.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+** State 							      :state:
+*** TODO Implement ability to output chunk data into a format compatible with Minecraft so that those files can in turn be used with all of the 3rd party visialization tools available for Minefract.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+** Player and UI 						  :player:ui:
+*** TODO Add inventory system.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add something that displays what the player's dig/build state is at (1 block, 2 blocks, 4 blocks, etc.)
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Improve mini-map.
+** Misc 							       :misc:
+*** TODO Check if boo has a #pragma strict declaration so that I am forced to use self.var_name for class variables
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add bug tracker?
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add new camera to do a static view for debugging purposes.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+*** TODO Add functions to display block info, highlight blocks, etc., for debugging purposes.
+   - State "TODO"       from ""           [2013-06-17 Mon 12:51]
+
+
+
+
+*** TODO Rearrange LibNoise module namespace so the location of various modules make more sense.
+*** TODO Cleanup all code in constructors.
+    This code is being run by Unity Editor all the time on recompile
+    and slowing down the build/run system.
+*** TODO Add debug console.
+    - State "TODO"       from ""           [2013-06-17 Mon 13:09]
+
+
+
+* Blocks
+** Ice Sheet and Polar Desert
+   #C0C0C0
+** Tundra
+   #9FD6C9
+** Taiga
+   #006D64
+** Temperate Broadleaf Forest
+   #A4E05D
+** Temperate Steppe
+   #F7EC6F
+** Subtropical Moist Forest
+   #0D7E0D
+** Mediterranean Vegetation
+   #907699
+** Monsoon Forest
+   #6F956F
+** Arid Desert
+   #95583C
+** Xeric Shrubland
+   #B97553
+** Dry Steppe
+   #9B8447
+** Semiarid Desert
+   #DEB887
+** Grass Savanna
+   #CDC954
+** Tree Savanna
+   #ACA719
+** Subtropical Dry Forest
+   #768E34
+** Tropical Rainforest
+   #005C00
+** Alpine Tundra
+   #A7BDDB
+** Mountain Forest
+   #3C9798

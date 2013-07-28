@@ -13,9 +13,9 @@ class BiomeNoiseData (INoiseData):
 
 	
 	def constructor():
-		Lowland_Block = Primitive.Constant(BLOCK.DIRT cast int)
-		Highland_Block = Primitive.Constant(BLOCK.SOLID cast int)
-		Air = Primitive.Constant(BLOCK.AIR cast int)
+		Lowland_Block = Primitive.Constant(80)
+		Highland_Block = Primitive.Constant(50)
+		Air = Primitive.Constant(0)
 
 		gradient = Primitive.MyGradient(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 		basic_land = Modifier.Select(gradient, Lowland_Block, Air, -1.0, 0.0, 0.0)

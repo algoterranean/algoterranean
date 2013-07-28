@@ -9,11 +9,11 @@ class MineralNoiseData (INoiseData):
 	coord_scale = 1/Settings.Chunks.Depth
 
 	def constructor():
-		Grass = Primitive.Constant(BLOCK.GRASS cast int)
-		Solid = Primitive.Constant(BLOCK.SOLID cast int)
-		Rock = Primitive.Constant(BLOCK.ROCK cast int)
-		Dirt = Primitive.Constant(BLOCK.DIRT cast int)
-		Air = Primitive.Constant(BLOCK.AIR cast int)
+		Grass = Primitive.Constant(90)
+		Solid = Primitive.Constant(50)
+		Rock = Primitive.Constant(50)
+		Dirt = Primitive.Constant(50)
+		Air = Primitive.Constant(0)
 		constant1 = Primitive.Constant(1)
 		
 		gradient = Primitive.MyGradient(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)

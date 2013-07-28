@@ -17,8 +17,8 @@ class BasicNoiseData (INoiseData):
 		## constant_neg1 = Primitive.Constant(-1)
 
 		#Magma = Primitive.Constant(BLOCK.MAGMA cast int)
-		Solid = Primitive.Constant(BLOCK.SOLID cast int)
-		Air = Primitive.Constant(BLOCK.AIR cast int)
+		Solid = Primitive.Constant(50)
+		Air = Primitive.Constant(0)
 		
 		# basic terrain
 		##############################################################################

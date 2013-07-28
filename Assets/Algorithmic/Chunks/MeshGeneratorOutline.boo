@@ -46,42 +46,42 @@ def generateMeshOutline(blocks as (byte, 3)) as MeshData:
 				block = blocks[x, y, z] #chunk.getBlock(ByteVector3(x, y, z))
 
 				if x == 0: #and west_neighbor.isNull():
-					block_west = BLOCK.AIR
+					block_west = 0
 				# elif x == 0 and not west_neighbor.isNull():
 				# 	block_west = west_neighbor.getBlock(ByteVector3(chunk_size-1, y, z))
 				else:
 					block_west = blocks[x-1, y, z] #chunk.getBlock(ByteVector3(x-1, y, z))
 
 				if x == chunk_size -1: #and east_neighbor.isNull():
-					block_east = BLOCK.AIR
+					block_east = 0
 				# elif x == chunk_size - 1 and not east_neighbor.isNull():
 				# 	block_east = east_neighbor.getBlock(ByteVector3(0, y, z))
 				else:
 					block_east = blocks[x+1, y, z] #chunk.getBlock(ByteVector3(x+1, y ,z))
 
 				if z == 0: #and south_neighbor.isNull():
-					block_south = BLOCK.AIR
+					block_south = 0
 				# elif z == 0 and not south_neighbor.isNull():
 				# 	block_south = south_neighbor.getBlock(ByteVector3(x, y, chunk_size-1))
 				else:
 					block_south = blocks[x, y, z-1] #chunk.getBlock(ByteVector3(x, y, z-1))
 
 				if z == chunk_size-1: #and north_neighbor.isNull():
-					block_north = BLOCK.AIR
+					block_north = 0
 				# elif z == chunk_size-1 and not north_neighbor.isNull():
 				# 	block_north = north_neighbor.getBlock(ByteVector3(x, y, 0))
 				else:
 					block_north = blocks[x, y, z+1] #chunk.getBlock(ByteVector3(x, y, z+1))
 
 				if y == 0: #and down_neighbor.isNull():
-					block_down = BLOCK.AIR
+					block_down = 0
 				# elif y == 0 and not down_neighbor.isNull():
 				# 	block_down = down_neighbor.getBlock(ByteVector3(x, chunk_size-1, z))
 				else:
 					block_down = blocks[x, y-1, z] #chunk.getBlock(ByteVector3(x, y-1, z))
 
 				if y == chunk_size-1: #and up_neighbor.isNull():
-					block_up = BLOCK.AIR
+					block_up = 0
 				# elif y == chunk_size-1 and not up_neighbor.isNull():
 				# 	block_up = up_neighbor.getBlock(ByteVector3(x, 0, z))
 				else:
