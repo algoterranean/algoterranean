@@ -625,7 +625,7 @@ def generateMesh(chunk as Chunk,
 						# 	lights.Add(Color(1, 1, 1, 1))	
 							
 						_add_east_west_lights(x, y, z, "WEST", Blocks.block_def[block].color)
-						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 						
 
 					if not block_east:
@@ -639,7 +639,7 @@ def generateMesh(chunk as Chunk,
 						# for i in range(4):
 						# 	lights.Add(Color(1, 1, 1, 1))
 						_add_east_west_lights(x, y, z, "EAST", Blocks.block_def[block].color)
-						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 
 
 					if not block_south:
@@ -653,7 +653,7 @@ def generateMesh(chunk as Chunk,
 						# 	lights.Add(Color(1, 1, 1, 1))
 						_add_north_south_lights(x, y, z, "SOUTH", Blocks.block_def[block].color)
 						_add_normals(Vector3(0, 0, -1))
-						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 
 					if not block_north:
 						vertices.Add(Vector3(x, y, z+1))
@@ -667,7 +667,7 @@ def generateMesh(chunk as Chunk,
 						# 	lights.Add(Color(1, 1, 1, 1))
 						_add_north_south_lights(x, y, z, "NORTH", Blocks.block_def[block].color)
 						
-						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 
 					if not block_down:
 						vertices.Add(Vector3(x+1, y, z+1))
@@ -680,7 +680,7 @@ def generateMesh(chunk as Chunk,
 						# for i in range(4):
 						# 	lights.Add(Color(1, 1, 1, 1))
 						_add_up_down_lights(x, y, z, "DOWN", Blocks.block_def[block].color)
-						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 
 					if not block_up:
 						vertices.Add(Vector3(x+1, y+1, z))
@@ -693,7 +693,7 @@ def generateMesh(chunk as Chunk,
 						# for i in range(4):
 						# 	lights.Add(Color(1, 1, 1, 1))
 						_add_up_down_lights(x, y, z, "UP", Blocks.block_def[block].color)
-						_add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
 
 	# convert all of the Lists to arrays since this is what Unity's Mesh will be expecting.
 	# ToArray is highly optimized in Mono.
