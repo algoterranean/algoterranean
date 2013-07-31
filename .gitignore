@@ -24,7 +24,7 @@
 *.prefab
 #*.unity
 #*.unity3d
-*.shader
+#*.shader
 *.asset
 *.GUISkin
 #*.mat
@@ -53,3 +53,4 @@ Library/
 Temp/
 *.pidb
 .DS_Store
+/Assets/Plugins/Standard Assets/Image Effects (Pro Only)/_Sources/Shaders/_DepthOfField/TiltShift.shader
