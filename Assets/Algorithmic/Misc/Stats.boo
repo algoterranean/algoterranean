@@ -1,4 +1,5 @@
 import UnityEngine
+import System.Timers
 
 class Stats (MonoBehaviour):
 	display = true
@@ -37,6 +38,7 @@ class Stats (MonoBehaviour):
 		text_style.normal.textColor = Color.white
 		text_style.richText = true
 		seed = Settings.Terrain.Seed
+
 		InvokeRepeating("_update_text", 2, 1.0)
 
 

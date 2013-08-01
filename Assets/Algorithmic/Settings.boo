@@ -9,7 +9,7 @@ struct Settings:
 		public static Exponent as single = 1.0
 		public static OctaveCount as single = 3.0 #3.0
 		public static Power = 0.5
-		public static Seed as int = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()	#1821724748 #
+		public static Seed as int = 10920812 #System.Random(System.DateTime.Now.Ticks & 0x0000FFFF).Next()	#1821724748 #
 
 
 	struct Chunks:

@@ -20,20 +20,19 @@ class V1NoiseData (INoiseData):
 		subsoil2 = Constant(33)
 
 
-		layer0 = VerticalFill(Constant(91), air, 11)
-		layer1 = VerticalFill(topsoil, layer0, 10)
-		layer2 = VerticalFill(subsoil, layer1, 8)
-		layer3 = VerticalFill(subsoil2, layer2, 4)
+		layer0 = VerticalFill(Constant(91), air, 7)
+		layer1 = VerticalFill(topsoil, layer0, 6)
+		layer2 = VerticalFill(subsoil, layer1, 4)
+		layer3 = VerticalFill(subsoil2, layer2, 2)
 		layer4 = VerticalFill(bedrock, layer3, 0)
-
-		
 
 
 		# frequency
 		# lacunarity: how quickly the frequency increases per octave
 		# exponent
 		# octaves
-		hills = Filter.SumFractal(0.1, 0.1, 1.2, 2.0)
+
+		hills = Filter.SumFractal(0.01, 1, 1, 6)
 		hills.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
 
 		turb = Transformer.Displace(layer4,

@@ -25,7 +25,6 @@ class Chunk:
 	_generate_mesh as bool
 	
 	interpolate = true
-
 	
 
 	# coordinates, size, block generator, visual mesh generator, physics mesh generator
@@ -100,6 +99,7 @@ class Chunk:
 	def setLight(x as byte, y as byte, z as byte, val as byte):
 		lock lights:
 			lights[x, y, z] = val
+
 	def trilinear_interpolation(v000 as byte, v100 as byte, v010 as byte,
 								v110 as byte, v001 as byte, v101 as byte,
 								v011 as byte, v111 as byte,
@@ -137,32 +137,33 @@ class Chunk:
 		g = Math.Abs(result - v011)
 		h = Math.Abs(result - v111)
 		
-		if a < new_distance:
-			new_block = v000
-			new_distance = a
-		if b < new_distance:
-			new_block = v100
-			new_distance = b            
-		if c < new_distance:
-			new_block = v010
-			new_distance = c            
-		if d < new_distance:
-			new_block = v110
-			new_distance = d            
-		if e < new_distance:
-			new_block = v001
-			new_distance = e
-		if f < new_distance:
-			new_block = v101
-			new_distance = f            
-		if g < new_distance:
-			new_block = v011
-			new_distance = g            
 		if h < new_distance:
 			new_block = v111
 			new_distance = h
+		if g < new_distance:
+			new_block = v011
+			new_distance = g
+		if f < new_distance:
+			new_block = v101
+			new_distance = f
+		if e < new_distance:
+			new_block = v001
+			new_distance = e
+		if d < new_distance:
+			new_block = v110
+			new_distance = d
+		if c < new_distance:
+			new_block = v010
+			new_distance = c
+		if b < new_distance:
+			new_block = v100
+			new_distance = b
+		if a < new_distance:
+			new_block = v000
+			new_distance = a
 
 		return new_block
+	
 	# def trilinear_interpolation(v000 as byte, v100 as byte, v010 as byte,
 	# 							v110 as byte, v001 as byte, v101 as byte,
 	# 							v011 as byte, v111 as byte,
