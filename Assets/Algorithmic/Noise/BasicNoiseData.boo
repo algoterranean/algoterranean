@@ -9,7 +9,7 @@ class BasicNoiseData (INoiseData):
 	#seed_generator = System.Random(System.DateTime.Now.Ticks & 0x0000FFFF)
 	#seed_generator.Next()	
 	seed = Settings.Terrain.Seed
-	coord_scale = 1/Settings.Chunks.Depth
+	coord_scale = 1 / Settings.Chunks.Depth * 2
 
 	def constructor():
 		## constant0 = Primitive.Constant(0)
@@ -17,7 +17,7 @@ class BasicNoiseData (INoiseData):
 		## constant_neg1 = Primitive.Constant(-1)
 
 		#Magma = Primitive.Constant(BLOCK.MAGMA cast int)
-		Solid = Primitive.Constant(50)
+		Solid = Primitive.Constant(30)
 		Air = Primitive.Constant(0)
 		
 		# basic terrain

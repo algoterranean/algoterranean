@@ -10,9 +10,9 @@ class MineralNoiseData (INoiseData):
 
 	def constructor():
 		Grass = Primitive.Constant(90)
-		Solid = Primitive.Constant(50)
-		Rock = Primitive.Constant(50)
-		Dirt = Primitive.Constant(50)
+		Solid = Primitive.Constant(30)
+		Rock = Primitive.Constant(30)
+		Dirt = Primitive.Constant(32)
 		Air = Primitive.Constant(0)
 		constant1 = Primitive.Constant(1)
 		

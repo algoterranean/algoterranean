@@ -15,6 +15,6 @@ class DayCycle (MonoBehaviour):
 
 	def FixedUpdate():
 		time_of_day = (time_of_day + Time.deltaTime * speed_factor) % 86400 # 86400 = number of seconds in a day
-		# sun_light.transform.RotateAround(player_obj.transform.position, Vector3.right, 0.3 * Time.deltaTime)
+		# sun_light.transform.RotateAround(player_obj.transform.position, Vector3.right, Time.deltaTime)
 		# sun_light.transform.LookAt(player_obj.transform.position)
 		

@@ -5,15 +5,14 @@ Shader "Custom/VertexColorPlusDiffusePlusShadows" {
     SubShader {
 	Tags { "RenderType" = "Opaque" }
 	Pass {
-
 	    Tags { "LightMode" = "ForwardBase" }
 
 	    CGPROGRAM
 	    #pragma vertex vert
 	    #pragma fragment frag
-		//#pragma multi_compile_fwdbase
+	    //#pragma multi_compile_fwdbase
             #pragma multi_compile_fwdadd_fullshadows
-		//#pragma fragmentoption ARB_precision_hint_fastest
+	    //#pragma fragmentoption ARB_precision_hint_fastest
 
 
 	    #include "UnityCG.cginc"
@@ -57,9 +56,6 @@ Shader "Custom/VertexColorPlusDiffusePlusShadows" {
 		o.color = lerp(v.color, float4(diffuse_reflection, 1.0), 0.5);
 		TRANSFER_VERTEX_TO_FRAGMENT(o);
 
-		/* OUT._ShadowCoord = mul (unity_World2Shadow[0], mul(_Object2World,IN.pos)); */
-		/* OUT._ShadowCoord = ComputeScreenPos(OUT.pos); */
-
 		return o;
 	    };
 
@@ -68,7 +64,7 @@ Shader "Custom/VertexColorPlusDiffusePlusShadows" {
 		fragment_output OUT;
 
 		float atten = LIGHT_ATTENUATION(IN);
-		OUT.color = IN.color * atten; //float4(atten, atten, atten, 1); //IN.color * atten;
+		OUT.color = IN.color * atten;
 
 		return OUT;
 	    };

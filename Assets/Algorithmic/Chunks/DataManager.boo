@@ -272,6 +272,7 @@ class DataManager (MonoBehaviour):
 													#BiomeNoiseData2().getBlock,
 													#FormFlatNoiseData().getBlock,
 													V1NoiseData().getBlock,
+													#BasicNoiseData().getBlock,
 													mesh_generator,
 													mesh_physx_generator))
 
@@ -485,6 +486,7 @@ class DataManager (MonoBehaviour):
 							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
 							chunks_to_update["$c"] = c
 
+						# if the block being updated is at the border, we need to update the neighboring chunk meshes so there are no holes
 						if local_coord.x == 0:
 							c = chunks[WorldBlockCoordinate(chunk_coord.x - chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
 							chunks_to_update["$c"] = c

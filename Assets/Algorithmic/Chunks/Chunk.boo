@@ -26,7 +26,6 @@ class Chunk:
 	
 	interpolate = true
 
-
 	
 
 	# coordinates, size, block generator, visual mesh generator, physics mesh generator

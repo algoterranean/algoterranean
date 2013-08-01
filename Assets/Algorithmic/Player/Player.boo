@@ -50,6 +50,8 @@ class Player (MonoBehaviour):
 		main_camera = gameObject.Find("Player/First Person Controller/Main Camera")
 		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline2")
 		stats = gameObject.Find("Engine/ChunkManager").GetComponent("Stats")
+
+		# center the player in the center of the world
 		transform.position = Vector3(Settings.Chunks.Size * Settings.Chunks.Scale * 1.5,
 									 transform.position.y,
 									 Settings.Chunks.Size * Settings.Chunks.Scale * 1.5)
