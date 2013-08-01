@@ -50,6 +50,9 @@ class Player (MonoBehaviour):
 		main_camera = gameObject.Find("Player/First Person Controller/Main Camera")
 		block_outline = gameObject.Find("Block Outline").GetComponent("BlockOutline2")
 		stats = gameObject.Find("Engine/ChunkManager").GetComponent("Stats")
+		transform.position = Vector3(Settings.Chunks.Size * Settings.Chunks.Scale * 1.5,
+									 transform.position.y,
+									 Settings.Chunks.Size * Settings.Chunks.Scale * 1.5)
 		Time.timeScale = 0
 
 
@@ -66,7 +69,7 @@ class Player (MonoBehaviour):
 			else:
 				Time.timeScale = 1
 
-		
+
 		# TO DO: should only happen once! FIX!
 		mm = gameObject.Find("Player/KGFMapSystem/photo/photo_plane_0_0")
 		gameObject.Destroy(mm)
