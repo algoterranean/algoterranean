@@ -4,7 +4,7 @@ import Algorithmic.Chunks
 
 
 
-class FormFlatNoiseData (INoiseData):
+class FormFlatNoiseData: #(INoiseData):
 	seed = Settings.Terrain.Seed
 	# coord_scale = 1 / (Settings.Chunks.MaxVertical * Settings.Chunks.Size)
 	#1/Settings.Chunks.Depth * 4

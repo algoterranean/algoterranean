@@ -1,7 +1,7 @@
 import LibNoise
 import Algorithmic.Chunks
 
-class BiomeNoiseData2 (INoiseData):
+class BiomeNoiseData2: #(INoiseData):
 	total_select as Transformer.Turbulence
 
 	voronoi_select as Filter.Voronoi

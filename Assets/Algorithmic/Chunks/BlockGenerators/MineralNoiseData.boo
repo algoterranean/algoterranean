@@ -3,7 +3,7 @@ import LibNoise
 import Algorithmic.Chunks
 import Algorithmic
 
-class MineralNoiseData (INoiseData):
+class MineralNoiseData: #(INoiseData):
 	total_select as Modifier.Select
 	seed = Settings.Terrain.Seed
 	coord_scale = 1/Settings.Chunks.Depth

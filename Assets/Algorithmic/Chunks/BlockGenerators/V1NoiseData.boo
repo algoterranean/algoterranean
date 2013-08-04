@@ -5,7 +5,7 @@ import UnityEngine
 
 
 
-class V1NoiseData (INoiseData):
+class V1NoiseData: #(INoiseData):
 	seed = Settings.Terrain.Seed
 	total_select as IModule3D
 
@@ -32,7 +32,14 @@ class V1NoiseData (INoiseData):
 		# exponent
 		# octaves
 
-		hills = Filter.SumFractal(0.01, 1, 1, 6)
+		hills = Filter.Billow() #0.01, 1, 1, 6)
+		# hills = Filter.SinFractal() #2.0, 2.5, 1.0, 3.0)
+		hills.Frequency = 0.05 #2.0
+		hills.Lacunarity = 0.5 # 2.5
+		hills.OctaveCount = 3.0
+		# hills.Frequency = 0.2
+		# hills.Lacunarity = 1
+		# hills.OctaveCount = 3
 		hills.Primitive3D = Primitive.SimplexPerlin(seed, NoiseQuality.Standard)
 
 		turb = Transformer.Displace(layer4,

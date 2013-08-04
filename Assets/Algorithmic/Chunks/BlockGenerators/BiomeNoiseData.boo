@@ -1,7 +1,7 @@
 import LibNoise
 import Algorithmic.Chunks
 
-class BiomeNoiseData (INoiseData):
+class BiomeNoiseData:# (INoiseData):
 	total_select as Modifier.Select
 	biome_select as Filter.Billow
 	lowlands_turb as Transformer.Displace

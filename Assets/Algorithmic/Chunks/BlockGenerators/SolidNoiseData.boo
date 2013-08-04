@@ -2,7 +2,7 @@ import Algorithmic.Chunks
 import LibNoise
 import UnityEngine
 
-class SolidNoiseData (INoiseData):
+class SolidNoiseData: #(INoiseData):
 	select as Primitive.Constant
 	coord_scale = 1/Settings.Chunks.Depth
 	
