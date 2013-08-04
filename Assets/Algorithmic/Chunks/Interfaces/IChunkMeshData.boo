@@ -23,6 +23,6 @@ interface IChunkMeshData ():
 	def getNormals() as (Vector3)
 	def getTriangles() as (int)
 	def getUVs() as (Vector2)
-	def getTree() as BoundingVolumeTree
+	# def getTree() as BoundingVolumeTree
 
 
