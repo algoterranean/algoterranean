@@ -4,9 +4,9 @@ import UnityEngine
 
 
 class PlayerCamera (MonoBehaviour):
-	#chunk_manager as ChunkManager
+	# chunk_manager as ChunkManager
 	player as Player
-	player_particle as Algorithmic.Particle
+	# player_particle as Algorithmic.Particle
 	zoom as single
 	orientation as Vector3
 	rotate_speed as single

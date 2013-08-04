@@ -3,7 +3,7 @@ namespace Algorithmic.Player
 import UnityEngine
 import System.Math
 import Algorithmic.Chunks
-import Algorithmic.Physics
+#import Algorithmic.Physics
 import Algorithmic.Utils
 
 
