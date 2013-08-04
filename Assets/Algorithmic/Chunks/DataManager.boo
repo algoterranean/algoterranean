@@ -234,6 +234,7 @@ class DataManager (MonoBehaviour):
 					# and then generate the 2 meshes (physics and visual)
 					chunk.GenerateMesh = false
 					t1 = System.DateTime.Now
+					chunk.initializeLights()					
 					#chunk.generateLights(neighbors)
 					chunk.generateMesh(neighbors)
 					t2 = System.DateTime.Now
