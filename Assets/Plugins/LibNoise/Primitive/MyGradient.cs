@@ -27,9 +27,28 @@ namespace LibNoise.Primitive {
       //m_gx2 = x2;
       //m_gy2 = y2;
       //m_gz2 = z2;
-      m_dx = x1 - x2;
-      m_dy = y1 - y2;
-      m_dz = z1 - z2;
+      if (x1 < 0)
+      {
+	  m_dx = x2 - x1;
+      } else
+	{
+	    m_dx = x1 - x2;	    
+	}
+      if (y1 < 0)
+      {
+	  m_dy = y2 - y1;
+      } else
+	{
+	          m_dy = y1 - y2;
+	}
+      if (z1 < 0)
+      {
+	  m_dz = z2 - z1;
+      } else
+	{
+      m_dz = z1 - z2;	    
+	}
+
       m_len = (float)System.Math.Sqrt(m_dx*m_dx + m_dy*m_dy + m_dz*m_dz);
 
 	}
@@ -63,10 +82,11 @@ namespace LibNoise.Primitive {
     /// <param name="z">The input coordinate on the z-axis.</param>
     /// <returns>The resulting output value.</returns>
     public float GetValue(float x, float y, float z) {
-      float dx = (x - m_gx1);
-      float dy = (y - m_gy1);
-      float dz = (z - m_gz1);
-      float dp = dx*m_dx + dy*m_dy + dz*m_dz;
+	float dx, dy, dz, dp;
+      dx = (x - m_gx1);
+      dy = (y - m_gy1);
+      dz = (z - m_gz1);
+      dp = dx*m_dx + dy*m_dy + dz*m_dz;
       //float result = System.Math.Abs(dp/m_len);
       float result = dp/m_len * -1.0f;
       //result = 1.0f / result;
