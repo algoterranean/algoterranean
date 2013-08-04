@@ -6,7 +6,8 @@ import Algorithmic
 # for each face on a block where there is AIR in the direction of that face.
 # this algorithm will take into account the neighboring chunks for efficiency purposes.
 def generateMesh(chunk as Chunk,
-				 neighbors as Dictionary[of WorldBlockCoordinate, Chunk]) as MeshData:
+				 neighbors as Dictionary[of WorldBlockCoordinate, Chunk],
+				 water as bool) as MeshData:
 
 	blocks = chunk.Blocks
 	block_lights = chunk.Lights
@@ -596,6 +597,88 @@ def generateMesh(chunk as Chunk,
 	n_s = neighbors[s]
 	n_u = neighbors[u]
 	n_d = neighbors[d]
+
+	def do_west(x as int, y as int, z as int, block as byte):
+		vertices.Add(Vector3(x, y, z))
+		vertices.Add(Vector3(x, y, z+1))
+		vertices.Add(Vector3(x, y+1, z+1))
+		vertices.Add(Vector3(x, y+1, z))
+		vertice_count += 4
+		_add_triangles()
+		_add_normals(Vector3(-1, 0, 0))
+		# for i in range(4):
+		# 	lights.Add(Color(1, 1, 1, 1))	
+							
+		_add_east_west_lights(x, y, z, "WEST", Blocks.block_def[block].color)
+		# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+
+	def do_east(x as int, y as int, z as int, block as byte):
+		vertices.Add(Vector3(x+1, y, z+1))
+		vertices.Add(Vector3(x+1, y, z))
+		vertices.Add(Vector3(x+1, y+1, z))
+		vertices.Add(Vector3(x+1, y+1, z+1))
+		vertice_count += 4
+		_add_triangles()
+		_add_normals(Vector3(1, 0, 0))
+		# for i in range(4):
+		# 	lights.Add(Color(1, 1, 1, 1))
+		_add_east_west_lights(x, y, z, "EAST", Blocks.block_def[block].color)
+		# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+
+	def do_south(x as int, y as int, z as int, block as byte):
+		vertices.Add(Vector3(x+1, y, z))
+		vertices.Add(Vector3(x, y, z))
+		vertices.Add(Vector3(x, y+1, z))
+		vertices.Add(Vector3(x+1, y+1, z))
+		vertice_count += 4
+		_add_triangles()
+		# for i in range(4):
+		# 	lights.Add(Color(1, 1, 1, 1))
+		_add_north_south_lights(x, y, z, "SOUTH", Blocks.block_def[block].color)
+		_add_normals(Vector3(0, 0, -1))
+		# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+
+	def do_north(x as int, y as int, z as int, block as byte):
+		vertices.Add(Vector3(x, y, z+1))
+		vertices.Add(Vector3(x+1, y, z+1))
+		vertices.Add(Vector3(x+1, y+1, z+1))
+		vertices.Add(Vector3(x, y+1, z+1))
+		vertice_count += 4
+		_add_triangles()
+		_add_normals(Vector3(0, 0, 1))
+		# for i in range(4):
+		# 	lights.Add(Color(1, 1, 1, 1))
+		_add_north_south_lights(x, y, z, "NORTH", Blocks.block_def[block].color)
+		
+		# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+
+	def do_down(x as int, y as int, z as int, block as byte):
+		vertices.Add(Vector3(x+1, y, z+1))
+		vertices.Add(Vector3(x, y, z+1))
+		vertices.Add(Vector3(x, y, z))
+		vertices.Add(Vector3(x+1, y, z))
+		vertice_count += 4
+		_add_triangles()
+		_add_normals(Vector3(0, -1, 0))
+		# for i in range(4):
+		# 	lights.Add(Color(1, 1, 1, 1))
+		_add_up_down_lights(x, y, z, "DOWN", Blocks.block_def[block].color)
+		# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+
+	def do_up(x as int, y as int, z as int, block as byte):
+		vertices.Add(Vector3(x+1, y+1, z))
+		vertices.Add(Vector3(x, y+1, z))
+		vertices.Add(Vector3(x, y+1, z+1))
+		vertices.Add(Vector3(x+1, y+1, z+1))
+		vertice_count += 4
+		_add_triangles()
+		_add_normals(Vector3(0, 1, 0))
+		# for i in range(4):
+		# 	lights.Add(Color(1, 1, 1, 1))
+		_add_up_down_lights(x, y, z, "UP", Blocks.block_def[block].color)
+		# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+		
+		
 	
 	for x as byte in range(chunk_size):
 		for y as byte in range(chunk_size):
@@ -603,97 +686,44 @@ def generateMesh(chunk as Chunk,
 				# get this block and all the neighbor block values, taking into account
 				# if the neighbor block is actually in a neighboring chunk
 				block = blocks[x, y, z]
+
+				
 				block_west = (n_w.getBlock(chunk_size-1, y, z) if x == 0 else blocks[x-1, y, z])
 				block_east = (n_e.getBlock(0, y, z) if x == chunk_size - 1 else blocks[x+1, y, z])
 				block_south = (n_s.getBlock(x, y, chunk_size-1) if z == 0 else blocks[x, y, z-1])
 				block_north = (n_n.getBlock(x, y, 0) if z == chunk_size - 1 else blocks[x, y, z+1])
 				block_down = (n_d.getBlock(x, chunk_size-1, z) if y == 0 else blocks[x, y-1, z])
 				block_up = (n_u.getBlock(x, 0, z) if y == chunk_size - 1 else blocks[x, y+1, z])
-
+				
 				# if this block is solid and the neighboring block is not, generate a face
-				if block:
-					
+				if not water and block:
 					if not block_west:
-						vertices.Add(Vector3(x, y, z))
-						vertices.Add(Vector3(x, y, z+1))
-						vertices.Add(Vector3(x, y+1, z+1))
-						vertices.Add(Vector3(x, y+1, z))
-						vertice_count += 4
-						_add_triangles()
-						_add_normals(Vector3(-1, 0, 0))
-						# for i in range(4):
-						# 	lights.Add(Color(1, 1, 1, 1))	
-							
-						_add_east_west_lights(x, y, z, "WEST", Blocks.block_def[block].color)
-						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-						
-
+						do_west(x, y, z, block)
 					if not block_east:
-						vertices.Add(Vector3(x+1, y, z+1))
-						vertices.Add(Vector3(x+1, y, z))
-						vertices.Add(Vector3(x+1, y+1, z))
-						vertices.Add(Vector3(x+1, y+1, z+1))
-						vertice_count += 4
-						_add_triangles()
-						_add_normals(Vector3(1, 0, 0))
-						# for i in range(4):
-						# 	lights.Add(Color(1, 1, 1, 1))
-						_add_east_west_lights(x, y, z, "EAST", Blocks.block_def[block].color)
-						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-
-
+						do_east(x, y, z, block)
 					if not block_south:
-						vertices.Add(Vector3(x+1, y, z))
-						vertices.Add(Vector3(x, y, z))
-						vertices.Add(Vector3(x, y+1, z))
-						vertices.Add(Vector3(x+1, y+1, z))
-						vertice_count += 4
-						_add_triangles()
-						# for i in range(4):
-						# 	lights.Add(Color(1, 1, 1, 1))
-						_add_north_south_lights(x, y, z, "SOUTH", Blocks.block_def[block].color)
-						_add_normals(Vector3(0, 0, -1))
-						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-
+						do_south(x, y, z, block)
 					if not block_north:
-						vertices.Add(Vector3(x, y, z+1))
-						vertices.Add(Vector3(x+1, y, z+1))
-						vertices.Add(Vector3(x+1, y+1, z+1))
-						vertices.Add(Vector3(x, y+1, z+1))
-						vertice_count += 4
-						_add_triangles()
-						_add_normals(Vector3(0, 0, 1))
-						# for i in range(4):
-						# 	lights.Add(Color(1, 1, 1, 1))
-						_add_north_south_lights(x, y, z, "NORTH", Blocks.block_def[block].color)
-						
-						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-
+						do_north(x, y, z, block)
 					if not block_down:
-						vertices.Add(Vector3(x+1, y, z+1))
-						vertices.Add(Vector3(x, y, z+1))
-						vertices.Add(Vector3(x, y, z))
-						vertices.Add(Vector3(x+1, y, z))
-						vertice_count += 4
-						_add_triangles()
-						_add_normals(Vector3(0, -1, 0))
-						# for i in range(4):
-						# 	lights.Add(Color(1, 1, 1, 1))
-						_add_up_down_lights(x, y, z, "DOWN", Blocks.block_def[block].color)
-						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
-
+						do_down(x, y, z, block)
 					if not block_up:
-						vertices.Add(Vector3(x+1, y+1, z))
-						vertices.Add(Vector3(x, y+1, z))
-						vertices.Add(Vector3(x, y+1, z+1))
-						vertices.Add(Vector3(x+1, y+1, z+1))
-						vertice_count += 4
-						_add_triangles()
-						_add_normals(Vector3(0, 1, 0))
-						# for i in range(4):
-						# 	lights.Add(Color(1, 1, 1, 1))
-						_add_up_down_lights(x, y, z, "UP", Blocks.block_def[block].color)
-						# _add_uvs(Blocks.block_def[block].uv_x, Blocks.block_def[block].uv_y)
+						do_up(x, y, z, block)
+
+				elif water and block == 200:
+					if block_west != 200:
+						do_west(x, y, z, block)
+					if block_east != 200:
+						do_east(x, y, z, block)
+					if block_south != 200:
+						do_south(x, y, z, block)
+					if block_north != 200:
+						do_north(x, y, z, block)
+					if block_down != 200:
+						do_down(x, y, z, block)
+					if block_up != 200:
+						do_up(x, y, z, block)
+					
 
 	# convert all of the Lists to arrays since this is what Unity's Mesh will be expecting.
 	# ToArray is highly optimized in Mono.

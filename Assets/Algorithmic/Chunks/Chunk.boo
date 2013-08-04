@@ -14,6 +14,7 @@ class Chunk:
 	lights as (byte, 3)
 	
 	mesh_data as MeshData
+	mesh_water_data as MeshData
 	mesh_physx_data as MeshData
 	
 	block_generator as BlockGenerator # TODO: block generator is actually getValue(x, y, z) from a Noise module
@@ -24,7 +25,7 @@ class Chunk:
 	_generate_blocks as bool
 	_generate_mesh as bool
 	
-	interpolate = true
+	interpolate = false
 	
 
 	# coordinates, size, block generator, visual mesh generator, physics mesh generator
@@ -81,7 +82,9 @@ class Chunk:
 	# be only one object handling this chunk's mesh (for now).
 	def clearMeshData():
 		mesh_data = null
+		mesh_water_data = null		
 		mesh_physx_data = null
+
 			
 
 	def getBlock(x as byte, y as byte, z as byte) as byte:
@@ -229,39 +232,32 @@ class Chunk:
 	# use interpolation to generate the "corner" blocks and then interpolate
 	# between the corners for performance reasons.
 	def generateBlocks():
+		temp_floats = matrix(single, size+1, size+1, size+1) # +1 for last block necessary for interpolation
+		scale = 1/Settings.Chunks.Scale
+		c_x as long = coords.x / Settings.Chunks.Scale
+		c_y as long = coords.y / Settings.Chunks.Scale
+		c_z as long = coords.z / Settings.Chunks.Scale		
+
 		if not interpolate:
-			scale = 1/Settings.Chunks.Scale
-			c_x as long = coords.x / Settings.Chunks.Scale
-			c_y as long = coords.y / Settings.Chunks.Scale
-			c_z as long = coords.z / Settings.Chunks.Scale
 			new_size = size cast int
 			lock blocks:
 				for x in range(new_size):
 					for z in range(new_size):
 						for y in range(new_size):
-							blocks[x, y, z] = block_generator(x + c_x, y + c_y, z + c_z)
-
+							temp_floats[x, y, z] = block_generator(x + c_x, y + c_y, z + c_z)
 		else:
-			temp_floats = matrix(single, size+1, size+1, size+1) # +1 for last block necessary for interpolation
-			
 			skip_size_x = Settings.Chunks.Interpolate.X
 			skip_size_f_x = skip_size_x cast single
 			skip_size_y = Settings.Chunks.Interpolate.Y
 			skip_size_f_y = skip_size_y cast single
 			skip_size_z = Settings.Chunks.Interpolate.Z
 			skip_size_f_z = skip_size_z cast single			
-			scale = 1/Settings.Chunks.Scale
-			c_x2 as long = coords.x / Settings.Chunks.Scale
-			c_y2 as long = coords.y / Settings.Chunks.Scale
-			c_z2 as long = coords.z / Settings.Chunks.Scale
-
-
 			
 			# set all of the corner blocks necessary for interpolation
 			for x in range(0, size+1, skip_size_x):
 				for z in range(0, size+1, skip_size_z):
 					for y in range(0, size+1, skip_size_y):
-						temp_floats[x, y, z] = block_generator(x + c_x2, y + c_y2, z + c_z2)
+						temp_floats[x, y, z] = block_generator(x + c_x, y + c_y, z + c_z)
 						# blocks[x, y, z] = 
 						
 			# generate all the other blocks via interpolation
@@ -303,19 +299,42 @@ class Chunk:
 															 # blocks[x_0, y_0, z_0], blocks[x_1, y_1, z_1])
 							temp_floats[x, y, z] = result
 							
-			for x in range(size+1):
-				for y in range(size+1):
-					for z in range(size+1):
-						blocks[x, y, z] = (30 if temp_floats[x, y, z] < 0.5 else 0)
 
+		for x in range(size+1):
+			for y in range(size+1):
+				for z in range(size+1):
+					# add solid blocks and air
+					blocks[x, y, z] = (30 if temp_floats[x, y, z] < 0.5 else 0)
+					# add water if its air and below sea level
+					if y + c_y < Settings.Terrain.SeaLevel and blocks[x, y, z] == 0:
+						blocks[x, y, z] = 200
 
+		# turn solid to sand if its touching water
+		for x in range(size+1):
+			for y in range(size+1):
+				for z in range(size+1):
+					if x > 0 and y > 0 and z > 0 and x < size and y < size and z < size:
+						if blocks[x, y, z] == 30 and \
+							(blocks[x-1, y, z] == 200 or \
+							 blocks[x+1, y, z] == 200 or \
+							 blocks[x, y, z-1] == 200 or \
+							 blocks[x, y, z+1] == 200 or \
+							 blocks[x, y-1, z] == 200 or \
+							 blocks[x, y+1, z] == 200 or \
+							 blocks[x-1, y, z-1] == 200 or \
+							 blocks[x+1, y, z-1] == 200 or \
+							 blocks[x-1, y, z+1] == 200 or \
+							 blocks[x+1, y, z+1] == 200):
+							blocks[x, y, z] = 81
 
+							
 
 	# use the provided mesh generator functions to generate the physics mesh
 	# and the display mesh.
 	def generateMesh(neighbors as Dictionary[of WorldBlockCoordinate, Chunk]):
-		mesh_data = mesh_generator(self, neighbors)
-		mesh_physx_data = mesh_physx_generator(self, neighbors)
+		mesh_data = mesh_generator(self, neighbors, false)
+		mesh_water_data = mesh_generator(self, neighbors, true)
+		mesh_physx_data = mesh_physx_generator(self, neighbors, false)
 
 	# used by DisplayManager
 	def getMeshData() as MeshData:
@@ -323,7 +342,10 @@ class Chunk:
 
 	# used by DisplayManager
 	def getMeshPhysXData() as MeshData:
-		return mesh_physx_data	
+		return mesh_physx_data
+
+	def getMeshWaterData() as MeshData:
+		return mesh_water_data
 
 	def getCoords() as WorldBlockCoordinate:
 		return coords

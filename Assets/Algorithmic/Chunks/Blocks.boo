@@ -38,8 +38,9 @@ static class Blocks:
 					r as byte = Convert.ToByte(properties[4].Trim())
 					g as byte = Convert.ToByte(properties[5].Trim())
 					b as byte = Convert.ToByte(properties[6].Trim())
+					a as byte = Convert.ToByte(properties[7].Trim())					
 					
-					block_def[id] = Block(id, uv_x, uv_y, Color(r/255.0, g/255.0, b/255.0, 0))
+					block_def[id] = Block(id, uv_x, uv_y, Color(r/255.0, g/255.0, b/255.0, a/255.0))
 
 					
 

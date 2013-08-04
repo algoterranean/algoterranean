@@ -15,6 +15,7 @@ class DisplayManager (MonoBehaviour):
 	
 	# use the same mesh_mat instance so that Unity can use draw batching
 	mesh_mat as Material
+	mesh_water_mat as Material
 
 	# draw_meshes_directly = false
 	# dictionary for quick look up when removing or refreshing meshes
@@ -31,6 +32,7 @@ class DisplayManager (MonoBehaviour):
 		add_mesh_queue = Queue[of Chunk]()
 		remove_mesh_queue = Queue[of Chunk]()
 		mesh_mat = Resources.Load("Materials/Terrain") as Material
+		mesh_water_mat = Resources.Load("Materials/Water") as Material		
 
 		terrain_parent = gameObject.Find("Terrain")
 		terrain_objects = Dictionary[of WorldBlockCoordinate, GameObject]()
@@ -125,7 +127,8 @@ class DisplayManager (MonoBehaviour):
 	def _create_mesh_object(c as Chunk):
 		# print "DISPLAYING $c"
 		scale = Settings.Chunks.Scale
-		
+
+		# SOLID TERRAIN
 		m = c.getMeshData()
 		mesh = Mesh()
 		mesh.vertices = m.vertices
@@ -154,5 +157,30 @@ class DisplayManager (MonoBehaviour):
 		o.GetComponent(MeshCollider).sharedMesh = mesh_physx
 		
 		terrain_objects[coords] = o
+
+		# WATER TERRAIN
+		m_w = c.getMeshWaterData()
+		mesh_w = Mesh()
+		mesh_w.vertices = m_w.vertices
+		mesh_w.triangles = m_w.triangles
+		mesh_w.normals = m_w.normals
+		mesh_w.uv = m_w.uvs
+		mesh_w.colors = m_w.lights
+
+		o2 = GameObject()
+		o2.name = "$c Water"
+		coords = c.getCoords()
+		o2.transform.parent = terrain_parent.transform
+		o2.transform.localScale = Vector3(scale, scale, scale)
+		o2.transform.position = Vector3(coords.x, coords.y, coords.z)
+			
+		o2.AddComponent(MeshFilter)
+		o2.AddComponent(MeshRenderer)
+		o2.AddComponent(MeshCollider)
+		o2.GetComponent(MeshRenderer).material = mesh_water_mat #Resources.Load("Materials/Measure") as Material
+		o2.GetComponent(MeshFilter).sharedMesh = mesh_w
+		# o.GetComponent(MeshCollider).sharedMesh = mesh_physx
+		
+
 		c.clearMeshData()
 

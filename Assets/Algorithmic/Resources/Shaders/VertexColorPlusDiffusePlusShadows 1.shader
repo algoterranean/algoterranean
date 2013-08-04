@@ -1,11 +1,11 @@
-Shader "Custom/VertexColorPlusDiffusePlusShadows" {
+Shader "Custom/VertexColorPlusDiffusePlusShadows 1" {
     Properties {
 	_Color ("Diffuse Color", Color) = (1.0, 1.0, 1.0, 1.0)
     }
     SubShader {
-	Tags { "RenderType" = "Opaque" }
+	Tags { "RenderType" = "Transparent" }
 	Pass {
-	    Tags { "LightMode" = "ForwardBase" }
+	    Tags { "LightMode" = "ForwardBase" "Queue" = "Transparent"}
 
 
 	    CGPROGRAM

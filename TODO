@@ -2,6 +2,12 @@
 #+STARTUP: hidestars
 #+STARTUP: content
 
+1. Convert block generation to floats.
+2. Change interpolation to use floats.
+3. Fix height of the world.
+4. Add new sunlight from above.
+5. Add water.
+
 
 +--------------------------------+
  Algorithmic: TODO List and Notes

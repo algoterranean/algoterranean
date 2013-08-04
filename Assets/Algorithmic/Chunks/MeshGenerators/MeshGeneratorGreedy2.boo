@@ -1,7 +1,8 @@
 namespace Algorithmic.Chunks
 
 def generateMeshGreedy2(chunk as Chunk,
-						neighbors as System.Collections.Generic.Dictionary[of WorldBlockCoordinate, Chunk]) as MeshData:
+						neighbors as System.Collections.Generic.Dictionary[of WorldBlockCoordinate, Chunk],
+						include_water as bool) as MeshData:
 	blocks = chunk.Blocks
 	chunk_size = Settings.Chunks.Size
 	vertices = List[of Vector3]()
