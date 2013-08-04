@@ -45,7 +45,8 @@ class MeshData:
 		lights = l
 
 # block and mesh generator function signatures
-callable BlockGenerator(world_x as long, world_y as long, world_z as long) as byte
+# callable BlockGenerator(world_x as long, world_y as long, world_z as long) as byte
+callable BlockGenerator(world_x as long, world_y as long, world_z as long) as single
 callable MeshGenerator(chunk as Chunk, neighbors as Dictionary[of WorldBlockCoordinate, Chunk]) as MeshData
 
 
@@ -186,7 +187,7 @@ class DataManager (MonoBehaviour):
 						# when the neighbors are ready
 						chunk.GenerateBlocks = false
 						chunk.generateBlocks()
-						chunk.initializeLights()
+						# chunk.initializeLights()
 						chunk.GenerateMesh = true
 						t2 = System.DateTime.Now
 
@@ -272,7 +273,7 @@ class DataManager (MonoBehaviour):
 													chunk_size,
 													#BiomeNoiseData2().getBlock,
 													#FormFlatNoiseData().getBlock,
-													V1NoiseData().getBlock,
+													V2BlockGenerator().getBlock,
 													#BasicNoiseData().getBlock,
 													mesh_generator,
 													mesh_physx_generator))
@@ -514,7 +515,7 @@ class DataManager (MonoBehaviour):
 			c = chunks_to_update[k]
 			neighbors = Dictionary[of WorldBlockCoordinate, Chunk]()					
 			_areNeighborsReady(c, neighbors)
-			c.initializeLights()
+			# c.initializeLights()
 			c.generateMesh(neighbors)
 			lock outgoing_queue:
 				outgoing_queue.Enqueue(DMMessage("RefreshMesh", c))
