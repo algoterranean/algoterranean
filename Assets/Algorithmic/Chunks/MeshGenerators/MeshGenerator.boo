@@ -696,18 +696,18 @@ def generateMesh(chunk as Chunk,
 				block_up = (n_u.getBlock(x, 0, z) if y == chunk_size - 1 else blocks[x, y+1, z])
 				
 				# if this block is solid and the neighboring block is not, generate a face
-				if not water and block:
-					if not block_west:
+				if not water and block != 200 and block != 0:
+					if block_west == 0 or block_west == 200:
 						do_west(x, y, z, block)
-					if not block_east:
+					if block_east == 0 or block_east == 200:
 						do_east(x, y, z, block)
-					if not block_south:
+					if block_south == 0 or block_south == 200:
 						do_south(x, y, z, block)
-					if not block_north:
+					if block_north == 0 or block_north == 200:
 						do_north(x, y, z, block)
-					if not block_down:
+					if block_down == 0 or block_down == 200:
 						do_down(x, y, z, block)
-					if not block_up:
+					if block_up == 0 or block_up == 200:
 						do_up(x, y, z, block)
 
 				elif water and block == 200:
