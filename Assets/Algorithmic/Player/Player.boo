@@ -29,7 +29,7 @@ class Player (MonoBehaviour):
 	main_camera as GameObject
 	block_outline as BlockOutline2
 	stats as Stats
-	outline_size = 3
+	outline_size = 1
 
 	enable_physics = false
 	
