@@ -484,7 +484,8 @@ class DataManager (MonoBehaviour):
 						c as Chunk
 						if chunk_coord in chunks:
 							c = chunks[chunk_coord]
-							if c.getBlock(local_coord.x, local_coord.y, local_coord.z) != 200: # don't remove if its water
+							replaced_block = c.getBlock(local_coord.x, local_coord.y, local_coord.z)
+							if ((replaced_block == 200 and block != 0) or (replaced_block != 200)): # cannot dig water
 								c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
 								chunks_to_update["$c"] = c
 
