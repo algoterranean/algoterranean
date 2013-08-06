@@ -122,10 +122,9 @@ class DataManager (MonoBehaviour):
 		thread_list = List[of Thread]()
 		thread_list.Add(Thread(ThreadStart(_origin_thread)))		
 		if not profile_threads:
-			thread_list.Add(Thread(ThreadStart(_block_thread)))
-			# thread_list.Add(Thread(ThreadStart(_block_thread)))
-			thread_list.Add(Thread(ThreadStart(_mesh_thread)))
-			# thread_list.Add(Thread(ThreadStart(_mesh_thread)))
+			for i in range(System.Environment.ProcessorCount/2):
+				thread_list.Add(Thread(ThreadStart(_block_thread)))
+				thread_list.Add(Thread(ThreadStart(_mesh_thread)))
 		_start_threads()			
 		
 		SendMessage("PerfMaxChunks", Math.Pow(Settings.Chunks.MaxHorizontal * 2 + 1, 2) * (Settings.Chunks.MaxVertical * 2 + 1))
