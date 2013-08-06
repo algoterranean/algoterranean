@@ -484,30 +484,31 @@ class DataManager (MonoBehaviour):
 						c as Chunk
 						if chunk_coord in chunks:
 							c = chunks[chunk_coord]
-							c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
-							chunks_to_update["$c"] = c
+							if c.getBlock(local_coord.x, local_coord.y, local_coord.z) != 200: # don't remove if its water
+								c.setBlock(local_coord.x, local_coord.y, local_coord.z, block)
+								chunks_to_update["$c"] = c
 
-						# if the block being updated is at the border, we need to update the neighboring chunk meshes so there are no holes
-						if local_coord.x == 0:
-							c = chunks[WorldBlockCoordinate(chunk_coord.x - chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
-							chunks_to_update["$c"] = c
-						elif local_coord.x == chunk_size - 1:
-							c = chunks[WorldBlockCoordinate(chunk_coord.x + chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
-							chunks_to_update["$c"] = c
+								# if the block being updated is at the border, we need to update the neighboring chunk meshes so there are no holes
+								if local_coord.x == 0:
+									c = chunks[WorldBlockCoordinate(chunk_coord.x - chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
+									chunks_to_update["$c"] = c
+								elif local_coord.x == chunk_size - 1:
+									c = chunks[WorldBlockCoordinate(chunk_coord.x + chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
+									chunks_to_update["$c"] = c
 
-						if local_coord.y == 0:
-							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y- chunk_size * chunk_scale, chunk_coord.z)]
-							chunks_to_update["$c"] = c
-						elif local_coord.y == chunk_size - 1:
-							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y+ chunk_size * chunk_scale, chunk_coord.z)]
-							chunks_to_update["$c"] = c									   
+								if local_coord.y == 0:
+									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y- chunk_size * chunk_scale, chunk_coord.z)]
+									chunks_to_update["$c"] = c
+								elif local_coord.y == chunk_size - 1:
+									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y+ chunk_size * chunk_scale, chunk_coord.z)]
+									chunks_to_update["$c"] = c									   
 
-						if local_coord.z == 0:
-							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z- chunk_size * chunk_scale)]
-							chunks_to_update["$c"] = c
-						elif local_coord.z == chunk_size - 1:
-							c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z+ chunk_size * chunk_scale)]
-							chunks_to_update["$c"] = c									
+								if local_coord.z == 0:
+									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z- chunk_size * chunk_scale)]
+									chunks_to_update["$c"] = c
+								elif local_coord.z == chunk_size - 1:
+									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z+ chunk_size * chunk_scale)]
+									chunks_to_update["$c"] = c									
 						
 
 		for k in chunks_to_update.Keys:
