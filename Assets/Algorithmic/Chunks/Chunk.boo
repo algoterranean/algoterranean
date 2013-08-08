@@ -16,6 +16,7 @@ class Chunk:
 	mesh_data as MeshData
 	mesh_water_data as MeshData
 	mesh_physx_data as MeshData
+	mesh_water_physx_data as MeshData
 	
 	block_generator as BlockGenerator # TODO: block generator is actually getValue(x, y, z) from a Noise module
 	mesh_generator as MeshGenerator
@@ -25,7 +26,7 @@ class Chunk:
 	_generate_blocks as bool
 	_generate_mesh as bool
 	
-	interpolate = false
+	interpolate = true
 	
 
 	# coordinates, size, block generator, visual mesh generator, physics mesh generator
@@ -84,6 +85,7 @@ class Chunk:
 		mesh_data = null
 		mesh_water_data = null		
 		mesh_physx_data = null
+		mesh_water_physx_data = null
 
 			
 
@@ -335,6 +337,7 @@ class Chunk:
 		mesh_data = mesh_generator(self, neighbors, false)
 		mesh_water_data = mesh_generator(self, neighbors, true)
 		mesh_physx_data = mesh_physx_generator(self, neighbors, false)
+		mesh_water_physx_data = mesh_physx_generator(self, neighbors, true)
 
 	# used by DisplayManager
 	def getMeshData() as MeshData:
@@ -346,6 +349,9 @@ class Chunk:
 
 	def getMeshWaterData() as MeshData:
 		return mesh_water_data
+
+	def getMeshWaterPhysXData() as MeshData:
+		return mesh_water_physx_data
 
 	def getCoords() as WorldBlockCoordinate:
 		return coords

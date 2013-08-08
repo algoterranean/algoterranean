@@ -179,7 +179,7 @@ class Player (MonoBehaviour):
 				# 	p.y -= 1
 				# elif out.normal.z == -1:
 				# 	p.z -= 1
-				chunk_ball.setBlocks(p, outline_size, 50)
+				chunk_ball.setBlocks(p, outline_size, main_camera.transform.forward, 30)
 				# chunk_ball.setBlock(p, 50)
 
 	# old physics code

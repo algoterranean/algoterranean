@@ -2,7 +2,7 @@ namespace Algorithmic.Chunks
 
 def generateMeshGreedy2(chunk as Chunk,
 						neighbors as System.Collections.Generic.Dictionary[of WorldBlockCoordinate, Chunk],
-						include_water as bool) as MeshData:
+						water as bool) as MeshData:
 	blocks = chunk.Blocks
 	chunk_size = Settings.Chunks.Size
 	vertices = List[of Vector3]()
@@ -53,15 +53,26 @@ def generateMeshGreedy2(chunk as Chunk,
 					#block_east = BLOCK.AIR
 				else:
 					block_east = blocks[x + 1, y, z]
-				
-				if block and not block_west:
-					west_mask[y, z] = true
+
+				if not water:
+					if block != 0 and block != 200 and not block_west:
+						west_mask[y, z] = true
+					else:
+						west_mask[y, z] = false
+					if block != 0 and block != 200 and not block_east:
+						east_mask[y, z] = true
+					else:
+						east_mask[y, z] = false
 				else:
-					west_mask[y, z] = false
-				if block and not block_east:
-					east_mask[y, z] = true
-				else:
-					east_mask[y, z] = false
+					if block == 200 and block_west != 200:
+						west_mask[y, z] = true
+					else:
+						west_mask[y, z] = false
+					if block == 200 and block_east != 200:
+						east_mask[y, z] = true
+					else:
+						east_mask[y, z] = false
+					
 
 		for y as byte in range(chunk_size):
 			building = false
@@ -181,15 +192,26 @@ def generateMeshGreedy2(chunk as Chunk,
 					#block_north = BLOCK.AIR
 				else:
 					block_north = blocks[x, y, z+1]
-				
-				if block and not block_north:
-					north_mask[y, x] = true
+
+				if not water:
+					if block != 0 and block != 200 and not block_north:
+						north_mask[y, x] = true
+					else:
+						north_mask[y, x] = false
+					if block != 0 and block != 200 and not block_south:
+						south_mask[y, x] = true
+					else:
+						south_mask[y, x] = false
 				else:
-					north_mask[y, x] = false
-				if block and not block_south:
-					south_mask[y, x] = true
-				else:
-					south_mask[y, x] = false
+					if block == 200 and block_north != 200:
+						north_mask[y, x] = true
+					else:
+						north_mask[y, x] = false
+					if block == 200 and block_south != 200:
+						south_mask[y, x] = true
+					else:
+						south_mask[y, x] = false
+					
 					
 		for y as byte in range(chunk_size):
 			building = false
@@ -309,15 +331,26 @@ def generateMeshGreedy2(chunk as Chunk,
 					#block_up = BLOCK.AIR
 				else:
 					block_up = blocks[x, y+1, z]
-				
-				if block and not block_down:
-					up_mask[x, z] = true
+
+				if not water:
+					if block != 0 and block != 200 and not block_down:
+						up_mask[x, z] = true
+					else:
+						up_mask[x, z] = false
+					if block != 0 and block != 200 and not block_up:
+						down_mask[x, z] = true
+					else:
+						down_mask[x, z] = false
 				else:
-					up_mask[x, z] = false
-				if block and not block_up:
-					down_mask[x, z] = true
-				else:
-					down_mask[x, z] = false
+					if block == 200 and block_down != 200:
+						up_mask[x, z] = true
+					else:
+						up_mask[x, z] = false
+					if block == 200 and block_up != 200:
+						down_mask[x, z] = true
+					else:
+						down_mask[x, z] = false
+					
 
 		for x as byte in range(chunk_size):
 			building = false

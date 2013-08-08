@@ -6,9 +6,10 @@ Shader "Custom/VertexColorPlusDiffusePlusShadows 1" {
 	Tags { "RenderType" = "Transparent" }
 	Pass {
 	    Tags { "LightMode" = "ForwardBase" "Queue" = "Transparent"}
-
+	    Blend SrcAlpha OneMinusSrcAlpha
 
 	    CGPROGRAM
+	    #pragma debug
 	    #pragma vertex vert
 	    #pragma fragment frag
 	    //#pragma multi_compile_fwdbase

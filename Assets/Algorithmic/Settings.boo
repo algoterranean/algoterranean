@@ -16,7 +16,7 @@ struct Settings:
 
 	struct Chunks:
 		public static Size as int = 32
-		public static MaxHorizontal as int = 5 + 1 # minecraft farthest by default is 8 (256 blocks in each direction)
+		public static MaxHorizontal as int = 4 + 1 # minecraft farthest by default is 8 (256 blocks in each direction)
 		public static MaxVertical as int = 2 + 1 # minecraft farthest by default is 4 (256 blocks total up/down)
 		public static Scale as single = 1.0 #/ 4.0
 

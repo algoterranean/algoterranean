@@ -6,7 +6,7 @@ Shader "Custom/VertexColorPlusDiffusePlusShadows" {
 	Tags { "RenderType" = "Opaque" }
 	Pass {
 	    Tags { "LightMode" = "ForwardBase" }
-
+	    ZWrite On
 
 	    CGPROGRAM
 	    #pragma vertex vert
