@@ -47,7 +47,7 @@ class MeshData:
 # block and mesh generator function signatures
 # callable BlockGenerator(world_x as long, world_y as long, world_z as long) as byte
 callable BlockGenerator(world_x as long, world_y as long, world_z as long) as single
-callable MeshGenerator(chunk as Chunk, neighbors as Dictionary[of WorldBlockCoordinate, Chunk], water as bool) as MeshData
+callable MeshGenerator(chunk as Chunk, neighbors as Dictionary[of ChunkCoordinate, Chunk], water as bool) as MeshData
 
 
 
@@ -59,6 +59,10 @@ callable MeshGenerator(chunk as Chunk, neighbors as Dictionary[of WorldBlockCoor
 # generated or updated (i.e., via digging) the DataManager will send out
 # notices to whichever objects are listening.
 class DataManager (MonoBehaviour):
+
+	# event RefreshMesh as callable(object, c as Chunk)
+	# event CreateMesh as callable(object, c as Chunk)
+	# event RemoveMesh as callable(object, c as Chunk)
 	
 	# reference to display manager for performance reasons. this is used
 	# to inform the DisplayManager of any changes to chunks so they can
@@ -75,7 +79,7 @@ class DataManager (MonoBehaviour):
 	# main chunk storage and a distance metric that determines
 	# which chunks should be displayed and which should be removed
 	chunk_size as byte
-	chunks as Dictionary[of WorldBlockCoordinate, Chunk]
+	chunks as Dictionary[of ChunkCoordinate, Chunk]
 	metric as ChunkMetric
 	
 	# the block, mesh, and light algorithms that we will use
@@ -104,7 +108,7 @@ class DataManager (MonoBehaviour):
 		origin_trigger_distance = 10.0 * Settings.Chunks.Scale
 
 		chunk_size = Settings.Chunks.Size
-		chunks = Dictionary[of WorldBlockCoordinate, Chunk]()
+		chunks = Dictionary[of ChunkCoordinate, Chunk]()
 		metric = ChunkMetric(origin,
 							 Settings.Chunks.Size,
 							 Settings.Chunks.MaxHorizontal,
@@ -141,9 +145,13 @@ class DataManager (MonoBehaviour):
 			for i in range(outgoing_queue.Count): 
 				m = outgoing_queue.Dequeue()
 				if m.function == "CreateMesh":
+					# CreateMesh(m.argument)					
 					display_manager.CreateMesh(m.argument)
 				elif m.function == "RefreshMesh":
+					# RefreshMesh(m.argument)
 					display_manager.RefreshMesh(m.argument)
+				# elif m.function == "RemoveMesh":
+				# 	RemoveMesh(m.argument)
 				else:
 					SendMessage(m.function, m.argument)
 		if profile_threads:
@@ -221,7 +229,7 @@ class DataManager (MonoBehaviour):
 					chunk = mesh_queue.Dequeue()
 					# only proceed with this chunk if it needs a mesh generated
 					# and its neighbors have all their basic data already generated
-					neighbors = Dictionary[of WorldBlockCoordinate, Chunk]()					
+					neighbors = Dictionary[of ChunkCoordinate, Chunk]()					
 					if chunk.GenerateMesh and _areNeighborsReady(chunk, neighbors):
 						found = true
 					else:
@@ -278,7 +286,7 @@ class DataManager (MonoBehaviour):
 													mesh_physx_generator))
 
 					# "mark" all chunks that are no longer in range as needing to be removed
-					to_remove = List[of WorldBlockCoordinate]()
+					to_remove = List[of ChunkCoordinate]()
 					for coord in chunks.Keys:
 						if coord not in in_range:
 							to_remove.Add(coord)
@@ -294,15 +302,15 @@ class DataManager (MonoBehaviour):
 					# generate an ordered list of all the chunks that need work done
 					# so that these chunks are worked in order of the distance from the origin
 					tmp_queue = Queue[of Chunk]()
-					l = List[of WorldBlockCoordinate]()
+					l = List[of ChunkCoordinate]()
 					
 					for coord in chunks.Keys:
 						if chunks[coord].GenerateBlocks:
 							l.Add(coord)
 							
-					l.Sort() do (left as WorldBlockCoordinate, right as WorldBlockCoordinate):
-						d1 = Math.Sqrt(Math.Pow(origin.x - left.x, 2) + Math.Pow(origin.y - left.y, 2) + Math.Pow(origin.z - left.z, 2))
-						d2 = Math.Sqrt(Math.Pow(origin.x - right.x, 2) + Math.Pow(origin.y - right.y, 2) + Math.Pow(origin.z - right.z, 2))
+					l.Sort() do (left as ChunkCoordinate, right as ChunkCoordinate):
+						d1 = Math.Sqrt(Math.Pow(origin.x - (left.x * Settings.Chunks.Size), 2) + Math.Pow(origin.y - (left.y * Settings.Chunks.Size), 2) + Math.Pow(origin.z - (left.z * Settings.Chunks.Size), 2))
+						d2 = Math.Sqrt(Math.Pow(origin.x - (right.x * Settings.Chunks.Size), 2) + Math.Pow(origin.y - (right.y* Settings.Chunks.Size), 2) + Math.Pow(origin.z - (right.z* Settings.Chunks.Size), 2))
 						if d1 < d2:
 							return -1
 						elif d1 > d2:
@@ -320,42 +328,42 @@ class DataManager (MonoBehaviour):
 				Thread.Sleep(10)
 
 
-	def _getNeighbors(chunk as Chunk) as Dictionary[of WorldBlockCoordinate, Chunk]:
+	def _getNeighbors(chunk as Chunk) as Dictionary[of ChunkCoordinate, Chunk]:
 		size as int = Settings.Chunks.Size * Settings.Chunks.Scale
-		neighbors = Dictionary[of WorldBlockCoordinate, Chunk]()
+		neighbors = Dictionary[of ChunkCoordinate, Chunk]()
 		c = chunk.getCoords()
 
 		# the coordinates for all (including diagonals)
 		# TODO: rewrite this so it isn't so shitty (laborious)
-		e = WorldBlockCoordinate(c.x + size, c.y, c.z)
-		w = WorldBlockCoordinate(c.x - size, c.y, c.z)
-		n = WorldBlockCoordinate(c.x, c.y, c.z + size)
-		s = WorldBlockCoordinate(c.x, c.y, c.z - size)
-		u = WorldBlockCoordinate(c.x, c.y + size, c.z)
-		d = WorldBlockCoordinate(c.x, c.y - size, c.z)
+		e = ChunkCoordinate(c.x + 1, c.y, c.z)
+		w = ChunkCoordinate(c.x - 1, c.y, c.z)
+		n = ChunkCoordinate(c.x, c.y, c.z + 1)
+		s = ChunkCoordinate(c.x, c.y, c.z - 1)
+		u = ChunkCoordinate(c.x, c.y + 1, c.z)
+		d = ChunkCoordinate(c.x, c.y - 1, c.z)
 
-		ne = WorldBlockCoordinate(c.x + size, c.y, c.z + size)
-		nw = WorldBlockCoordinate(c.x - size, c.y, c.z + size)
-		se = WorldBlockCoordinate(c.x + size, c.y, c.z - size)
-		sw = WorldBlockCoordinate(c.x - size, c.y, c.z - size)
+		ne = ChunkCoordinate(c.x + 1, c.y, c.z + 1)
+		nw = ChunkCoordinate(c.x - 1, c.y, c.z + 1)
+		se = ChunkCoordinate(c.x + 1, c.y, c.z - 1)
+		sw = ChunkCoordinate(c.x - 1, c.y, c.z - 1)
 
-		ue = WorldBlockCoordinate(c.x + size, c.y + size, c.z)
-		uw = WorldBlockCoordinate(c.x - size, c.y + size, c.z)
-		un = WorldBlockCoordinate(c.x, c.y + size, c.z + size)
-		us = WorldBlockCoordinate(c.x, c.y + size, c.z - size)
-		une = WorldBlockCoordinate(c.x + size, c.y + size, c.z + size)
-		unw = WorldBlockCoordinate(c.x - size, c.y + size, c.z + size)
-		use = WorldBlockCoordinate(c.x + size, c.y + size, c.z - size)
-		usw = WorldBlockCoordinate(c.x - size, c.y + size, c.z - size)
+		ue = ChunkCoordinate(c.x + 1, c.y + 1, c.z)
+		uw = ChunkCoordinate(c.x - 1, c.y + 1, c.z)
+		un = ChunkCoordinate(c.x, c.y + 1, c.z + 1)
+		us = ChunkCoordinate(c.x, c.y + 1, c.z - 1)
+		une = ChunkCoordinate(c.x + 1, c.y + 1, c.z + 1)
+		unw = ChunkCoordinate(c.x - 1, c.y + 1, c.z + 1)
+		use = ChunkCoordinate(c.x + 1, c.y + 1, c.z - 1)
+		usw = ChunkCoordinate(c.x - 1, c.y + 1, c.z - 1)
 
-		de = WorldBlockCoordinate(c.x + size, c.y - size, c.z)
-		dw = WorldBlockCoordinate(c.x - size, c.y - size, c.z)
-		dn = WorldBlockCoordinate(c.x, c.y - size, c.z + size)
-		ds = WorldBlockCoordinate(c.x, c.y - size, c.z - size)
-		dne = WorldBlockCoordinate(c.x + size, c.y - size, c.z + size)
-		dnw = WorldBlockCoordinate(c.x - size, c.y - size, c.z + size)
-		dse = WorldBlockCoordinate(c.x + size, c.y - size, c.z - size)
-		dsw = WorldBlockCoordinate(c.x - size, c.y - size, c.z - size)
+		de = ChunkCoordinate(c.x + 1, c.y - 1, c.z)
+		dw = ChunkCoordinate(c.x - 1, c.y - 1, c.z)
+		dn = ChunkCoordinate(c.x, c.y - 1, c.z + 1)
+		ds = ChunkCoordinate(c.x, c.y - 1, c.z - 1)
+		dne = ChunkCoordinate(c.x + 1, c.y - 1, c.z + 1)
+		dnw = ChunkCoordinate(c.x - 1, c.y - 1, c.z + 1)
+		dse = ChunkCoordinate(c.x + 1, c.y - 1, c.z - 1)
+		dsw = ChunkCoordinate(c.x - 1, c.y - 1, c.z - 1)
 
 		neighbors[c] = chunk
 
@@ -394,7 +402,7 @@ class DataManager (MonoBehaviour):
 		return neighbors
 
 
-	def _areNeighborsReady(chunk as Chunk, ref neighbors as Dictionary[of WorldBlockCoordinate, Chunk]) as bool:
+	def _areNeighborsReady(chunk as Chunk, ref neighbors as Dictionary[of ChunkCoordinate, Chunk]) as bool:
 		n = _getNeighbors(chunk)
 		# set the neighbors List that was passed in to the values we just found
 		# so that looking up the chunks doesn"t have to happen a 2nd time
@@ -428,7 +436,7 @@ class DataManager (MonoBehaviour):
 								
 
 	def setBlock(world as WorldBlockCoordinate, block as byte) as void:
-		chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
+		chunk_coord as ChunkCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
 		
 		lock chunks:
 			if chunk_coord in chunks:
@@ -447,7 +455,7 @@ class DataManager (MonoBehaviour):
 		for x in range(size):
 			for y in range(size):
 				for z in range(size):
-					chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(WorldBlockCoordinate(world.x + x, world.y + y, world.z + z))
+					chunk_coord as ChunkCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(WorldBlockCoordinate(world.x + x, world.y + y, world.z + z))
 		
 					lock chunks:
 						if chunk_coord in chunks:
@@ -478,7 +486,7 @@ class DataManager (MonoBehaviour):
 					if direction.z < 0:
 						w.z -= (size - 1)
 					
-					chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(w)
+					chunk_coord as ChunkCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(w)
 		
 					lock chunks:
 						c as Chunk
@@ -491,30 +499,30 @@ class DataManager (MonoBehaviour):
 
 								# if the block being updated is at the border, we need to update the neighboring chunk meshes so there are no holes
 								if local_coord.x == 0:
-									c = chunks[WorldBlockCoordinate(chunk_coord.x - chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
+									c = chunks[ChunkCoordinate(chunk_coord.x - 1, chunk_coord.y, chunk_coord.z)]
 									chunks_to_update["$c"] = c
 								elif local_coord.x == chunk_size - 1:
-									c = chunks[WorldBlockCoordinate(chunk_coord.x + chunk_size * chunk_scale, chunk_coord.y, chunk_coord.z)]
+									c = chunks[ChunkCoordinate(chunk_coord.x + 1, chunk_coord.y, chunk_coord.z)]
 									chunks_to_update["$c"] = c
 
 								if local_coord.y == 0:
-									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y- chunk_size * chunk_scale, chunk_coord.z)]
+									c = chunks[ChunkCoordinate(chunk_coord.x, chunk_coord.y - 1, chunk_coord.z)]
 									chunks_to_update["$c"] = c
 								elif local_coord.y == chunk_size - 1:
-									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y+ chunk_size * chunk_scale, chunk_coord.z)]
+									c = chunks[ChunkCoordinate(chunk_coord.x, chunk_coord.y + 1, chunk_coord.z)]
 									chunks_to_update["$c"] = c									   
 
 								if local_coord.z == 0:
-									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z- chunk_size * chunk_scale)]
+									c = chunks[ChunkCoordinate(chunk_coord.x, chunk_coord.y, chunk_coord.z - 1)]
 									chunks_to_update["$c"] = c
 								elif local_coord.z == chunk_size - 1:
-									c = chunks[WorldBlockCoordinate(chunk_coord.x , chunk_coord.y, chunk_coord.z+ chunk_size * chunk_scale)]
+									c = chunks[ChunkCoordinate(chunk_coord.x, chunk_coord.y, chunk_coord.z + 1)]
 									chunks_to_update["$c"] = c									
 						
 
 		for k in chunks_to_update.Keys:
 			c = chunks_to_update[k]
-			neighbors = Dictionary[of WorldBlockCoordinate, Chunk]()					
+			neighbors = Dictionary[of ChunkCoordinate, Chunk]()
 			_areNeighborsReady(c, neighbors)
 			c.initializeLights()
 			c.generateMesh(neighbors)
@@ -523,7 +531,7 @@ class DataManager (MonoBehaviour):
 
 
 	def getBlock(world as WorldBlockCoordinate) as byte:
-		chunk_coord as WorldBlockCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
+		chunk_coord as ChunkCoordinate, local_coord as ChunkBlockCoordinate = decomposeCoordinates(world)
 		
 		# lock chunks:
 		if chunk_coord in chunks:

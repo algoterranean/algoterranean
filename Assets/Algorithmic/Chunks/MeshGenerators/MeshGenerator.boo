@@ -6,7 +6,7 @@ import Algorithmic
 # for each face on a block where there is AIR in the direction of that face.
 # this algorithm will take into account the neighboring chunks for efficiency purposes.
 def generateMesh(chunk as Chunk,
-				 neighbors as Dictionary[of WorldBlockCoordinate, Chunk],
+				 neighbors as Dictionary[of ChunkCoordinate, Chunk],
 				 water as bool) as MeshData:
 
 	blocks = chunk.Blocks
@@ -73,10 +73,11 @@ def generateMesh(chunk as Chunk,
 
 
 	def _add_east_west_lights(x as byte, y as byte, z as byte, direction as string, color as Color):
-		light_chunk = WorldBlockCoordinate(0, 0, 0)
+		light_chunk = ChunkCoordinate(0, 0, 0)
 		coords = chunk.getCoords()
 		scale = Settings.Chunks.Scale
-		offset as int = chunk_size * scale
+		# offset as int = chunk_size * scale
+		offset = 1
 
 		# if everything fits within this block, use the linear method
 		if x > 0 and x < chunk_size - 1 and y > 0 and y < chunk_size - 1 and z > 0 and z < chunk_size - 1:
@@ -250,10 +251,10 @@ def generateMesh(chunk as Chunk,
 
 
 	def _add_north_south_lights(x as byte, y as byte, z as byte, direction as string, color as Color):
-		light_chunk = WorldBlockCoordinate(0, 0, 0)
+		light_chunk = ChunkCoordinate(0, 0, 0)
 		coords = chunk.getCoords()
 		scale = Settings.Chunks.Scale
-		offset as int = chunk_size * scale
+		offset = 1
 		
 		# if everything fits within this block, use the linear method
 		if x > 0 and x < chunk_size - 1 and y > 0 and y < chunk_size - 1 and z > 0 and z < chunk_size - 1:
@@ -403,10 +404,11 @@ def generateMesh(chunk as Chunk,
 			
 
 	def _add_up_down_lights(x as byte, y as byte, z as byte, direction as string, color as Color):
-		light_chunk = WorldBlockCoordinate(0, 0, 0)
+		light_chunk = ChunkCoordinate(0, 0, 0)
 		coords = chunk.getCoords()
 		scale = Settings.Chunks.Scale
-		offset as int = chunk_size * scale
+		# offset as int = chunk_size * scale
+		offset = 1
 		
 
 		# if everything fits within this block, use the linear method
@@ -579,14 +581,15 @@ def generateMesh(chunk as Chunk,
 	t1 = DateTime.Now
 
 	coords = chunk.getCoords()
-	offset = Settings.Chunks.Size * Settings.Chunks.Scale
+	# offset = Settings.Chunks.Size * Settings.Chunks.Scale
+	offset = 1
 	
-	w = WorldBlockCoordinate(coords.x - offset, coords.y, coords.z)
-	e = WorldBlockCoordinate(coords.x + offset, coords.y, coords.z)
-	n = WorldBlockCoordinate(coords.x, coords.y, coords.z + offset)
-	s = WorldBlockCoordinate(coords.x, coords.y, coords.z - offset)
-	u = WorldBlockCoordinate(coords.x, coords.y + offset, coords.z)
-	d = WorldBlockCoordinate(coords.x, coords.y - offset, coords.z)
+	w = ChunkCoordinate(coords.x - 1, coords.y, coords.z)
+	e = ChunkCoordinate(coords.x + 1, coords.y, coords.z)
+	n = ChunkCoordinate(coords.x, coords.y, coords.z + 1)
+	s = ChunkCoordinate(coords.x, coords.y, coords.z - 1)
+	u = ChunkCoordinate(coords.x, coords.y + 1, coords.z)
+	d = ChunkCoordinate(coords.x, coords.y - 1, coords.z)
 	# print "MESH GENERATOR: ", w, e, n, s, u, d
 	# for x in neighbors.Keys:
 	# 	print x

@@ -38,8 +38,8 @@ class ChunkMetric:
 		max_y = _max_y cast int
 		max_z = _max_z cast int
 
-	def getChunksInRange() as Dictionary[of WorldBlockCoordinate, bool]:
-		l = Dictionary[of WorldBlockCoordinate, bool]()
+	def getChunksInRange() as Dictionary[of ChunkCoordinate, bool]:
+		l = Dictionary[of ChunkCoordinate, bool]()
 		scale = Settings.Chunks.Scale
 		o_x = System.Math.Floor(origin.x / size / scale)
 		o_y = System.Math.Floor(origin.y / size / scale)
@@ -52,25 +52,26 @@ class ChunkMetric:
 					b = (o_y + y)
 					c = (o_z + z)
 					
-					# a as long = (origin.x + x * size)/size					
+					# a as long = (origin.x + x * size)/size
 					# a as long = (origin.x + x * size)/size
 					# b as long = (origin.y + y * size)/size
 					# c as long = (origin.z + z * size)/size
-					l[WorldBlockCoordinate(a * size * scale, b * size * scale, c * size * scale)] = true
+					l[ChunkCoordinate(a, b, c)] = true
+					# l[ChunkCoordinate(a * size * scale, b * size * scale, c * size * scale)] = true
 		return l
 
-	def getOrderedChunksInRange() as List[of WorldBlockCoordinate]:
-		l = List[of WorldBlockCoordinate]()
-		for x in range(-max_x, max_x+1):
-			for y in range(-max_y, max_y+1):
-				for z in range(-max_z, max_z+1):
-					c = WorldBlockCoordinate(x,  y, z)
-					l.Add(c)
-		l.Sort()
-		return l
+	# def getOrderedChunksInRange() as List[of ChunkCoordinate]:
+	# 	l = List[of ChunkCoordinate]()
+	# 	for x in range(-max_x, max_x+1):
+	# 		for y in range(-max_y, max_y+1):
+	# 			for z in range(-max_z, max_z+1):
+	# 				c = ChunkCoordinate(x,  y, z)
+	# 				l.Add(c)
+	# 	l.Sort()
+	# 	return l
 		
 
-	def isChunkTooFar(c as WorldBlockCoordinate) as bool:
+	def isChunkTooFar(c as ChunkCoordinate) as bool:
 		scale = Settings.Chunks.Scale
 		if Math.Abs(c.x - origin.x)/size * scale > max_x or \
 			Math.Abs(c.y - origin.y)/size * scale > max_y or \

@@ -7,7 +7,7 @@ import System.Collections.Generic
 # it is also responsible for generating this data via the provided
 # generator functions when necessary.
 class Chunk:
-	coords as WorldBlockCoordinate
+	coords as ChunkCoordinate
 	
 	size as byte
 	blocks as (byte, 3)
@@ -30,7 +30,7 @@ class Chunk:
 	
 
 	# coordinates, size, block generator, visual mesh generator, physics mesh generator
-	def constructor(c as WorldBlockCoordinate,
+	def constructor(c as ChunkCoordinate,
 					s as byte,
 					b_func as BlockGenerator,
 					m_func as MeshGenerator,
@@ -236,9 +236,9 @@ class Chunk:
 	def generateBlocks():
 		temp_floats = matrix(single, size+1, size+1, size+1) # +1 for last block necessary for interpolation
 		scale = 1/Settings.Chunks.Scale
-		c_x as long = coords.x / Settings.Chunks.Scale
-		c_y as long = coords.y / Settings.Chunks.Scale
-		c_z as long = coords.z / Settings.Chunks.Scale		
+		c_x as long = (coords.x * Settings.Chunks.Size) / Settings.Chunks.Scale
+		c_y as long = (coords.y * Settings.Chunks.Size) / Settings.Chunks.Scale
+		c_z as long = (coords.z * Settings.Chunks.Size) / Settings.Chunks.Scale		
 
 		if not interpolate:
 			new_size = size cast int
@@ -333,7 +333,7 @@ class Chunk:
 
 	# use the provided mesh generator functions to generate the physics mesh
 	# and the display mesh.
-	def generateMesh(neighbors as Dictionary[of WorldBlockCoordinate, Chunk]):
+	def generateMesh(neighbors as Dictionary[of ChunkCoordinate, Chunk]):
 		mesh_data = mesh_generator(self, neighbors, false)
 		mesh_water_data = mesh_generator(self, neighbors, true)
 		mesh_physx_data = mesh_physx_generator(self, neighbors, false)
@@ -353,7 +353,7 @@ class Chunk:
 	def getMeshWaterPhysXData() as MeshData:
 		return mesh_water_physx_data
 
-	def getCoords() as WorldBlockCoordinate:
+	def getCoords() as ChunkCoordinate:
 		return coords
 	
 

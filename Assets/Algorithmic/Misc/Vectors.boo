@@ -85,3 +85,41 @@ struct ByteVector3:
 
 	def ToString():
 		return "($x, $y, $z)"
+
+
+
+struct ChunkCoordinate:
+	x as long
+	z as long
+	y as long
+	hash as int
+	
+	def constructor(_x as long, _y as long, _z as long):
+		x = _x
+		y = _y
+		z = _z
+		hash = (x * 907) ^ (y * 241) ^ z
+
+	override def GetHashCode() as int:
+		return hash
+
+	override def Equals(o) as bool:
+		v = o cast ChunkCoordinate
+		return v.x == x and v.y == y and v.z == z
+
+	override def ToString() as string:
+		return "($x, $y, $z)"
+
+	def CompareTo(o as object) as int:
+		c = o cast ChunkCoordinate
+		a = Abs(x) + Abs(y) + Abs(z)
+		b = Abs(c.x) + Abs(c.y) + Abs(c.z)
+		if a < b:
+			return -1
+		elif a > b:
+			return 1
+		else:
+			return 0
+
+	def UpdateHash():
+		hash = (x * 907) ^ (y * 241) ^ z	

@@ -100,11 +100,11 @@ class Player (MonoBehaviour):
 		if not Physics.Raycast(main_camera.transform.position, main_camera.transform.forward, out, raycast_distance):
 			block_outline.disable()
 		else:
-			chunk_coord as WorldBlockCoordinate, local_coord as WorldBlockCoordinate, abs_coord as WorldBlockCoordinate = decomposeCoordinates(out.point)
+			chunk_coord as ChunkCoordinate, local_coord as WorldBlockCoordinate, abs_coord as WorldBlockCoordinate = decomposeCoordinates(out.point)
 
-			pos = Vector3(chunk_coord.x + local_coord.x,
-						  chunk_coord.y + local_coord.y,
-						  chunk_coord.z + local_coord.z)
+			pos = Vector3((chunk_coord.x * Settings.Chunks.Size) + local_coord.x,
+						  (chunk_coord.y * Settings.Chunks.Size)+ local_coord.y,
+						  (chunk_coord.z * Settings.Chunks.Size)+ local_coord.z)
 
 			if out.normal.x == 1:
 				pos.x -= 1

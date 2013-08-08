@@ -1,7 +1,7 @@
 namespace Algorithmic.Chunks
 
 def generateMeshGreedy2(chunk as Chunk,
-						neighbors as System.Collections.Generic.Dictionary[of WorldBlockCoordinate, Chunk],
+						neighbors as System.Collections.Generic.Dictionary[of ChunkCoordinate, Chunk],
 						water as bool) as MeshData:
 	blocks = chunk.Blocks
 	chunk_size = Settings.Chunks.Size
@@ -19,13 +19,14 @@ def generateMeshGreedy2(chunk as Chunk,
 		uvs.Push(Vector2(x - 0.01 + 0.1, 1.0 - y - 0.1 + 0.01))
 
 	coords = chunk.getCoords()
-	offset = Settings.Chunks.Size * Settings.Chunks.Scale
-	w = WorldBlockCoordinate(coords.x - offset, coords.y, coords.z)
-	e = WorldBlockCoordinate(coords.x + offset, coords.y, coords.z)
-	n = WorldBlockCoordinate(coords.x, coords.y, coords.z + offset)
-	s = WorldBlockCoordinate(coords.x, coords.y, coords.z - offset)
-	u = WorldBlockCoordinate(coords.x, coords.y + offset, coords.z)
-	d = WorldBlockCoordinate(coords.x, coords.y - offset, coords.z)
+	# offset = Settings.Chunks.Size * Settings.Chunks.Scale
+	offset = 1
+	w = ChunkCoordinate(coords.x - offset, coords.y, coords.z)
+	e = ChunkCoordinate(coords.x + offset, coords.y, coords.z)
+	n = ChunkCoordinate(coords.x, coords.y, coords.z + offset)
+	s = ChunkCoordinate(coords.x, coords.y, coords.z - offset)
+	u = ChunkCoordinate(coords.x, coords.y + offset, coords.z)
+	d = ChunkCoordinate(coords.x, coords.y - offset, coords.z)
 	n_w = neighbors[w]
 	n_e = neighbors[e]
 	n_n = neighbors[n]

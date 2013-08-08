@@ -6,11 +6,11 @@ import System.Math
 
 
 struct TerrainObject:
-	coord as WorldBlockCoordinate
+	coord as ChunkCoordinate
 	mesh_type as byte
 	hash as int
 
-	def constructor(c as WorldBlockCoordinate, m as byte):
+	def constructor(c as ChunkCoordinate, m as byte):
 		mesh_type = m
 		coord = c
 		hash = c.hash ^ (mesh_type * 11)
@@ -27,7 +27,7 @@ struct TerrainObject:
 
 	def CompareTo(o as object) as int:
 		c = o cast TerrainObject
-		cc = c.coord cast WorldBlockCoordinate
+		cc = c.coord cast ChunkCoordinate
 		
 		a = Abs(coord.x cast long) + Abs(coord.y cast long) + Abs(coord.z cast long) + Abs(mesh_type cast long)
 		b = Abs(cc.x cast long) + Abs(cc.y cast long) + Abs(cc.z cast long) + Abs(c.mesh_type cast long)
@@ -81,6 +81,11 @@ class DisplayManager (MonoBehaviour):
 
 		# TODO: move this elsewhere
 		Screen.lockCursor = true
+
+		data_manager = gameObject.Find("Engine/ChunkManager").GetComponent("DataManager")
+		# data_manager.CreateMesh += CreateMesh
+		# data_manager.RefreshMesh += RefreshMesh
+		# data_manager.RemoveMesh += RemoveMesh
 		
 
 	def Update():
@@ -168,16 +173,17 @@ class DisplayManager (MonoBehaviour):
 
 	
 		def _create_mesh_object_helper(obj_name as string,
-									   coords as WorldBlockCoordinate,
+									   coords as ChunkCoordinate,
 									   terrain_mesh as Mesh,
 									   physx_mesh as Mesh,
 									   mat as Material) as GameObject:
-			scale = Settings.Chunks.Scale		
+			scale = Settings.Chunks.Scale
+			chunk_size = Settings.Chunks.Size
 			o = GameObject()
 			o.name = obj_name
 			o.transform.parent = terrain_parent.transform
 			o.transform.localScale = Vector3(scale, scale, scale)
-			o.transform.position = Vector3(coords.x, coords.y, coords.z)
+			o.transform.position = Vector3(coords.x * scale * chunk_size, coords.y * scale * chunk_size, coords.z * scale * chunk_size)
 			o.AddComponent(MeshFilter)
 			o.AddComponent(MeshRenderer)
 			o.AddComponent(MeshCollider)
